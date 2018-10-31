@@ -1,6 +1,32 @@
+import datetime
+import json
 from rest_framework.test import APITestCase
 
-from api.src.passage.tests.factories import PassageFactory
+from passage.tests.factories import PassageFactory
+
+TEST_POST = {
+    "id": "c56a4180-65aa-42ec-a945-5fd21dec0538",
+    "_display": "Passage object (c56a4180-65aa-42ec-a945-5fd21dec0538)",
+    "versie": "k",
+    "data": {},
+    "kenteken_land": "nl",
+    "kenteken_nummer_betrouwbaarheid": 101,
+    "kenteken_land_betrouwbaarheid": 1,
+    "kenteken_karakters_betrouwbaarheid": [],
+    "indicatie_snelheid": 200.0,
+    "automatisch_verwerkbaar": False,
+    "voertuig_soort": "A",
+    "merk": "B",
+    "inrichting": "C",
+    "datum_eerste_toelating": "2018-10-19",
+    "datum_tenaamstelling": "2018-10-27",
+    "toegestane_maximum_massa_voertuig": 8000,
+    "europese_voertuig_categorie": "xv",
+    "europese_voertuig_categorie_toevoeging": "l",
+    "tax_indicator": False,
+    "maximale_constructie_snelheid_bromsnorfiets": 33,
+    "brandstoffen": []
+}
 
 
 class PassagePostAPITest(APITestCase):
@@ -9,9 +35,9 @@ class PassagePostAPITest(APITestCase):
     """
 
     def setUp(self):
-        self.URL = '/milieu/passages'
+        self.URL = '/iotsignals/milieuzone/passage/'
 
-        # self.t = factories.ContainerTypeFactory()
+        # self.p = PassageFactory().create()
         # self.w = factories.WellFactory()
         # self.c = factories.ContainerFactory(
         #     container_type=self.t,
@@ -32,31 +58,31 @@ class PassagePostAPITest(APITestCase):
         # kilofactory.make_stats_values(self.s)
 
     def test_post_new_passage(self):
-        res = self.client.post(self.URL, PassageFactory)
+        res = self.client.post(self.URL, TEST_POST, format='json')
 
-        self.assertEqual(res.status_code, 201, "Wrong status code when posting a new Passage")
+        self.assertEqual(res.status_code, 201, res.data)
 
-    # def valid_response(self, url, response, content_type):
-    #     """Check common status/json."""
-    #     self.assertEqual(
-    #         200, response.status_code, "Wrong response code for {}".format(url)
-    #     )
-    #
-    #     self.assertEqual(
-    #         f"{content_type}",
-    #         response["Content-Type"],
-    #         "Wrong Content-Type for {}".format(url),
-    #     )
-    #
-    # def test_index_pages(self):
-    #     url = "afval"
-    #
-    #     response = self.client.get("/{}/".format(url))
-    #
-    #     self.assertEqual(
-    #         response.status_code, 200, "Wrong response code for {}".format(url)
-    #     )
-    #
+    def valid_response(self, url, response, content_type):
+        """Check common status/json."""
+        self.assertEqual(
+            200, response.status_code, "Wrong response code for {}".format(url)
+        )
+
+        self.assertEqual(
+            f"{content_type}",
+            response["Content-Type"],
+            "Wrong Content-Type for {}".format(url),
+        )
+
+    def test_index_pages(self):
+        url = "iotsignals"
+
+        response = self.client.get("/{}/".format(url))
+
+        self.assertEqual(
+            response.status_code, 200, "Wrong response code for {}".format(url)
+        )
+
     # def test_lists(self):
     #     for url in self.datasets:
     #         response = self.client.get("/{}/".format(url))

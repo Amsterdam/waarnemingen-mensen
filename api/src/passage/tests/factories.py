@@ -4,7 +4,7 @@ import datetime
 import factory
 from django.contrib.gis.geos import Point
 from factory import fuzzy
-from api.src.passage.models import Passage
+from passage.models import Passage
 
 # Amsterdam.
 BBOX = [52.03560, 4.58565, 52.48769, 5.31360]

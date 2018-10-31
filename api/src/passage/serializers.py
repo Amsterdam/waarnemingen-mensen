@@ -6,6 +6,10 @@ from datapunt_api.rest import DisplayField
 
 from .models import Passage
 
+import logging
+
+log = logging.getLogger(__name__)
+
 
 class PassageSerializer(HALSerializer):
 
@@ -25,6 +29,7 @@ class PassageDetailSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        p = Passage.create(validated_data)
+        log.error(validated_data)
+        p = Passage(**validated_data)
         p.save()
         return p
