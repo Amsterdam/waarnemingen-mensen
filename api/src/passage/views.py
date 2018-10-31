@@ -1,9 +1,26 @@
-from rest_framework import viewsets
+from datapunt_api.rest import DatapuntViewSetWritable
+from django_filters.rest_framework import DjangoFilterBackend
+from django_filters.rest_framework import FilterSet
+
 
 from . import models
 from . import serializers
 
 
-class PassageViewSet(viewsets.ModelViewSet):
-    serializer_class = serializers.PassageSerializer
+class PassageFilter(FilterSet):
+
+    class Meta(object):
+        model = models.Passage
+        fields = (
+            'merk', 'voertuig_soort', 'versie', 'kenteken_land')
+
+
+class PassageViewSet(DatapuntViewSetWritable):
+    # serializer_class = serializers.PassageSerializer
+    serializer_class = serializers.PassageDetailSerializer
+    serializer_detail_class = serializers.PassageDetailSerializer
+
     queryset = models.Passage.objects.all()
+
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = PassageFilter

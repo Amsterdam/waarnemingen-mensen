@@ -1,13 +1,30 @@
 from rest_framework import serializers
-from rest_framework.response import Response
+# from rest_framework.response import Response
+
+from datapunt_api.rest import HALSerializer
+from datapunt_api.rest import DisplayField
 
 from .models import Passage
 
 
-class PassageSerializer(serializers.ModelSerializer):
+class PassageSerializer(HALSerializer):
+
+    _display = DisplayField()
+
     class Meta:
         model = Passage
-        fields = ('versie',)
+        fields = ['_display', '_links', 'id', 'versie', 'merk']
 
-    def create(self, validated_data):
-        print(validated_data)
+
+class PassageDetailSerializer(serializers.ModelSerializer):
+
+    _display = DisplayField()
+
+    class Meta:
+        model = Passage
+        fields = '__all__'
+
+    # def create(self, validated_data):
+    #     p = Passage.create(validated_data)
+    #     p.save()
+    #     return p
