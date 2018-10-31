@@ -1,0 +1,23 @@
+version: '3.0'
+services:
+
+  database:
+    image: amsterdam/postgres
+    environment:
+      POSTGRES_PASSWORD: insecure
+      POSTGRES_USER: iotsignals
+      POSTGRES_DB: iotsignals
+
+  tests:
+    build: ../../
+    links:
+      - database:iotsignals_db
+    environment:
+      DATABASE_NAME: iotsignals
+      DATABASE_USER: iotsignals
+      DATABASE_PASSWORD: insecure
+      PARKEERVAKKEN_OS_PASSWORD:
+      ENVIRONMENT: test
+    volumes:
+        - ./run_tests.sh:/app/run_tests.sh
+    command: /app/run_tests.sh
