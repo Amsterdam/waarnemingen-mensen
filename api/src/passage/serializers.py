@@ -24,7 +24,7 @@ class PassageDetailSerializer(serializers.ModelSerializer):
         model = Passage
         fields = '__all__'
 
-    # def create(self, validated_data):
-    #     p = Passage.create(validated_data)
-    #     p.save()
-    #     return p
+    def create(self, validated_data):
+        p = Passage.create(validated_data)
+        p.save()
+        return p

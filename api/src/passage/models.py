@@ -5,7 +5,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 
 class Passage(models.Model):
     id = models.UUIDField(primary_key=True, unique=True)
-    versie = models.CharField(max_length=5)
+    versie = models.CharField(max_length=255)
     data = JSONField()
     kenteken_land = models.CharField(max_length=2)
     kenteken_nummer_betrouwbaarheid = models.SmallIntegerField(validators=[
