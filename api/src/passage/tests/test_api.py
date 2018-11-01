@@ -1,5 +1,3 @@
-from unittest import skip
-
 from rest_framework.test import APITestCase
 
 from .factories import PassageFactory
@@ -84,7 +82,6 @@ class PassageAPITest(APITestCase):
         res = self.client.get(url)
         self.valid_response(url, res, 'application/xml; charset=utf-8')
 
-    @skip('Still failing, n ot sure why')
     def test_csv_response(self):
         """ Test CSV response """
         url = '{}{}'.format(self.URL, '?format=csv')
