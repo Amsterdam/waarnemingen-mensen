@@ -27,9 +27,3 @@ class PassageDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Passage
         fields = '__all__'
-
-    def create(self, validated_data):
-        log.error(validated_data)
-        p = Passage(**validated_data)
-        p.save()
-        return p

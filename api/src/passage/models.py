@@ -16,7 +16,7 @@ class Passage(models.Model):
         MaxValueValidator(1000),
         MinValueValidator(1)
     ])
-    kenteken_karakters_betrouwbaarheid = ArrayField(base_field=JSONField())
+    kenteken_karakters_betrouwbaarheid = JSONField()
     indicatie_snelheid = models.FloatField()
     automatisch_verwerkbaar = models.BooleanField()
     voertuig_soort = models.CharField(max_length=25)
@@ -29,4 +29,4 @@ class Passage(models.Model):
     europese_voertuig_categorie_toevoeging = models.CharField(max_length=1)
     tax_indicator = models.BooleanField()
     maximale_constructie_snelheid_bromsnorfiets = models.SmallIntegerField()
-    brandstoffen = ArrayField(base_field=JSONField())
+    brandstoffen = JSONField()

@@ -16,7 +16,6 @@ class PassageFilter(FilterSet):
 
 
 class PassageViewSet(DatapuntViewSetWritable):
-    serializer_class = serializers.PassageSerializer
     serializer_class = serializers.PassageDetailSerializer
     serializer_detail_class = serializers.PassageDetailSerializer
 
