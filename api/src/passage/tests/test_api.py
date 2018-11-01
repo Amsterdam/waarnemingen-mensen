@@ -34,6 +34,7 @@ class PassageAPITest(APITestCase):
 
     def setUp(self):
         self.URL = '/iotsignals/milieuzone/passage/'
+        self.p = PassageFactory()
 
     def valid_response(self, url, response, content_type):
         """Check common status/json."""
@@ -61,7 +62,8 @@ class PassageAPITest(APITestCase):
         res = self.client.get(self.URL)
 
         self.assertEqual(res.status_code, 200)
-        self.assertEqual(res.data['count'], 1)
+        # in the setup we also create a csv.
+        self.assertEqual(res.data['count'], 2)
 
     def test_get_passage(self):
         """ Test getting a passage """

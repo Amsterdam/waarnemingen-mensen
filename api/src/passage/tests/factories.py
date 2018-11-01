@@ -1,10 +1,10 @@
 import random
-import json
+# import json
 import datetime
 import factory
 from django.contrib.gis.geos import Point
 from factory import fuzzy
-from ..models import Passage
+from passage.models import Passage
 
 # Amsterdam.
 BBOX = [52.03560, 4.58565, 52.48769, 5.31360]
@@ -20,7 +20,7 @@ def get_data():
     return DataFactory()
 
 
-def get_kenteken_karakter_betrouwbaarheid():
+def kenteken_karakter_betrouwbaarheid():
     char_list = []
     for n in range(6):
         char_list.append({
@@ -59,10 +59,12 @@ class PassageFactory(factory.DjangoModelFactory):
     kenteken_land = fuzzy.FuzzyText(length=2)
     kenteken_nummer_betrouwbaarheid = fuzzy.FuzzyInteger(1, 1000)
     kenteken_land_betrouwbaarheid = fuzzy.FuzzyInteger(1.0, 1000.0, 1)
-    kenteken_karakters_betrouwbaarheid = get_kenteken_karakter_betrouwbaarheid()
+    kenteken_karakters_betrouwbaarheid = kenteken_karakter_betrouwbaarheid()
     indicatie_snelheid = fuzzy.FuzzyDecimal(0, 500)
-    automatisch_verwerkbaar = factory.Faker('boolean', chance_of_getting_true=50)
-    voertuig_soort = random.choice(['Personenauto', 'Bromfiets', 'Bedrijfsauto', 'Bus'])
+    automatisch_verwerkbaar = factory.Faker(
+        'boolean', chance_of_getting_true=50)
+    voertuig_soort = random.choice(
+        ['Personenauto', 'Bromfiets', 'Bedrijfsauto', 'Bus'])
     merk = factory.Faker('first_name')
     inrichting = factory.Faker('first_name')
     datum_eerste_toelating = fuzzy.FuzzyDate(datetime.date(2008, 1, 1))
