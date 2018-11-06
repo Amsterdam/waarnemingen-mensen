@@ -1,14 +1,12 @@
 from django.contrib.gis.geos import Point
-from rest_framework import serializers
-from rest_framework.response import Response
 
+from rest_framework import serializers
 from datapunt_api.rest import HALSerializer
 from datapunt_api.rest import DisplayField
 
 from .models import Passage
 
 import logging
-
 log = logging.getLogger(__name__)
 
 
@@ -29,6 +27,7 @@ class PassageReadOnlySerializer(serializers.ModelSerializer):
 
 
 class PassageWriteOnlySerializer(serializers.Serializer):
+
     type = serializers.CharField(required=True)
     id = serializers.UUIDField(required=True)
     data = serializers.DictField(required=True)

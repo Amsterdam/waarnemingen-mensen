@@ -1,6 +1,7 @@
 import random
 import datetime
 import factory
+from django.utils import timezone
 from django.contrib.gis.geos import Point
 from factory import fuzzy
 from passage.models import Passage
@@ -39,7 +40,7 @@ class PassageFactory(factory.DjangoModelFactory):
 
     id = factory.Faker('uuid4')
     versie = "passage-v1"
-    datum_tijd = fuzzy.FuzzyDate(datetime.date(2008, 1, 1))
+    datum_tijd = factory.LazyFunction(timezone.now)
     straat = factory.Faker('name')
     rijstrook = fuzzy.FuzzyInteger(1, 10)
     rijrichting = fuzzy.FuzzyInteger(-1, 1)

@@ -1,5 +1,4 @@
 from datapunt_api.rest import DatapuntViewSetWritable
-from django.contrib.gis.geos import Point
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from rest_framework.response import Response
@@ -20,7 +19,7 @@ class PassageViewSet(DatapuntViewSetWritable):
     serializer_class = serializers.PassageReadOnlySerializer
     serializer_detail_class = serializers.PassageReadOnlySerializer
 
-    queryset = models.Passage.objects.all()
+    queryset = models.Passage.objects.all().order_by('datum_tijd')
 
     http_method_names = ['post', 'list', 'get']
 

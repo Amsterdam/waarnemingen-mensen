@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.postgres.fields import JSONField, ArrayField
+from django.contrib.postgres.fields import JSONField
 from django.contrib.gis.db.models import PointField
 from django.core.validators import MaxValueValidator, MinValueValidator
 
