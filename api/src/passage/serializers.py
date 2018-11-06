@@ -51,9 +51,6 @@ class PassageWriteOnlySerializer(serializers.Serializer):
     )
     brandstoffen = serializers.ListField(required=True)
 
-    def get(self):
-        print('LIST')
-
     def save(self):
         camera_locatie = Point(
             self.data['data']['cameraLocatie']['coordinates'][0],

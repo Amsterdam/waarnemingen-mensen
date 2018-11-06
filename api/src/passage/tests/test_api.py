@@ -16,8 +16,8 @@ TEST_POST = {
         "cameraLocatie": {
             "type": "Point",
             "coordinates": [
-                52.386831,
-                4.845423
+                4.845423,
+                52.386831
             ]
         }
     },
