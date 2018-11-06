@@ -1,12 +1,20 @@
 from django.db import models
 from django.contrib.postgres.fields import JSONField, ArrayField
+from django.contrib.gis.db.models import PointField
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 
 class Passage(models.Model):
     id = models.UUIDField(primary_key=True, unique=True)
     versie = models.CharField(max_length=255)
-    data = JSONField()
+    datum_tijd = models.DateTimeField()
+    straat = models.CharField(max_length=255)
+    rijrichting = models.SmallIntegerField()
+    rijstrook = models.SmallIntegerField()
+    camera_id = models.CharField(max_length=255)
+    camera_naam = models.CharField(max_length=255)
+    camera_kijkrichting = models.CharField(max_length=255)
+    camera_locatie = PointField(srid=4326)
     kenteken_land = models.CharField(max_length=2)
     kenteken_nummer_betrouwbaarheid = models.SmallIntegerField(validators=[
         MaxValueValidator(1000),
@@ -25,8 +33,8 @@ class Passage(models.Model):
     datum_eerste_toelating = models.DateField()
     datum_tenaamstelling = models.DateField()
     toegestane_maximum_massa_voertuig = models.SmallIntegerField()
-    europese_voertuig_categorie = models.CharField(max_length=2)
-    europese_voertuig_categorie_toevoeging = models.CharField(max_length=1)
+    europese_voertuigcategorie = models.CharField(max_length=2)
+    europese_voertuigcategorie_toevoeging = models.CharField(max_length=1)
     tax_indicator = models.BooleanField()
     maximale_constructie_snelheid_bromsnorfiets = models.SmallIntegerField()
     brandstoffen = JSONField()
