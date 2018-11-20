@@ -1,7 +1,7 @@
 from datapunt_api.rest import DatapuntViewSetWritable
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
-
+from rest_framework.response import Response
 
 from . import models
 from . import serializers
@@ -19,18 +19,26 @@ class PassageFilter(FilterSet):
             'versie',
             'kenteken_land',
             'toegestane_maximum_massa_voertuig',
-            'europese_voertuig_categorie',
-            'europese_voertuig_categorie_toevoeging',
+            'europese_voertuigcategorie',
+            'europese_voertuigcategorie_toevoeging',
             'tax_indicator',
             'maximale_constructie_snelheid_bromsnorfiets',
         )
 
 
 class PassageViewSet(DatapuntViewSetWritable):
-    serializer_class = serializers.PassageDetailSerializer
-    serializer_detail_class = serializers.PassageDetailSerializer
+    serializer_class = serializers.PassageReadOnlySerializer
+    serializer_detail_class = serializers.PassageReadOnlySerializer
 
-    queryset = models.Passage.objects.all().order_by('created_at')
+    queryset = models.Passage.objects.all().order_by('datum_tijd')
+
+    http_method_names = ['post', 'list', 'get']
 
     filter_backends = (DjangoFilterBackend,)
     filter_class = PassageFilter
+
+    def create(self, request, *args, **kwargs):
+        serializer = serializers.PassageWriteOnlySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=201)
