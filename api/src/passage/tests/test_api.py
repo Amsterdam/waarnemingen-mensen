@@ -3,27 +3,71 @@ from rest_framework.test import APITestCase
 from .factories import PassageFactory
 
 TEST_POST = {
-    "id": "c56a4180-65aa-42ec-a945-5fd21dec0538",
-    "_display": "Passage object (c56a4180-65aa-42ec-a945-5fd21dec0538)",
-    "versie": "k",
-    "data": {},
-    "kenteken_land": "nl",
-    "kenteken_nummer_betrouwbaarheid": 101,
-    "kenteken_land_betrouwbaarheid": 1,
-    "kenteken_karakters_betrouwbaarheid": [],
-    "indicatie_snelheid": 200.0,
-    "automatisch_verwerkbaar": False,
-    "voertuig_soort": "A",
-    "merk": "B",
-    "inrichting": "C",
-    "datum_eerste_toelating": "2018-10-19",
-    "datum_tenaamstelling": "2018-10-27",
-    "toegestane_maximum_massa_voertuig": 8000,
-    "europese_voertuig_categorie": "xv",
-    "europese_voertuig_categorie_toevoeging": "l",
-    "tax_indicator": False,
-    "maximale_constructie_snelheid_bromsnorfiets": 33,
-    "brandstoffen": []
+    "type": "passage-v1",
+    "id": "cbbd2efc-78f4-4d41-bf5b-4cbdf1e87269",
+    "data": {
+        "datumTijd": "2018-10-16T12:13:44Z",
+        "straat": "Spaarndammerdijk",
+        "rijstrook": 1,
+        "rijrichting": 1,
+        "cameraId": "ddddffff-4444-aaaa-7777-aaaaeeee1111",
+        "cameraNaam": "Spaarndammerdijk [Z]",
+        "cameraKijkrichting": 0,
+        "cameraLocatie": {
+            "type": "Point",
+            "coordinates": [
+                4.845423,
+                52.386831
+            ]
+        }
+    },
+    "kentekenLand": "NL",
+    "kentekenNummerBetrouwbaarheid": 640,
+    "kentekenLandBetrouwbaarheid": 690,
+    "kentekenKaraktersBetrouwbaarheid": [
+        {
+            "betrouwbaarheid": 650,
+            "positie": 1
+        },
+        {
+            "betrouwbaarheid": 630,
+            "positie": 2
+        },
+        {
+            "betrouwbaarheid": 640,
+            "positie": 3
+        },
+        {
+            "betrouwbaarheid": 660,
+            "positie": 4
+        },
+        {
+            "betrouwbaarheid": 620,
+            "positie": 5
+        },
+        {
+            "betrouwbaarheid": 640,
+            "positie": 6
+        }
+    ],
+    "indicatieSnelheid": 23,
+    "automatischVerwerkbaar": True,
+    "voertuigSoort": "Bromfiets",
+    "merk": "SYM",
+    "inrichting": "N.V.t.",
+    "datumEersteToelating": "2015-03-06",
+    "datumTenaamstelling": "2015-03-06",
+    "toegestaneMaximumMassaVoertuig": 249,
+    "europeseVoertuigcategorie": "L1",
+    "europeseVoertuigcategorieToevoeging": "e",
+    "taxIndicator": True,
+    "maximaleContructiesnelheidBromSnorfiets": 25,
+    "brandstoffen": [
+        {
+            "brandstof": "Benzine",
+            "volgnr": 1
+        }
+    ]
 }
 
 
@@ -67,11 +111,28 @@ class PassageAPITest(APITestCase):
 
     def test_get_passage(self):
         """ Test getting a passage """
-        passage = PassageFactory.create()
-        res = self.client.get('{}{}/'.format(self.URL, passage.id))
+        res = self.client.get('{}{}/'.format(self.URL, self.p.id))
 
         self.assertEqual(res.status_code, 200)
-        self.assertEqual(res.data['id'], passage.id)
+        self.assertEqual(res.data['id'], self.p.id)
+
+    def test_update_passages_not_allowed(self):
+        """ Test if updating a passage is not allowed """
+        res = self.client.put('{}{}/'.format(
+            self.URL, self.p.id), dict(merk='DummyMerk'))
+
+        self.assertEqual(res.status_code, 405)
+
+        res = self.client.put('{}{}/'.format(
+            self.URL, self.p.id), TEST_POST, format='json')
+
+        self.assertEqual(res.status_code, 405)
+
+    def test_delete_passages_not_allowed(self):
+        """ Test if deleting a passage is not allowed """
+        res = self.client.delete('{}{}/'.format(self.URL, self.p.id))
+
+        self.assertEqual(res.status_code, 405)
 
     def test_default_response_is_json(self):
         """ Test if the default response of the API is on JSON """
@@ -118,7 +179,8 @@ class PassageAPITest(APITestCase):
         passage_fiets = PassageFactory(voertuig_soort='fiets')
         passage_fiets.save()
 
-        # Make a request with a voertuig_soort filter and check if the result is correct
+        # Make a request with a voertuig_soort filter and check if the result is
+        # correct
         url = '{}{}'.format(self.URL, '?voertuig_soort=bus')
         res = self.client.get(url)
         self.assertEqual(res.data['count'], 1)
@@ -141,13 +203,14 @@ class PassageAPITest(APITestCase):
     def test_kenteken_land_filters(self):
         """ Test filtering on 'kenteken_land'"""
         # Create two passages with a different 'kenteken_land' value
-        passage_NL = PassageFactory(kenteken_land='NL')
-        passage_NL.save()
-        passage_ES = PassageFactory(kenteken_land='ES')
-        passage_ES.save()
+        passage_nl = PassageFactory(kenteken_land='NL')
+        passage_nl.save()
+        passage_es = PassageFactory(kenteken_land='ES')
+        passage_es.save()
 
-        # Make a request with a kenteken_land filter and check if the result is correct
+        # Make a request with a kenteken_land filter and check if the result is
+        # correct
         url = '{}{}'.format(self.URL, '?kenteken_land=NL')
         res = self.client.get(url)
         self.assertEqual(res.data['count'], 1)
-        self.assertEqual(res.data['results'][0]['id'], passage_NL.id)
+        self.assertEqual(res.data['results'][0]['id'], passage_nl.id)
