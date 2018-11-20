@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.conf import settings
 from django.conf.urls import url, include
+from django.urls import path
 
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
@@ -25,30 +26,23 @@ from rest_framework import permissions
 
 from passage import views as passage_views
 
+from iotsignals.routers import IOTSignalsRouterRoot
+from iotsignals.routers import IOTSignalsRouterVersion0
 
-class IOTSignalsView(routers.APIRootView):
-    """
-    Store IOT Signals.
+root_router = IOTSignalsRouterRoot()
 
-    These could be notifications or measuremetns or signals from
-    any IOT in the city device.
-    """
+router_v0 = IOTSignalsRouterVersion0()
 
+router_v0.register(
+     r'milieuzone/passage',
+     viewset=passage_views.PassageViewSet, base_name='passage')
 
-class Router(routers.DefaultRouter):
-    APIRootView = IOTSignalsView
-
-
-router = Router()
-
-router.register('milieuzone/passage', passage_views.PassageViewSet)
-
-urls = router.urls
+urls = root_router.urls
 
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="IOT Signals Container API",
+        title="IOT Signals API",
         default_version='v1',
         description="IOTSignals in Amsterdam",
         terms_of_service="https://data.amsterdam.nl/",
@@ -61,17 +55,24 @@ schema_view = get_schema_view(
 )
 
 
+# urlpatterns = [
+#     # url(r"^afval/stats/", include(stats.urls)),
+#     url(r'^iotsignals/swagger(?P<format>\.json|\.yaml)$',
+#         schema_view.without_ui(cache_timeout=None), name='schema-json'),
+#     url(r'^iotsignals/swagger/$',
+#         schema_view.with_ui('swagger', cache_timeout=None),
+#         name='schema-swagger-ui'),
+#     url(r'^iotsignals/redoc/$',
+#         schema_view.with_ui('redoc', cache_timeout=None), name='schema-redoc'),
+#
+#     url(r"^status/", include("health.urls")),
+# ]
+
 urlpatterns = [
-    # url(r"^afval/stats/", include(stats.urls)),
-    url(r'^iotsignals/swagger(?P<format>\.json|\.yaml)$',
-        schema_view.without_ui(cache_timeout=None), name='schema-json'),
-    url(r'^iotsignals/swagger/$',
-        schema_view.with_ui('swagger', cache_timeout=None),
-        name='schema-swagger-ui'),
-    url(r'^iotsignals/redoc/$',
-        schema_view.with_ui('redoc', cache_timeout=None), name='schema-redoc'),
-    url(r"^iotsignals/", include(urls)),
-    # url(r"^status/", include("health.urls")),
+    # API listings
+    path('', include((root_router.urls, 'iotsignals'), namespace='vx')),
+    # API Version 0
+    path('v0/', include((router_v0.urls, 'iotsignals'), namespace='v0')),
 ]
 
 

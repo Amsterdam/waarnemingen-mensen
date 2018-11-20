@@ -132,6 +132,7 @@ REST_FRAMEWORK = dict(
         # 'rest_framework.filters.OrderingFilter',
         "django_filters.rest_framework.DjangoFilterBackend"
     ),
+    DEFAULT_VERSIONING_CLASS='rest_framework.versioning.NamespaceVersioning',
     COERCE_DECIMAL_TO_STRING=True,
 )
 

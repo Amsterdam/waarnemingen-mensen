@@ -27,18 +27,18 @@ class PassageFilter(FilterSet):
 
 
 class PassageViewSet(DatapuntViewSetWritable):
-    serializer_class = serializers.PassageReadOnlySerializer
-    serializer_detail_class = serializers.PassageReadOnlySerializer
+    serializer_class = serializers.PassageDetailSerializer
+    serializer_detail_class = serializers.PassageDetailSerializer
 
-    queryset = models.Passage.objects.all().order_by('datum_tijd')
+    queryset = models.Passage.objects.all().order_by('passage_at')
 
     http_method_names = ['post', 'list', 'get']
 
     filter_backends = (DjangoFilterBackend,)
     filter_class = PassageFilter
 
-    def create(self, request, *args, **kwargs):
-        serializer = serializers.PassageWriteOnlySerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=201)
+    # def create(self, request, *args, **kwargs):
+    #     serializer = serializers.PassageWriteOnlySerializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     serializer.save()
+    #     return Response(serializer.data, status=201)

@@ -12,9 +12,10 @@ class Passage(models.Model):
     should result in a record here.
     """
     id = models.UUIDField(primary_key=True, unique=True)
+    passage_at = models.DateTimeField(auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True)
     versie = models.CharField(max_length=255)
-    data = JSONField()
+    # data = JSONField()
     #
     datum_tijd = models.DateTimeField()
     straat = models.CharField(max_length=255)

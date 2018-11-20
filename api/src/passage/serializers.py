@@ -16,22 +16,43 @@ class PassageSerializer(HALSerializer):
 
     class Meta:
         model = Passage
-        fields = ['_display', '_links', 'id', 'versie', 'merk']
+        fields = [
+            '_display',
+            '_links',
+            'id',
+            'versie',
+            'merk',
+            'created_at',
+            'passage_at',
+        ]
 
 
-class PassageReadOnlySerializer(serializers.ModelSerializer):
+class PassageDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Passage
         fields = '__all__'
 
 
+data_keys_map = [
+    ('straat', 'straat'),
+    ('cameraId', 'camera_id'),
+    ('cameraNaam', 'camera_naam'),
+    ('cameraKijkrichting', 'camera_kijkrichting'),
+    ('datumTijd', 'datum_tijd'),
+    ('rijrichting', 'rijrichting'),
+    ('rijstrook', 'rijstrook'),
+]
+
+
 class PassageWriteOnlySerializer(serializers.Serializer):
     """Passage save only serializer.
+
+    We can optionaly get data from the data field.
     """
 
-    type = serializers.CharField(required=True)
     id = serializers.UUIDField(required=True)
+    type = serializers.CharField(required=True)
     data = serializers.DictField(required=True)
     kentekenLand = serializers.CharField(required=True)
     kentekenNummerBetrouwbaarheid = serializers.IntegerField(required=True)
@@ -53,23 +74,73 @@ class PassageWriteOnlySerializer(serializers.Serializer):
     )
     brandstoffen = serializers.ListField(required=True)
 
+    # normalized field names.
+    longitude = serializers.FloatField(required=False)
+    latitude = serializers.FloatField(required=False)
+
+    # added so filling in a form in drf is easy.
+    straat = serializers.CharField(required=False)
+    camera_id = serializers.CharField(required=False)
+    camera_naam = serializers.CharField(required=False)
+    camera_kijkrichting = serializers.CharField(required=False)
+    datum_tijd = serializers.DateField(required=False)
+    rijrichting = serializers.IntegerField(required=False)
+    rijstrook = serializers.IntegerField(required=False)
+
+    def validate(self, postdata):
+        """Normalize input to new input.
+
+        Allow specific fields to come from the nested data attribute.
+        """
+        normalized = dict(postdata)
+
+        data = postdata.get('data', {})
+
+        for key, field_key in data_keys_map.items():
+            if getattr(field_key, data):
+                continue
+            if getattr(key, postdata):
+                normalized[field_key] = data[key]
+                continue
+
+            raise serializers.ValidationError(
+                'missing %s or %s', key, field_key)
+
+        lon, lat = postdata.get('longitude'), postdata.get('latitude')
+
+        if lon is None or lat is None:
+            cameralocatie = data.get('cameraLocatie', {})
+            if not cameralocatie:
+                raise serializers.ValidationError('data.cameraLocatie missing')
+            lon, lat = cameralocatie.get('coordinates', [0, 0])
+
+        if not lon or not lat:
+            raise serializers.ValidationError(
+                'data.cameraLocatie or lon / lat are missing')
+
+        camera_locatie = Point(lon, lat)
+        normalized['camera_locatie'] = camera_locatie
+
+        return normalized
+
     def save(self):
-        camera_locatie = Point(
-            self.data['data']['cameraLocatie']['coordinates'][0],
-            self.data['data']['cameraLocatie']['coordinates'][1]
-        )
+
         Passage.objects.create(
             id=self.data['id'],
             versie=self.data['type'],
-            datum_tijd=self.data['data']['datumTijd'],
-            straat=self.data['data']['straat'],
-            rijstrook=self.data['data']['rijstrook'],
-            rijrichting=self.data['data']['rijrichting'],
-            camera_id=self.data['data']['cameraId'],
-            camera_naam=self.data['data']['cameraNaam'],
-            camera_kijkrichting=self.data['data']['cameraKijkrichting'],
-            camera_locatie=camera_locatie,
+            straat=self.data['straat'],
+            datum_tijd=self.data['datum_tijd'],
+            rijrichting=self.data['rijrichting'],
+            rijstrook=self.data['rijstrook'],
+
+            camera_id=self.data['camera_id'],
+            camera_naam=self.data['camera_naam'],
+            camera_kijkrichting=self.data['camera_kijkrichting'],
+
+            camera_locatie=self.data['camera_locatie'],
+
             kenteken_land=self.data['kentekenLand'],
+
             kenteken_nummer_betrouwbaarheid=self.data[
                 'kentekenNummerBetrouwbaarheid'
             ],
