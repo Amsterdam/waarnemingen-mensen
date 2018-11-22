@@ -40,8 +40,10 @@ DEBUG = SECRET_KEY == insecure_key
 ALLOWED_HOSTS = ['*']
 
 # Application definition
+HEALTH_MODEL = 'passage.Passage'
 
 INSTALLED_APPS += [
+    'health',
     'datetimeutc',
     'iotsignals',
     'passage'

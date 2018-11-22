@@ -65,7 +65,6 @@ schema_view = get_schema_view(
 #     url(r'^iotsignals/redoc/$',
 #         schema_view.with_ui('redoc', cache_timeout=None), name='schema-redoc'),
 #
-#     url(r"^status/", include("health.urls")),
 # ]
 
 urlpatterns = [
@@ -73,6 +72,7 @@ urlpatterns = [
     path('', include((root_router.urls, 'iotsignals'), namespace='vx')),
     # API Version 0
     path('v0/', include((router_v0.urls, 'iotsignals'), namespace='v0')),
+    url(r"^status/", include("health.urls")),
 ]
 
 
