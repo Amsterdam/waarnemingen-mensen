@@ -30,7 +30,7 @@ node {
 
     stage("Build dockers") {
         tryStep "build", {
-	    def api = docker.build("build.datapunt.amsterdam.nl:5000/iotsignals:${env.BUILD_NUMBER}", "api")
+	    def api = docker.build("build.secure.amsterdam.nl:5000/iotsignals:${env.BUILD_NUMBER}", "api")
                 api.push()
                 api.push("acceptance")
         }
@@ -44,7 +44,7 @@ if (BRANCH == "master") {
     node {
         stage('Push acceptance image') {
             tryStep "image tagging", {
-                def image = docker.image("build.datapunt.amsterdam.nl:5000/iotsignals:${env.BUILD_NUMBER}")
+                def image = docker.image("build.secure.amsterdam.nl:5000/iotsignals:${env.BUILD_NUMBER}")
                 image.pull()
                 image.push("acceptance")
             }
@@ -70,7 +70,7 @@ if (BRANCH == "master") {
     node {
         stage('Push production image') {
             tryStep "image tagging", {
-                def api = docker.image("build.datapunt.amsterdam.nl:5000/iotsignals:${env.BUILD_NUMBER}")
+                def api = docker.image("build.secure.amsterdam.nl:5000/iotsignals:${env.BUILD_NUMBER}")
                 api.push("production")
                 api.push("latest")
             }
