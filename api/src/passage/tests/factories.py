@@ -39,8 +39,8 @@ class PassageFactory(factory.DjangoModelFactory):
         model = Passage
 
     id = factory.Faker('uuid4')
-    versie = "passage-v1"
-    datum_tijd = factory.LazyFunction(timezone.now)
+    version = "passage-v1"
+    passage_at = factory.LazyFunction(timezone.now)
     straat = factory.Faker('name')
     rijstrook = fuzzy.FuzzyInteger(1, 10)
     rijrichting = fuzzy.FuzzyInteger(-1, 1)

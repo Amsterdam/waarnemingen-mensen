@@ -11,19 +11,31 @@ class PassageFilter(FilterSet):
 
     class Meta(object):
         model = models.Passage
-        fields = (
-            'merk',
-            'voertuig_soort',
-            'indicatie_snelheid',
-            'kenteken_nummer_betrouwbaarheid',
-            'versie',
-            'kenteken_land',
-            'toegestane_maximum_massa_voertuig',
-            'europese_voertuigcategorie',
-            'europese_voertuigcategorie_toevoeging',
-            'tax_indicator',
-            'maximale_constructie_snelheid_bromsnorfiets',
-        )
+        fields = {
+            'merk': ['exact'],
+            'voertuig_soort': ['exact'],
+            'indicatie_snelheid': ['exact'],
+            'kenteken_nummer_betrouwbaarheid': ['exact'],
+            'version': ['exact'],
+            'kenteken_land': ['exact'],
+            'toegestane_maximum_massa_voertuig': ['exact'],
+            'europese_voertuigcategorie': ['exact'],
+            'europese_voertuigcategorie_toevoeging': ['exact'],
+            'tax_indicator': ['exact'],
+            'maximale_constructie_snelheid_bromsnorfiets': ['exact'],
+            'created_at': ['exact', 'lt', 'gt'],
+            'passage_at': ['exact', 'lt', 'gt'],
+            'diesel': ['isnull', 'exact', 'lt', 'gt'],
+            'gasoline': ['isnull', 'exact', 'lt', 'gt'],
+            'electric': ['isnull', 'exact', 'lt', 'gt'],
+        }
+
+
+"""
+from dateutil import tz
+
+utcnow = datetime.datetime.utcnow().replace(tzinfo=tz.gettz('UTC'))
+"""
 
 
 class PassageViewSet(DatapuntViewSetWritable):

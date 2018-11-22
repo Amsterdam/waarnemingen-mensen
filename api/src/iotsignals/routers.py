@@ -26,12 +26,10 @@ class IOTSignalsAPIRootView(routers.APIRootView):
     def get(self, request, *args, **kwargs):
         response = super().get(request, *args, **kwargs)
 
-        # Appending the index view with API version 1 information.
-        # For now we need to mix this with
-        # the API version 0 index view.
+        # Appending the index view with API version 0 information.
         v1root = request._request.build_absolute_uri(reverse('v0:api-root'))
 
-        response.data['v1'] = {
+        response.data['v0'] = {
             '_links': {
                 'self': {
                     'href': v1root,

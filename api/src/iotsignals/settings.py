@@ -27,6 +27,8 @@ from iotsignals.settings_database import (
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+TIME_ZONE = 'Europe/Amsterdam'
+USE_TZ = True
 
 # SECURITY WARNING: keep the secret key used in production secret!
 insecure_key = "insecure"
@@ -40,6 +42,7 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS += [
+    'datetimeutc',
     'iotsignals',
     'passage'
 ]

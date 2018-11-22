@@ -2,29 +2,32 @@ from rest_framework.test import APITestCase
 
 from .factories import PassageFactory
 
+import logging
+
+log = logging.getLogger(__name__)
+
+
 TEST_POST = {
-    "type": "passage-v1",
+    "version": "passage-v1",
     "id": "cbbd2efc-78f4-4d41-bf5b-4cbdf1e87269",
-    "data": {
-        "datumTijd": "2018-10-16T12:13:44Z",
-        "straat": "Spaarndammerdijk",
-        "rijstrook": 1,
-        "rijrichting": 1,
-        "cameraId": "ddddffff-4444-aaaa-7777-aaaaeeee1111",
-        "cameraNaam": "Spaarndammerdijk [Z]",
-        "cameraKijkrichting": 0,
-        "cameraLocatie": {
-            "type": "Point",
-            "coordinates": [
-                4.845423,
-                52.386831
-            ]
-        }
+    "passage_at": "2018-10-16T12:13:44Z",
+    "straat": "Spaarndammerdijk",
+    "rijstrook": 1,
+    "rijrichting": 1,
+    "camera_id": "ddddffff-4444-aaaa-7777-aaaaeeee1111",
+    "camera_naam": "Spaarndammerdijk [Z]",
+    "camera_kijkrichting": 0,
+    "camera_locatie": {
+        "type": "Point",
+        "coordinates": [
+            4.845423,
+            52.386831
+        ]
     },
-    "kentekenLand": "NL",
-    "kentekenNummerBetrouwbaarheid": 640,
-    "kentekenLandBetrouwbaarheid": 690,
-    "kentekenKaraktersBetrouwbaarheid": [
+    "kenteken_land": "NL",
+    "kenteken_nummer_betrouwbaarheid": 640,
+    "kenteken_land_betrouwbaarheid": 690,
+    "kenteken_karakters_betrouwbaarheid": [
         {
             "betrouwbaarheid": 650,
             "positie": 1
@@ -50,18 +53,18 @@ TEST_POST = {
             "positie": 6
         }
     ],
-    "indicatieSnelheid": 23,
-    "automatischVerwerkbaar": True,
-    "voertuigSoort": "Bromfiets",
+    "indicatie_snelheid": 23,
+    "automatisch_verwerkbaar": True,
+    "voertuig_soort": "Bromfiets",
     "merk": "SYM",
     "inrichting": "N.V.t.",
-    "datumEersteToelating": "2015-03-06",
-    "datumTenaamstelling": "2015-03-06",
-    "toegestaneMaximumMassaVoertuig": 249,
-    "europeseVoertuigcategorie": "L1",
-    "europeseVoertuigcategorieToevoeging": "e",
-    "taxIndicator": True,
-    "maximaleContructiesnelheidBromSnorfiets": 25,
+    "datum_eerste_toelating": "2015-03-06",
+    "datum_tenaamstelling": "2015-03-06",
+    "toegestane_maximum_massa_voertuig": 249,
+    "europese_voertuigcategorie": "L1",
+    "europese_voertuigcategorie_toevoeging": "e",
+    "tax_indicator": True,
+    "maximale_constructie_snelheid_bromsnorfiets": 25,
     "brandstoffen": [
         {
             "brandstof": "Benzine",
@@ -71,13 +74,11 @@ TEST_POST = {
 }
 
 
-class PassageAPITest(APITestCase):
-    """
-    Test the passage endpoint
-    """
+class PassageAPITestV0(APITestCase):
+    """Test the passage endpoint."""
 
     def setUp(self):
-        self.URL = '/iotsignals/milieuzone/passage/'
+        self.URL = '/v0/milieuzone/passage/'
         self.p = PassageFactory()
 
     def valid_response(self, url, response, content_type):
@@ -95,6 +96,8 @@ class PassageAPITest(APITestCase):
     def test_post_new_passage(self):
         """ Test posting a new passage """
         res = self.client.post(self.URL, TEST_POST, format='json')
+
+        log.error(res)
 
         self.assertEqual(res.status_code, 201, res.data)
         for k, v in TEST_POST.items():
@@ -186,16 +189,17 @@ class PassageAPITest(APITestCase):
         self.assertEqual(res.data['count'], 1)
         self.assertEqual(res.data['results'][0]['id'], passage_bus.id)
 
-    def test_versie_filters(self):
-        """ Test filtering on 'versie'"""
-        # Create two passages with a different 'versie' value
-        passage_v1 = PassageFactory(versie='1')
+    def test_version_filters(self):
+        """ Test filtering on 'version'"""
+        # Create two passages with a different 'version' value
+        passage_v1 = PassageFactory(version='1')
         passage_v1.save()
-        passage_v2 = PassageFactory(versie='2')
+        passage_v2 = PassageFactory(version='2')
         passage_v2.save()
 
-        # Make a request with a versie filter and check if the result is correct
-        url = '{}{}'.format(self.URL, '?versie=1')
+        # Make a request with a version filter
+        # and check if the result is correct
+        url = '{}{}'.format(self.URL, '?version=1')
         res = self.client.get(url)
         self.assertEqual(res.data['count'], 1)
         self.assertEqual(res.data['results'][0]['id'], passage_v1.id)
