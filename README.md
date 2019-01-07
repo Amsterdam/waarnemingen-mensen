@@ -28,11 +28,11 @@ Start development database
 
 Fill test data in database.
 
-	docker-compose exec api python manage.py migrate
+        docker-compose run api python manage.py migrate
 
 	or in your virtual envirionment:
 
-	python mananage.py migrate. (tip add database to your /etc/hosts pointing at 127.0.0.1)
+	python manage.py migrate. (tip add database to your /etc/hosts pointing at 127.0.0.1)
 ```
 pip install -r requirements.txt
 ```
