@@ -26,13 +26,13 @@ Start development database
 	docker-compose up database
 ```
 
-load production data:
+Fill test data in database.
 
+	docker-compose exec api python manage.py migrate
 
-```
-	docker-compose exec database update-db.sh iotsignals
-```
+	or in your virtual envirionment:
 
+	python mananage.py migrate. (tip add database to your /etc/hosts pointing at 127.0.0.1)
 ```
 pip install -r requirements.txt
 ```

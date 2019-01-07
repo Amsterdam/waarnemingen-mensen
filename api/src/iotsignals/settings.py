@@ -49,10 +49,6 @@ INSTALLED_APPS += [
     'passage'
 ]
 
-# MIDDLEWARE = [
-#     'django.middleware.common.CommonMiddleware',
-# ]
-
 ROOT_URLCONF = 'iotsignals.urls'
 
 TEMPLATES = [
