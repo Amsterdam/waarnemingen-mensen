@@ -1,7 +1,7 @@
 from rest_framework.test import APITestCase
 
 from .factories import PassageFactory
-
+from django.db import connection
 import logging
 
 log = logging.getLogger(__name__)
@@ -73,6 +73,13 @@ TEST_POST = {
     ]
 }
 
+def get_records_in_partition():
+    with connection.cursor() as cursor:
+        cursor.execute('select count(*) from passage_passage_20181016')
+        row = cursor.fetchone()
+        if len(row) > 0:
+            return row[0]
+        return 0
 
 class PassageAPITestV0(APITestCase):
     """Test the passage endpoint."""
@@ -95,9 +102,13 @@ class PassageAPITestV0(APITestCase):
 
     def test_post_new_passage(self):
         """ Test posting a new passage """
+        before = get_records_in_partition()
+
         res = self.client.post(self.URL, TEST_POST, format='json')
 
         log.error(res)
+        # check if the record was stored in the correct partition
+        self.assertEqual(before + 1, get_records_in_partition())
 
         self.assertEqual(res.status_code, 201, res.data)
         for k, v in TEST_POST.items():
