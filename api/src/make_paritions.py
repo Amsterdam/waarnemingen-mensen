@@ -23,7 +23,6 @@ try:
         }
     conn = psycopg2.connect(**dbparam)
 except Exception as e:
-    print("connection failed")
     print(e)
     log.error(e)
     log.error("Database connection Failed!")
@@ -53,21 +52,19 @@ try:
         partition_date = start_date + timedelta(i)
         partition_str = partition_date.strftime("%Y%m%d")
 
-        SQL_PARTITION_DIE_SHIT = f"""
+        SQL_CREATE_PARTITION = f"""
         CREATE table IF NOT EXISTS {PTABLE}_{partition_str}
         PARTITION OF {PTABLE}
         FOR VALUES
         FROM ('{partition_date}') TO ('{partition_date + timedelta(1)}');
         """
-        create_stm = SQL_PARTITION_DIE_SHIT
-
-        print(create_stm)
-        print(f"Creating partition {PTABLE}_{partition_str} ...")
-        cur.execute(create_stm)
+        print(SQL_CREATE_PARTITION)
+        cur.execute(SQL_CREATE_PARTITION)
 
     conn.commit()
 except Exception as e:
     print(e)
+    log.error(e)
 finally:
     if conn is not None:
         conn.close()
