@@ -71,7 +71,8 @@ TEST_POST = {
             "brandstof": "Benzine",
             "volgnr": 1
         }
-    ]
+    ],
+    "versit_klasse": "test klasse"
 }
 
 def get_records_in_partition():
