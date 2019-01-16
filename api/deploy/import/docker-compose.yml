@@ -6,3 +6,4 @@ services:
       DATABASE_NAME: iotsignals
       DATABASE_USER: iotsignals
       DATABASE_PASSWORD:
+      DATABASE_HOST:
