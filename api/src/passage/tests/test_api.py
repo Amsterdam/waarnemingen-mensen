@@ -3,6 +3,7 @@ from rest_framework.test import APITestCase
 from .factories import PassageFactory
 from django.db import connection
 import logging
+from passage.case_converters import to_camelcase
 
 log = logging.getLogger(__name__)
 
@@ -99,6 +100,22 @@ class PassageAPITestV0(APITestCase):
             response["Content-Type"],
             "Wrong Content-Type for {}".format(url),
         )
+
+    def test_post_new_passage_camelcase(self):
+        """ Test posting a new camelcase passage """
+        before = get_records_in_partition()
+
+        # convert keys to camelcase for test
+        camel_case = { to_camelcase(k) : v for k,v in TEST_POST.items() }
+        res = self.client.post(self.URL, camel_case, format='json')
+
+        log.error(res)
+        # check if the record was stored in the correct partition
+        self.assertEqual(before + 1, get_records_in_partition())
+
+        self.assertEqual(res.status_code, 201, res.data)
+        for k, v in TEST_POST.items():
+            self.assertEqual(res.data[k], v)
 
     def test_post_new_passage(self):
         """ Test posting a new passage """

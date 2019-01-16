@@ -3,6 +3,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from rest_framework.response import Response
 
+from passage.case_converters import to_snakecase
 from . import models
 from . import serializers
 
@@ -54,3 +55,10 @@ class PassageViewSet(DatapuntViewSetWritable):
     #     serializer.is_valid(raise_exception=True)
     #     serializer.save()
     #     return Response(serializer.data, status=201)
+
+    # override create to convert request.data from camelcase to snakecase. 
+    def create(self, request, *args, **kwargs):
+        tmp = { to_snakecase(k) : v for k,v in request.data.items() }
+        request.data.clear()
+        request.data.update(tmp)
+        return super().create(request, *args, **kwargs)
