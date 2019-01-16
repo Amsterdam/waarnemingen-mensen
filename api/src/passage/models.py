@@ -62,3 +62,6 @@ class Passage(models.Model):
     diesel = models.SmallIntegerField(null=True)
     gasoline = models.SmallIntegerField(null=True)
     electric = models.SmallIntegerField(null=True)
+
+    #TNO Versit klasse. Zie ook: https://www.tno.nl/media/2451/lowres_tno_versit.pdf
+    versit_klasse = models.CharField(null=True, max_length=255)
