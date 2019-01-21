@@ -52,7 +52,7 @@ class Passage(models.Model):
     europese_voertuigcategorie = models.CharField(max_length=2)
     europese_voertuigcategorie_toevoeging = models.CharField(
         max_length=1, null=True)
-    tax_indicator = models.NullBooleanField()
+    taxi_indicator = models.NullBooleanField()
     maximale_constructie_snelheid_bromsnorfiets = models.SmallIntegerField(
         null=True
     )

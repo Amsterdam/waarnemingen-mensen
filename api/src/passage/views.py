@@ -23,7 +23,7 @@ class PassageFilter(FilterSet):
             'toegestane_maximum_massa_voertuig': ['exact'],
             'europese_voertuigcategorie': ['exact'],
             'europese_voertuigcategorie_toevoeging': ['exact'],
-            'tax_indicator': ['exact'],
+            'taxi_indicator': ['exact'],
             'maximale_constructie_snelheid_bromsnorfiets': ['exact'],
             'created_at': ['exact', 'lt', 'gt'],
             'passage_at': ['exact', 'lt', 'gt'],
