@@ -147,6 +147,18 @@ class PassageAPITestV0(APITestCase):
         for k, v in NEW_TEST.items():
             self.assertEqual(res.data[k], v)
 
+    def test_post_range_betrouwbaarheid(self):
+        """Test posting a invalid range betrouwbaarheid"""
+        before = get_records_in_partition()
+        NEW_TEST = dict(TEST_POST)
+        NEW_TEST["kenteken_nummer_betrouwbaarheid"] = -1
+        res = self.client.post(self.URL, NEW_TEST, format='json')
+
+        # check if the record was NOT stored in the correct partition
+        self.assertEqual(before, get_records_in_partition())
+
+        self.assertEqual(res.status_code, 400, res.data)
+
     def test_list_passages(self):
         """ Test listing all passages """
         PassageFactory.create()
