@@ -34,11 +34,11 @@ class Passage(models.Model):
     kenteken_land = models.CharField(max_length=2)
     kenteken_nummer_betrouwbaarheid = models.SmallIntegerField(validators=[
         MaxValueValidator(1000),
-        MinValueValidator(1)
+        MinValueValidator(0)
     ])
     kenteken_land_betrouwbaarheid = models.SmallIntegerField(validators=[
         MaxValueValidator(1000),
-        MinValueValidator(1)
+        MinValueValidator(0)
     ])
     kenteken_karakters_betrouwbaarheid = JSONField(null=True)
     indicatie_snelheid = models.FloatField(null=True)
