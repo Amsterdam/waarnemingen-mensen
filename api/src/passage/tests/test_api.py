@@ -75,6 +75,7 @@ TEST_POST = {
     "versit_klasse": "test klasse"
 }
 
+
 def get_records_in_partition():
     with connection.cursor() as cursor:
         cursor.execute('select count(*) from passage_passage_20181016')
@@ -82,6 +83,7 @@ def get_records_in_partition():
         if len(row) > 0:
             return row[0]
         return 0
+
 
 class PassageAPITestV0(APITestCase):
     """Test the passage endpoint."""
@@ -107,10 +109,9 @@ class PassageAPITestV0(APITestCase):
         before = get_records_in_partition()
 
         # convert keys to camelcase for test
-        camel_case = { to_camelcase(k) : v for k,v in TEST_POST.items() }
+        camel_case = {to_camelcase(k): v for k, v in TEST_POST.items()}
         res = self.client.post(self.URL, camel_case, format='json')
 
-        log.error(res)
         # check if the record was stored in the correct partition
         self.assertEqual(before + 1, get_records_in_partition())
 
@@ -124,12 +125,26 @@ class PassageAPITestV0(APITestCase):
 
         res = self.client.post(self.URL, TEST_POST, format='json')
 
-        log.error(res)
         # check if the record was stored in the correct partition
         self.assertEqual(before + 1, get_records_in_partition())
 
         self.assertEqual(res.status_code, 201, res.data)
         for k, v in TEST_POST.items():
+            self.assertEqual(res.data[k], v)
+
+    def test_post_new_passage_missing_attr(self):
+        """Test posting a new passage with missing fields"""
+        before = get_records_in_partition()
+        NEW_TEST = dict(TEST_POST)
+        NEW_TEST.pop('voertuig_soort')
+        NEW_TEST.pop('europese_voertuigcategorie_toevoeging')
+        res = self.client.post(self.URL, NEW_TEST, format='json')
+
+        # check if the record was stored in the correct partition
+        self.assertEqual(before + 1, get_records_in_partition())
+
+        self.assertEqual(res.status_code, 201, res.data)
+        for k, v in NEW_TEST.items():
             self.assertEqual(res.data[k], v)
 
     def test_list_passages(self):
@@ -139,7 +154,7 @@ class PassageAPITestV0(APITestCase):
 
         self.assertEqual(res.status_code, 200)
         # in the setup we also create a csv.
-        self.assertEqual(res.data['count'], 2)
+        self.assertEqual(len(res.data['results']), 2)
 
     def test_get_passage(self):
         """ Test getting a passage """
@@ -200,7 +215,7 @@ class PassageAPITestV0(APITestCase):
         # Make a request with a merk filter and check if the result is correct
         url = '{}{}'.format(self.URL, '?merk=ferrari')
         res = self.client.get(url)
-        self.assertEqual(res.data['count'], 1)
+        self.assertEqual(len(res.data['results']), 1)
         self.assertEqual(res.data['results'][0]['id'], passage_ferrari.id)
 
     def test_voertuig_soort_filters(self):
@@ -211,11 +226,13 @@ class PassageAPITestV0(APITestCase):
         passage_fiets = PassageFactory(voertuig_soort='fiets')
         passage_fiets.save()
 
-        # Make a request with a voertuig_soort filter and check if the result is
+        # Make a request with a voertuig_soort filter and
+        # check if the result is
         # correct
+
         url = '{}{}'.format(self.URL, '?voertuig_soort=bus')
         res = self.client.get(url)
-        self.assertEqual(res.data['count'], 1)
+        self.assertEqual(len(res.data['results']), 1)
         self.assertEqual(res.data['results'][0]['id'], passage_bus.id)
 
     def test_version_filters(self):
@@ -230,7 +247,7 @@ class PassageAPITestV0(APITestCase):
         # and check if the result is correct
         url = '{}{}'.format(self.URL, '?version=1')
         res = self.client.get(url)
-        self.assertEqual(res.data['count'], 1)
+        self.assertEqual(len(res.data['results']), 1)
         self.assertEqual(res.data['results'][0]['id'], passage_v1.id)
 
     def test_kenteken_land_filters(self):
@@ -243,7 +260,8 @@ class PassageAPITestV0(APITestCase):
 
         # Make a request with a kenteken_land filter and check if the result is
         # correct
+
         url = '{}{}'.format(self.URL, '?kenteken_land=NL')
         res = self.client.get(url)
-        self.assertEqual(res.data['count'], 1)
+        self.assertEqual(len(res.data['results']), 1)
         self.assertEqual(res.data['results'][0]['id'], passage_nl.id)

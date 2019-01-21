@@ -27,7 +27,7 @@ class Passage(models.Model):
     rijstrook = models.SmallIntegerField()
     camera_id = models.CharField(max_length=255)
     camera_naam = models.CharField(max_length=255)
-    camera_kijkrichting = models.SmallIntegerField()
+    camera_kijkrichting = models.FloatField()
     camera_locatie = PointField(srid=4326)
 
     # car properties
@@ -43,14 +43,15 @@ class Passage(models.Model):
     kenteken_karakters_betrouwbaarheid = JSONField(null=True)
     indicatie_snelheid = models.FloatField(null=True)
     automatisch_verwerkbaar = models.NullBooleanField()
-    voertuig_soort = models.CharField(max_length=25)
+    voertuig_soort = models.CharField(max_length=25, null=True)
     merk = models.CharField(max_length=255)
     inrichting = models.CharField(max_length=255)
     datum_eerste_toelating = models.DateField(null=True)
     datum_tenaamstelling = models.DateField(null=True)
     toegestane_maximum_massa_voertuig = models.SmallIntegerField(null=True)
     europese_voertuigcategorie = models.CharField(max_length=2)
-    europese_voertuigcategorie_toevoeging = models.CharField(max_length=1)
+    europese_voertuigcategorie_toevoeging = models.CharField(
+        max_length=1, null=True)
     tax_indicator = models.NullBooleanField()
     maximale_constructie_snelheid_bromsnorfiets = models.SmallIntegerField(
         null=True
@@ -63,5 +64,6 @@ class Passage(models.Model):
     gasoline = models.SmallIntegerField(null=True)
     electric = models.SmallIntegerField(null=True)
 
-    #TNO Versit klasse. Zie ook: https://www.tno.nl/media/2451/lowres_tno_versit.pdf
+    # TNO Versit klasse.
+    # Zie ook: https://www.tno.nl/media/2451/lowres_tno_versit.pdf
     versit_klasse = models.CharField(null=True, max_length=255)

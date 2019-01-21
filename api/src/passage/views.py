@@ -1,7 +1,8 @@
 from datapunt_api.rest import DatapuntViewSetWritable
+from datapunt_api.pagination import HALCursorPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
-from rest_framework.response import Response
+# from rest_framework.response import Response
 
 from passage.case_converters import to_snakecase
 from . import models
@@ -39,6 +40,18 @@ utcnow = datetime.datetime.utcnow().replace(tzinfo=tz.gettz('UTC'))
 """
 
 
+class PassagePager(HALCursorPagination):
+    """Sidcon pagination configuration.
+
+    Fill-levels will be many. So we use cursor based pagination.
+    """
+
+    count_table = False
+    page_size = 500
+    max_page_size = 10000
+    ordering = "-passage_at"
+
+
 class PassageViewSet(DatapuntViewSetWritable):
     serializer_class = serializers.PassageDetailSerializer
     serializer_detail_class = serializers.PassageDetailSerializer
@@ -50,15 +63,11 @@ class PassageViewSet(DatapuntViewSetWritable):
     filter_backends = (DjangoFilterBackend,)
     filter_class = PassageFilter
 
-    # def create(self, request, *args, **kwargs):
-    #     serializer = serializers.PassageWriteOnlySerializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-    #     serializer.save()
-    #     return Response(serializer.data, status=201)
+    pagination_class = PassagePager
 
-    # override create to convert request.data from camelcase to snakecase. 
+    # override create to convert request.data from camelcase to snakecase.
     def create(self, request, *args, **kwargs):
-        tmp = { to_snakecase(k) : v for k,v in request.data.items() }
+        tmp = {to_snakecase(k): v for k, v in request.data.items()}
         request.data.clear()
         request.data.update(tmp)
         return super().create(request, *args, **kwargs)
