@@ -64,6 +64,6 @@ class PassageFactory(factory.DjangoModelFactory):
     toegestane_maximum_massa_voertuig = fuzzy.FuzzyInteger(1, 32000)
     europese_voertuigcategorie = fuzzy.FuzzyText(length=2)
     europese_voertuigcategorie_toevoeging = fuzzy.FuzzyText(length=1)
-    tax_indicator = factory.Faker('boolean', chance_of_getting_true=50)
+    taxi_indicator = factory.Faker('boolean', chance_of_getting_true=50)
     maximale_constructie_snelheid_bromsnorfiets = fuzzy.FuzzyInteger(0, 500)
     brandstoffen = get_brandstoffen()

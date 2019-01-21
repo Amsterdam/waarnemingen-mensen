@@ -64,7 +64,7 @@ TEST_POST = {
     "toegestane_maximum_massa_voertuig": 249,
     "europese_voertuigcategorie": "L1",
     "europese_voertuigcategorie_toevoeging": "e",
-    "tax_indicator": True,
+    "taxi_indicator": True,
     "maximale_constructie_snelheid_bromsnorfiets": 25,
     "brandstoffen": [
         {
