@@ -33,6 +33,9 @@ Fill test data in database.
 	or in your virtual envirionment:
 
 	python manage.py migrate. (tip add database to your /etc/hosts pointing at 127.0.0.1)
+
+Please schedule api/deploy/docker-migrate.sh script to run once a day. It will create the database partitions.
+
 ```
 pip install -r requirements.txt
 ```
