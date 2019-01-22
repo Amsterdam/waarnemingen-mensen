@@ -156,7 +156,6 @@ class PassageAPITestV0(APITestCase):
 
         # check if the record was NOT stored in the correct partition
         self.assertEqual(before, get_records_in_partition())
-
         self.assertEqual(res.status_code, 400, res.data)
 
     def test_list_passages(self):

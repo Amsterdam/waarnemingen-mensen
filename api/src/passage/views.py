@@ -47,7 +47,7 @@ class PassagePager(HALCursorPagination):
     """
 
     count_table = False
-    page_size = 500
+    page_size = 50
     max_page_size = 10000
     ordering = "-passage_at"
 
