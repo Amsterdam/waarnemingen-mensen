@@ -22,7 +22,7 @@ class Passage(models.Model):
     version = models.CharField(max_length=20)
 
     # camera properties
-    straat = models.CharField(max_length=255)
+    straat = models.CharField(max_length=255, null=True)
     rijrichting = models.SmallIntegerField()
     rijstrook = models.SmallIntegerField()
     camera_id = models.CharField(max_length=255)
