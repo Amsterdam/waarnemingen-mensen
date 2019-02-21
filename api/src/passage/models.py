@@ -48,7 +48,7 @@ class Passage(models.Model):
     inrichting = models.CharField(max_length=255, null=True)
     datum_eerste_toelating = models.DateField(null=True)
     datum_tenaamstelling = models.DateField(null=True)
-    toegestane_maximum_massa_voertuig = models.SmallIntegerField(null=True)
+    toegestane_maximum_massa_voertuig = models.IntegerField(null=True)
     europese_voertuigcategorie = models.CharField(max_length=2, null=True)
     europese_voertuigcategorie_toevoeging = models.CharField(
         max_length=1, null=True)
