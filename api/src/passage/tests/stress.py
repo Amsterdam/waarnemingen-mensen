@@ -90,15 +90,16 @@ def generate_request(id):
 def simulate_request(start, blocksize):
     pid = os.getpid()
     print(f'{pid} start: {start} block: {blocksize}')
+    session = requests.Session()
     for i in range(blocksize):
         id = start + i
         try:
-            resp = requests.post(
+            resp = session.post(
                 URL,
                 json=generate_request(id),
                 headers=POST_HEADERS
             )
-            print(f'{pid} HTTP response code: {resp.status_code}')
+            # print(f'{pid} HTTP response code: {resp.status_code}')
             # if record could not be created, dump response
             if resp.status_code != 201:
                 print(resp.content)
