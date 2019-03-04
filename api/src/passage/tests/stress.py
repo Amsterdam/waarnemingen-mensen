@@ -90,11 +90,12 @@ def generate_request(id):
 def simulate_request(start, blocksize):
     pid = os.getpid()
     print(f'{pid} start: {start} block: {blocksize}')
-    session = requests.Session()
+    # session = requests.Session()
     for i in range(blocksize):
         id = start + i
         try:
-            resp = session.post(
+            # resp = session.post(
+            resp = requests.post(
                 URL,
                 json=generate_request(id),
                 headers=POST_HEADERS

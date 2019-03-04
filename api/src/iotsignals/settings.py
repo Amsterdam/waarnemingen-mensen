@@ -86,6 +86,7 @@ DATABASE_OPTIONS = {
         "USER": os.getenv("DATABASE_USER", "iotsignals"),
         "PASSWORD": os.getenv("DATABASE_PASSWORD", "insecure"),
         "HOST": "database",
+        "CONN_MAX_AGE": 20,
         "PORT": "5432",
     },
     LocationKey.local: {
@@ -93,6 +94,7 @@ DATABASE_OPTIONS = {
         "NAME": os.getenv("DATABASE_NAME", "iotsignals"),
         "USER": os.getenv("DATABASE_USER", "iotsignals"),
         "PASSWORD": os.getenv("DATABASE_PASSWORD", "insecure"),
+        "CONN_MAX_AGE": 20,
         "HOST": get_docker_host(),
         "PORT": "5432",
     },
@@ -101,6 +103,7 @@ DATABASE_OPTIONS = {
         "NAME": os.getenv("DATABASE_NAME", "iotsignals"),
         "USER": os.getenv("DATABASE_USER", "iotsignals"),
         "PASSWORD": os.getenv("DATABASE_PASSWORD", "insecure"),
+        "CONN_MAX_AGE": 20,
         "HOST": os.getenv(OVERRIDE_HOST_ENV_VAR),
         "PORT": os.getenv(OVERRIDE_PORT_ENV_VAR, "5432"),
     }
