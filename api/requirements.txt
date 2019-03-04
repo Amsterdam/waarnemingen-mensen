@@ -12,7 +12,7 @@ djangorestframework==3.9.2
 djangorestframework-csv==2.1.0
 djangorestframework-gis==0.14
 djangorestframework-xml==1.4.0
--e git+git@github.com:Amsterdam/drf_amsterdam.git@6bdadd6b1238f8ce01974f488b62015592ab534f#egg=drf_amsterdam
+drf_amsterdam==0.3.1
 drf-extensions==0.4.0
 drf-flex-fields==0.3.5
 drf-yasg==1.14.0
