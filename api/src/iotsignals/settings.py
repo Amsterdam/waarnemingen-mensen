@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 from iotsignals.settings_common import *  # noqa F403
 from iotsignals.settings_common import INSTALLED_APPS
@@ -128,3 +130,11 @@ USE_TZ = True
 
 STATIC_URL = '/iotsignals/static/'
 STATIC_ROOT = '/static/'
+
+SENTRY_DSN = os.getenv('SENTRY_DSN')
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration()],
+        ignore_errors=['ExpiredSignatureError']
+    )

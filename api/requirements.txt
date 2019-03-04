@@ -31,6 +31,7 @@ requests==2.20.0
 ruamel.yaml==0.15.75
 six==1.11.0
 sqlparse==0.2.4
+sentry-sdk==0.7.4
 text-unidecode==1.2
 unicodecsv==0.14.1
 uritemplate==3.0.0
