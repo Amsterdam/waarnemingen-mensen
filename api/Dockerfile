@@ -7,7 +7,7 @@ EXPOSE 8000
 RUN mkdir -p /static && chown datapunt /static
 
 COPY requirements.txt /app/
-RUN pip install -r requirements.txt
+RUN pip install --cert /usr/local/share/ca-certificates/extras/adp_rootca.crt -r requirements.txt
 
 COPY src /app/
 COPY deploy /deploy/
