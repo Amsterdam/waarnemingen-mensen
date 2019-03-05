@@ -10,6 +10,8 @@ dc() {
 	docker-compose -p iotsignalstest -f ${DIR}/docker-compose.yml $*
 }
 
+echo $https_proxy
+echo $no_proxy
 
 dc stop
 dc rm --force
