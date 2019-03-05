@@ -30,7 +30,10 @@ node {
     stage("Build dockers") {
         tryStep "build", {
         docker.withRegistry('https://repo.secure.amsterdam.nl','docker-registry') {
-	        def api = docker.build("datapunt/iotsignals:${env.BUILD_NUMBER}", "api")
+	        def api = docker.build(
+			"datapunt/iotsignals:${env.BUILD_NUMBER}", "api",
+			"--build-arg https_proxy=http://10.240.2.1:8080/"
+		)
                     api.push()
                     api.push("acceptance")
             }

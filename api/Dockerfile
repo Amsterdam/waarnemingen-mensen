@@ -4,6 +4,9 @@ ENV PYTHONUNBUFFERED 1
 
 EXPOSE 8000
 
+ARG https_proxy=
+ENV https_proxy=$https_proxy
+
 RUN mkdir -p /static && chown datapunt /static
 
 COPY requirements.txt /app/
