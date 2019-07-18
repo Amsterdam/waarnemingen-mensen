@@ -25,6 +25,7 @@ from rest_framework import routers
 from rest_framework import permissions
 
 from passage import views as passage_views
+from peoplemeasurement import views as peoplemeasurement_views
 
 from iotsignals.routers import IOTSignalsRouterRoot
 from iotsignals.routers import IOTSignalsRouterVersion0
@@ -36,6 +37,9 @@ router_v0 = IOTSignalsRouterVersion0()
 router_v0.register(
      r'milieuzone/passage',
      viewset=passage_views.PassageViewSet, base_name='passage')
+router_v0.register(
+     r'people/measurement',
+     viewset=peoplemeasurement_views.PeopleMeasurementViewSet, base_name='peoplemeasurement')
 
 urls = root_router.urls
 

@@ -10,6 +10,8 @@ services:
       POSTGRES_PASSWORD: insecure
   api:
     build: ./api
+    volumes:
+      - ./api/src:/app
     ports:
       - "8001:8001"
     links:
@@ -31,3 +33,4 @@ services:
       - UWSGI_HARAKIRI=15
       - UWSGI_DIE_ON_TERM=1
       - UWSGI_MODULE=iotsignals.wsgi:application
+      - UWSGI_PY_AUTORELOAD=1

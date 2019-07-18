@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 TEST_POST = {
     "version": "passage-v1",
     "id": "cbbd2efc-78f4-4d41-bf5b-4cbdf1e87269",
-    "passage_at": "2018-10-16T12:13:44Z",
+    "passage_at": "2018-10-16T12:13:44+02:00",
     "straat": "Spaarndammerdijk",
     "rijstrook": 1,
     "rijrichting": 1,

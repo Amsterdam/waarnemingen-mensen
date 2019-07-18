@@ -20,10 +20,6 @@ ALLOWED_HOSTS = ["*"]
 DATAPUNT_API_URL = os.getenv(
     "DATAPUNT_API_URL", "https://api.data.amsterdam.nl/")
 
-LOGSTASH_HOST = os.getenv('LOGSTASH_HOST', '127.0.0.1')
-LOGSTASH_PORT = int(os.getenv('LOGSTASH_GELF_UDP_PORT', 12201))
-
-
 INTERNAL_IPS = ("127.0.0.1", "0.0.0.0")
 
 
@@ -73,7 +69,7 @@ if DEBUG:
         'debug_toolbar.panels.signals.SignalsPanel',
         'debug_toolbar.panels.logging.LoggingPanel',
         'debug_toolbar.panels.redirects.RedirectsPanel',
-        'debug_toolbar.panels.profiling.ProfilingDebugPanel',
+        'debug_toolbar.panels.profiling.ProfilingPanel',
     ]
 
 
@@ -156,15 +152,7 @@ LOGGING = {
             "level": "INFO",
             "class": "logging.StreamHandler",
             "formatter": "console"
-        },
-
-        'graypy': {
-            'level': 'ERROR',
-            'class': 'graypy.GELFHandler',
-            'host': LOGSTASH_HOST,
-            'port': LOGSTASH_PORT,
-        },
-
+        }
     },
     "root": {"level": "DEBUG", "handlers": ["console"]},
     "loggers": {

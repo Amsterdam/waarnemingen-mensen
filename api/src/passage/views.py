@@ -2,7 +2,6 @@ from datapunt_api.rest import DatapuntViewSetWritable
 from datapunt_api.pagination import HALCursorPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
-# from rest_framework.response import Response
 
 from passage.case_converters import to_snakecase
 from . import models

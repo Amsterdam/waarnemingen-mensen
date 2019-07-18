@@ -29,9 +29,6 @@ from iotsignals.settings_database import (
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-TIME_ZONE = 'Europe/Amsterdam'
-USE_TZ = True
-
 # SECURITY WARNING: keep the secret key used in production secret!
 insecure_key = "insecure"
 SECRET_KEY = os.getenv("SECRET_KEY", insecure_key)
@@ -48,7 +45,8 @@ INSTALLED_APPS += [
     'health',
     'datetimeutc',
     'iotsignals',
-    'passage'
+    'passage',
+    'peoplemeasurement',
 ]
 
 ROOT_URLCONF = 'iotsignals.urls'
@@ -116,16 +114,12 @@ DATABASES = {
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
+TIME_ZONE = 'Europe/Amsterdam'
+USE_TZ = True
 
 LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
-USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)

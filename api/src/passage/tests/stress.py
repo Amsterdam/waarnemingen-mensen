@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-
+"""
+There were some problems in production under load. This file tests some simple
+stress, but can definitely be expanded.
+"""
 import requests
 import argparse
 import sys
