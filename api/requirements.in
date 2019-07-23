@@ -41,3 +41,4 @@ uritemplate
 urllib3
 Werkzeug
 pip-tools
+datapunt-objectstore
