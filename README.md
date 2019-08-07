@@ -42,3 +42,18 @@ Please schedule api/deploy/docker-migrate.sh script to run once a day. It will c
 Then add the requirements:
 
     pip install -r requirements.txt
+
+
+# Stress testing with locust
+We've got a simple locust test script which fires a bunch of requests. It is automatically started by the locust 
+container.
+
+It can also be run manually from the root folder using:
+
+    locust --host=http://127.0.0.1:8001
+
+and starting it from the browser http://127.0.0.1:8089. 
+
+Or run it headless:
+
+    locust --host=http://127.0.0.1:8001 --no-web -c 250 -r 25 --run-time 30s

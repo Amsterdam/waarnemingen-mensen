@@ -34,3 +34,21 @@ services:
       - UWSGI_DIE_ON_TERM=1
       - UWSGI_MODULE=iotsignals.wsgi:application
       - UWSGI_PY_AUTORELOAD=1
+  locust:
+    image: registry.opensource.zalan.do/tip/docker-locust
+    environment:
+      ROLE: standalone
+      TARGET_HOST: http://api:8001
+      LOCUST_FILE: locustfile.py
+      SLAVE_MUL: 1
+      AUTOMATIC: "True"
+      USERS: 200
+      HATCH_RATE: 25
+      DURATION: 15
+    ports:
+      - "8089:8089"
+    volumes:
+      - ./reports:/opt/reports
+      - ./:/opt/script
+    links:
+      - api
