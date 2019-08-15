@@ -135,15 +135,3 @@ if SENTRY_DSN:
         integrations=[DjangoIntegration()],
         ignore_errors=['ExpiredSignatureError']
     )
-
-
-# objectstore settings
-OBJECTSTORE_CONF = dict(
-    VERSION='2.0',
-    AUTHURL='https://identity.stack.cloudvps.com/v2.0',
-    TENANT_NAME=os.getenv('OS_TENANT_NAME'),
-    TENANT_ID=os.getenv('OS_TENANT_ID'),
-    USER=os.getenv('OS_USERNAME'),
-    PASSWORD=os.getenv('OS_PASSWORD'),
-    REGION_NAME='NL',
-)

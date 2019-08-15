@@ -6,11 +6,19 @@ locust --host=http://127.0.0.1:8001 --no-web -c 250 -r 25 --run-time 1m CarsUser
 locust --host=http://127.0.0.1:8001 --no-web -c 250 -r 25 --run-time 30s
 """
 from uuid import uuid4
+import datetime, time
 from locust import HttpLocust, TaskSet, task
 
 
 PASSAGE_ENDPOINT_URL = "/v0/milieuzone/passage/"
 PEOPLE_MEASUREMENT_ENDPOINT_URL = "/v0/people/measurement/"
+
+
+def get_dt_with_tz_info():
+    # Calculate the offset taking into account daylight saving time
+    utc_offset_sec = time.altzone if time.localtime().tm_isdst else time.timezone
+    utc_offset = datetime.timedelta(seconds=-utc_offset_sec)
+    return datetime.datetime.now().replace(tzinfo=datetime.timezone(offset=utc_offset)).isoformat()
 
 
 def create_message(type_):
@@ -26,7 +34,7 @@ def create_message(type_):
         
                 "version": "1",
                 "speed": "0.0",
-                "timestamp": "2018-12-07T19:40+01:00",
+                "timestamp": get_dt_with_tz_info(),
                 "longitude": "4.89175"
             },
             "details": [
@@ -45,8 +53,8 @@ def create_message(type_):
     elif type_ == 'cars':
         return {
             "id": str(uuid4()),
-            "passage_at": "2019-08-06T09:16:55+02:00",
-            "created_at": "2019-08-06T09:17:04.507910+02:00",
+            "passage_at": get_dt_with_tz_info(),
+            "created_at": get_dt_with_tz_info(),
             "version": "1",
             "straat": None,
             "rijrichting": 1,
@@ -68,11 +76,11 @@ def create_message(type_):
             "indicatie_snelheid": None,
             "automatisch_verwerkbaar": None,
             "voertuig_soort": "Personenauto",
-            "merk": "DAEWOO",
+            "merk": "SPYKER",
             "inrichting": "stationwagen",
-            "datum_eerste_toelating": "2004-11-01",
-            "datum_tenaamstelling": "2004-11-01",
-            "toegestane_maximum_massa_voertuig": 1828,
+            "datum_eerste_toelating": "2001-01-01",
+            "datum_tenaamstelling": "2001-01-02",
+            "toegestane_maximum_massa_voertuig": 1234,
             "europese_voertuigcategorie": "M1",
             "europese_voertuigcategorie_toevoeging": None,
             "taxi_indicator": False,
@@ -111,4 +119,4 @@ class PeopleUser(HttpLocust):
 
 class CarsUser(HttpLocust):
     task_set = CarsBehaviour
-    weight = 3
+    weight = 1

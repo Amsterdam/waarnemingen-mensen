@@ -29,12 +29,16 @@ node {
 
     stage("Build dockers") {
         tryStep "build", {
-        docker.withRegistry('https://repo.secure.amsterdam.nl','docker-registry') {
-	        def api = docker.build("datapunt/iotsignals:${env.BUILD_NUMBER}", "api")
-	        api.push()
-	        api.push("acceptance")
+            docker.withRegistry('https://repo.secure.amsterdam.nl','docker-registry') {
+                def api = docker.build("datapunt/iotsignals:${env.BUILD_NUMBER}", "api")
+                api.push()
+                api.push("acceptance")
             }
         }
+    }
+
+    stage("Locust load test") {
+        sh("./api/deploy/docker-locust-load-test.sh")
     }
 }
 

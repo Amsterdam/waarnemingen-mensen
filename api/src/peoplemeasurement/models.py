@@ -1,8 +1,6 @@
 from django.db import models
 from django.contrib.postgres.fields import JSONField
 
-from datetimeutc.fields import DateTimeUTCField
-
 
 class PeopleMeasurement(models.Model):
     """PeopleMeasurement
@@ -23,36 +21,3 @@ class PeopleMeasurement(models.Model):
     speed = models.FloatField(null=True)
     count = models.IntegerField(null=True)
     details = JSONField(null=True)
-
-
-class AbstractCSV(models.Model):
-    id = models.CharField(primary_key=True, max_length=30)
-    camera = models.CharField(max_length=100)
-    timestamp = models.DateTimeField()
-    direction_index = models.CharField(max_length=30)
-    direction_name = models.CharField(max_length=30)
-    label = models.CharField(max_length=255)
-    value = models.FloatField(max_length=255)
-    processed = models.CharField(max_length=30)
-
-    class Meta:
-        abstract = True
-
-
-class PeopleMeasurementCSV(AbstractCSV):
-    """
-    This model describes the data retrieved from the csv file report.
-    """
-    csv_name = models.CharField(max_length=255, null=True)
-    class Meta:
-        ordering = ('timestamp',)
-
-
-class PeopleMeasurementCSVTemp(AbstractCSV):
-    """
-    Temporary model that is used for importing the csv.
-    Only used in the import process as a middle table before importing
-    to PeopleMeasurementCSV
-    """
-    class Meta:
-        ordering = ('timestamp',)
