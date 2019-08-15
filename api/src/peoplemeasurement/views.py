@@ -1,4 +1,3 @@
-import json
 from django_filters.rest_framework import FilterSet
 
 from django_filters.rest_framework import DjangoFilterBackend
