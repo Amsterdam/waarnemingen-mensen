@@ -13,9 +13,6 @@ services:
     links:
       - database:iotsignals_db
     environment:
-      http_proxy:
-      https_proxy:
-      no_proxy:
       DATABASE_NAME: iotsignals
       DATABASE_USER: iotsignals
       DATABASE_PASSWORD: insecure

@@ -17,9 +17,6 @@ services:
     ports:
       - "8001:8001"
     environment:
-      - http_proxy=
-      - https_proxy=
-      - no_proxy=
       - DATABASE_NAME=iotsignals
       - DATABASE_PASSWORD=insecure
       - UWSGI_HTTP=0.0.0.0:8001
@@ -44,8 +41,4 @@ services:
       - ./:/opt/src
     links:
       - api
-    environment:
-      - http_proxy=
-      - https_proxy=
-      - no_proxy=
     command: bash -c "locust -f /opt/src/locustfile.py --host=http://api:8001 --no-web -c 250 -r 25 --run-time 1m"
