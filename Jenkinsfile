@@ -29,8 +29,8 @@ node {
 
     stage("Build dockers") {
         tryStep "build", {
-            docker.withRegistry('https://repo.secure.amsterdam.nl','docker-registry') {
-                def api = docker.build("datapunt/iotsignals:${env.BUILD_NUMBER}", "api")
+            docker.withRegistry('https://repo.data.amsterdam.nl','docker-registry') {
+                def api = docker.build("datapunt/waarnemingen-mensen:${env.BUILD_NUMBER}", "api")
                 api.push()
                 api.push("acceptance")
             }
@@ -49,8 +49,8 @@ if (BRANCH == "master") {
     node {
         stage('Push acceptance image') {
             tryStep "image tagging", {
-               docker.withRegistry('https://repo.secure.amsterdam.nl','docker-registry') {
-                    def image = docker.image("datapunt/iotsignals:${env.BUILD_NUMBER}")
+               docker.withRegistry('https://repo.data.amsterdam.nl','docker-registry') {
+                    def image = docker.image("datapunt/waarnemingen-mensen:${env.BUILD_NUMBER}")
                     image.pull()
                     image.push("acceptance")
                 }
@@ -64,7 +64,7 @@ if (BRANCH == "master") {
                 build job: 'Subtask_Openstack_Playbook',
                 parameters: [
                     [$class: 'StringParameterValue', name: 'INVENTORY', value: 'acceptance'],
-                    [$class: 'StringParameterValue', name: 'PLAYBOOK', value: 'deploy-iotsignals.yml'],
+                    [$class: 'StringParameterValue', name: 'PLAYBOOK', value: 'deploy-mensen.yml'],
                 ]
             }
         }
@@ -77,8 +77,8 @@ if (BRANCH == "master") {
     node {
         stage('Push production image') {
             tryStep "image tagging", {
-                docker.withRegistry('https://repo.secure.amsterdam.nl','docker-registry') {
-                    def api = docker.image("datapunt/iotsignals:${env.BUILD_NUMBER}")
+                docker.withRegistry('https://repo.data.amsterdam.nl','docker-registry') {
+                    def api = docker.image("datapunt/waarnemingen-mensen:${env.BUILD_NUMBER}")
                     api.push("production")
                     api.push("latest")
                 }
@@ -92,7 +92,7 @@ if (BRANCH == "master") {
                 build job: 'Subtask_Openstack_Playbook',
                 parameters: [
                         [$class: 'StringParameterValue', name: 'INVENTORY', value: 'production'],
-                        [$class: 'StringParameterValue', name: 'PLAYBOOK', value: 'deploy-iotsignals.yml'],
+                        [$class: 'StringParameterValue', name: 'PLAYBOOK', value: 'deploy-mensen.yml'],
                 ]
             }
         }
