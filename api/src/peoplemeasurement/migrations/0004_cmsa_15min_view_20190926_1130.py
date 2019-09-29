@@ -10,23 +10,11 @@ class Migration(migrations.Migration):
     _VIEW_NAME = "cmsa_15min"
 
     sql = f"""
-CREATE VIEW {_VIEW_NAME} AS
-WITH tmp AS (
-    SELECT
-        *,
-        CASE -- round by every 15 minutes
-            WHEN extract('minute' from timestamp) < 15 THEN date_trunc('hour', timestamp)
-            WHEN extract('minute' from timestamp) < 30 THEN date_trunc('hour', timestamp) + '15 minutes'
-            WHEN extract('minute' from timestamp) < 45 THEN date_trunc('hour', timestamp) + '30 minutes'
-            ELSE date_trunc('hour', timestamp) + '45 minutes'
-        END AS timestamp_rounded
-    FROM peoplemeasurement_peoplemeasurement
-
-)
+CREATE VIEW cmsa_15min AS
 SELECT
     timestamp_rounded as timestamp,
     sensor,
-    (SELECT count(*) from tmp tmp2 where tmp2.timestamp_rounded=tmp.timestamp_rounded and tmp2.sensor=tmp.sensor) as based_on_x_messages,
+    based_on_x_messages,
     sum((detail_elems ->> 'count')::numeric) FILTER (WHERE detail_elems ->> 'direction' = 'up') AS up_sum,
     sum((detail_elems ->> 'count')::numeric) FILTER (WHERE detail_elems ->> 'direction' = 'down') AS down_sum,
     percentile_disc(0.1) WITHIN GROUP (ORDER BY (detail_elems ->> 'count')::numeric) FILTER (WHERE detail_elems ->> 'direction' = 'density') AS density_p10,
@@ -42,11 +30,17 @@ SELECT
     percentile_disc(0.9) WITHIN GROUP (ORDER BY (detail_elems ->> 'count')::numeric) FILTER (WHERE detail_elems ->> 'direction' = 'speed') AS speed_p90,
     avg((detail_elems ->> 'count')::numeric) FILTER (WHERE detail_elems ->> 'direction' = 'speed') AS speed_avg
 FROM
-    tmp,
+    (SELECT
+        *,
+        EXTRACT(epoch from "timestamp")::int / 60 / 15 as timestamp_rounded,
+        COUNT(*) OVER (PARTITION BY EXTRACT(epoch from "timestamp")::int / 60 / 15, sensor) AS based_on_x_messages
+    FROM peoplemeasurement_peoplemeasurement
+    ) s,
     jsonb_array_elements(details) detail_elems
 GROUP BY
     timestamp_rounded,
-    sensor
+    sensor,
+    based_on_x_messages
 ORDER BY
     timestamp_rounded ASC,
     sensor ASC
