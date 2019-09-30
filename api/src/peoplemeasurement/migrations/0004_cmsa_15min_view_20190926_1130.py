@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
     _VIEW_NAME = "cmsa_15min"
 
     sql = f"""
-CREATE VIEW cmsa_15min AS
+CREATE VIEW {_VIEW_NAME} AS
 SELECT
     timestamp_rounded as timestamp,
     sensor,
