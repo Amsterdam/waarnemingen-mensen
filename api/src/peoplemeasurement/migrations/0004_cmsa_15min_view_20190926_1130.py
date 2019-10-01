@@ -32,7 +32,7 @@ SELECT
 FROM
     (SELECT
         *,
-        EXTRACT(epoch from "timestamp")::int / 60 / 15 as timestamp_rounded,
+        to_timestamp(EXTRACT(epoch from timestamp)::int / 60 / 15 * 15 * 60) as timestamp_rounded,  -- round down for every 15 minutes
         COUNT(*) OVER (PARTITION BY EXTRACT(epoch from "timestamp")::int / 60 / 15, sensor) AS based_on_x_messages
     FROM peoplemeasurement_peoplemeasurement
     ) s,
