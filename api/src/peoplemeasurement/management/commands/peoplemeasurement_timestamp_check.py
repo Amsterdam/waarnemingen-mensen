@@ -9,6 +9,6 @@ class Command(BaseCommand):
         latest = PeopleMeasurement.objects.order_by('timestamp').last()
 
         if latest:
-            verify_timestamp(latest.timestamp)
+            verify_timestamp(latest.timestamp, app='peoplemeasurement')
         else:
             raise Exception('Table is Empty')

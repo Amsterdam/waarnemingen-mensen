@@ -9,6 +9,6 @@ class Command(BaseCommand):
         latest = Passage.objects.order_by('created_at').last()
 
         if latest:
-            verify_timestamp(latest.created_at)
+            verify_timestamp(latest.created_at, app='passage')
         else:
             raise Exception('Table is Empty')
