@@ -18,14 +18,6 @@ from iotsignals.settings_common import *  # noqa F403
 from iotsignals.settings_common import INSTALLED_APPS
 from iotsignals.settings_common import REST_FRAMEWORK # noqa
 
-from iotsignals.settings_database import (
-    LocationKey,
-    get_docker_host,
-    get_database_key,
-    OVERRIDE_HOST_ENV_VAR,
-    OVERRIDE_PORT_ENV_VAR,
-)
-
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -77,38 +69,16 @@ ROOT_URLCONF = "iotsignals.urls"
 
 WSGI_APPLICATION = "iotsignals.wsgi.application"
 
-DATABASE_OPTIONS = {
-    LocationKey.docker: {
-        "ENGINE": "django.contrib.gis.db.backends.postgis",
-        "NAME": os.getenv("DATABASE_NAME", "iotsignals"),
-        "USER": os.getenv("DATABASE_USER", "iotsignals"),
-        "PASSWORD": os.getenv("DATABASE_PASSWORD", "insecure"),
-        "HOST": "database",
-        "CONN_MAX_AGE": 20,
-        "PORT": "5432",
-    },
-    LocationKey.local: {
-        "ENGINE": "django.contrib.gis.db.backends.postgis",
-        "NAME": os.getenv("DATABASE_NAME", "iotsignals"),
-        "USER": os.getenv("DATABASE_USER", "iotsignals"),
-        "PASSWORD": os.getenv("DATABASE_PASSWORD", "insecure"),
-        "CONN_MAX_AGE": 20,
-        "HOST": get_docker_host(),
-        "PORT": "5432",
-    },
-    LocationKey.override: {
-        "ENGINE": "django.contrib.gis.db.backends.postgis",
-        "NAME": os.getenv("DATABASE_NAME", "iotsignals"),
-        "USER": os.getenv("DATABASE_USER", "iotsignals"),
-        "PASSWORD": os.getenv("DATABASE_PASSWORD", "insecure"),
-        "CONN_MAX_AGE": 20,
-        "HOST": os.getenv(OVERRIDE_HOST_ENV_VAR),
-        "PORT": os.getenv(OVERRIDE_PORT_ENV_VAR, "5432"),
-    }
-}
-
 DATABASES = {
-    "default": DATABASE_OPTIONS[get_database_key()],
+    "default": {
+        "ENGINE": "django.contrib.gis.db.backends.postgis",
+        "NAME": os.getenv("DATABASE_NAME", "iotsignals"),
+        "USER": os.getenv("DATABASE_USER", "iotsignals"),
+        "PASSWORD": os.getenv("DATABASE_PASSWORD", "insecure"),
+        "HOST": os.getenv("DATABASE_HOST", "database"),
+        "CONN_MAX_AGE": 20,
+        "PORT": os.getenv("DATABASE_PORT", "5432"),
+    },
 }
 
 
