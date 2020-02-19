@@ -31,13 +31,12 @@ DEBUG = SECRET_KEY == insecure_key
 ALLOWED_HOSTS = ['*']
 
 # Application definition
-HEALTH_MODEL = 'passage.Passage'
+HEALTH_MODEL = 'peoplemeasurement.PeopleMeasurement'
 
 INSTALLED_APPS += [
     'health',
     'datetimeutc',
     'iotsignals',
-    'passage',
     'peoplemeasurement',
 ]
 

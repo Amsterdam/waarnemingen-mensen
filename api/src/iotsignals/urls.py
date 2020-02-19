@@ -21,10 +21,8 @@ from django.urls import path
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
-from rest_framework import routers
 from rest_framework import permissions
 
-from passage import views as passage_views
 from peoplemeasurement import views as peoplemeasurement_views
 
 from iotsignals.routers import IOTSignalsRouterRoot
@@ -34,9 +32,6 @@ root_router = IOTSignalsRouterRoot()
 
 router_v0 = IOTSignalsRouterVersion0()
 
-router_v0.register(
-     r'milieuzone/passage',
-     viewset=passage_views.PassageViewSet, basename='passage')
 router_v0.register(
      r'people/measurement',
      viewset=peoplemeasurement_views.PeopleMeasurementViewSet, basename='peoplemeasurement')
