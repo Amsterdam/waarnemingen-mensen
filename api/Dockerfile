@@ -9,6 +9,10 @@ RUN mkdir -p /static && chown datapunt /static
 COPY requirements.txt /app/
 RUN pip install -r requirements.txt
 
+# TODO: Remove requirements_dev in favor of a multistage dockerfile
+COPY requirements_dev.txt /app/
+RUN pip install -r requirements_dev.txt
+
 COPY src /app/
 COPY deploy /deploy/
 
