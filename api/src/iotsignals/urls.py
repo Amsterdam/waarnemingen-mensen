@@ -36,10 +36,10 @@ router_v0 = IOTSignalsRouterVersion0()
 
 router_v0.register(
      r'milieuzone/passage',
-     viewset=passage_views.PassageViewSet, base_name='passage')
+     viewset=passage_views.PassageViewSet, basename='passage')
 router_v0.register(
      r'people/measurement',
-     viewset=peoplemeasurement_views.PeopleMeasurementViewSet, base_name='peoplemeasurement')
+     viewset=peoplemeasurement_views.PeopleMeasurementViewSet, basename='peoplemeasurement')
 
 urls = root_router.urls
 
