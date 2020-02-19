@@ -7,7 +7,7 @@ locust --host=http://127.0.0.1:8001 --no-web -c 250 -r 25 --run-time 30s
 """
 from uuid import uuid4
 import datetime, time
-from locust import HttpLocust, TaskSet, task
+from locust import HttpLocust, TaskSet, task, between
 
 
 PASSAGE_ENDPOINT_URL = "/v0/milieuzone/passage/"
@@ -115,8 +115,10 @@ class CarsBehaviour(TaskSet):
 class PeopleUser(HttpLocust):
     task_set = PeopleBehaviour
     weight = 1
+    wait_time = between(0, 1)
 
 
 class CarsUser(HttpLocust):
     task_set = CarsBehaviour
     weight = 1
+    wait_time = between(0, 1)
