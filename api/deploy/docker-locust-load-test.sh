@@ -5,17 +5,16 @@ set -e   # stop on any error
 set -x   # print what we are doing
 
 # Remove docker containers from previous runs
-docker-compose -p iotsignals_load down
-docker-compose -p iotsignals_load rm -f
+docker-compose -p mensen_load down
+docker-compose -p mensen_load rm -f
 
 # Run migrations
-docker-compose -p iotsignals_load run api /deploy/docker-wait.sh
-docker-compose -p iotsignals_load run api /deploy/docker-migrate.sh
-docker-compose -p iotsignals_load run api python /app/make_paritions.py
+docker-compose -p mensen_load run api /deploy/docker-wait.sh
+docker-compose -p mensen_load run api /deploy/docker-migrate.sh
 
 # Run the load test
-docker-compose -p iotsignals_load up locust
+docker-compose -p mensen_load up locust
 
 # Remove remaining docker containers
-docker-compose -p iotsignals_load down
-docker-compose -p iotsignals_load rm -f
+docker-compose -p mensen_load down
+docker-compose -p mensen_load rm -f

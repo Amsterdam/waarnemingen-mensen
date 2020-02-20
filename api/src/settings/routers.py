@@ -3,11 +3,11 @@
 from django.urls import reverse
 from rest_framework import routers
 
-from iotsignals import API_VERSIONS
-from iotsignals.version import get_version
+from settings import API_VERSIONS
+from settings.version import get_version
 
 
-class IOTSignalsAPIRootView(routers.APIRootView):
+class MensenAPIRootView(routers.APIRootView):
     """
     List IOT Signals API's and their related information.
 
@@ -17,7 +17,7 @@ class IOTSignalsAPIRootView(routers.APIRootView):
     The code for this application (and associated web front-end)
     is available from:
 
-    - https://github.com/Amsterdam/iotsignals
+    - https://github.com/Amsterdam/waarnemingen-mensen
 
     Note:
     Most of these endpoints (will) require some form of authentication.
@@ -41,19 +41,19 @@ class IOTSignalsAPIRootView(routers.APIRootView):
         return response
 
     def get_view_name(self):
-        return 'IOT Signals API'
+        return 'Mensen API'
 
 
-class IOTSignalsAPIVersion0(routers.APIRootView):
-    """Signalen API versie 0 (in development)."""
+class MensenAPIVersion0(routers.APIRootView):
+    """Mensen API versie 0."""
 
     def get_view_name(self):
-        return 'Signals API Version 0'
+        return 'Mensen API Version 0'
 
 
-class IOTSignalsRouterRoot(routers.DefaultRouter):
-    APIRootView = IOTSignalsAPIRootView
+class MensenRouterRoot(routers.DefaultRouter):
+    APIRootView = MensenAPIRootView
 
 
-class IOTSignalsRouterVersion0(routers.DefaultRouter):
-    APIRootView = IOTSignalsAPIVersion0
+class MensenRouterVersion0(routers.DefaultRouter):
+    APIRootView = MensenAPIVersion0

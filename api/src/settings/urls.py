@@ -1,4 +1,4 @@
-"""IOTSignals URL Configuration.
+"""waarnemingen-mensen URL Configuration.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/1.9/topics/http/urls/
@@ -25,12 +25,12 @@ from rest_framework import permissions
 
 from peoplemeasurement import views as peoplemeasurement_views
 
-from iotsignals.routers import IOTSignalsRouterRoot
-from iotsignals.routers import IOTSignalsRouterVersion0
+from settings.routers import MensenRouterRoot
+from settings.routers import MensenRouterVersion0
 
-root_router = IOTSignalsRouterRoot()
+root_router = MensenRouterRoot()
 
-router_v0 = IOTSignalsRouterVersion0()
+router_v0 = MensenRouterVersion0()
 
 router_v0.register(
      r'people/measurement',
@@ -41,9 +41,9 @@ urls = root_router.urls
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="IOT Signals API",
+        title="waarnemingen-mensen API",
         default_version='v1',
-        description="IOTSignals in Amsterdam",
+        description="waarnemingen-mensen in Amsterdam",
         terms_of_service="https://data.amsterdam.nl/",
         contact=openapi.Contact(email="datapunt@amsterdam.nl"),
         license=openapi.License(name="CC0 1.0 Universal"),
@@ -68,9 +68,9 @@ schema_view = get_schema_view(
 
 urlpatterns = [
     # API listings
-    path('', include((root_router.urls, 'iotsignals'), namespace='vx')),
+    path('', include((root_router.urls, 'mensen'), namespace='vx')),
     # API Version 0
-    path('v0/', include((router_v0.urls, 'iotsignals'), namespace='v0')),
+    path('v0/', include((router_v0.urls, 'mensen'), namespace='v0')),
     url(r"^status/", include("health.urls")),
 ]
 
