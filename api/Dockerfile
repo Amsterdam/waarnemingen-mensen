@@ -1,4 +1,5 @@
-FROM amsterdam/python
+FROM amsterdam/python:3.8-buster
+MAINTAINER datapunt@amsterdam.nl
 
 ENV PYTHONUNBUFFERED 1
 
