@@ -1,10 +1,10 @@
 version: '3.0'
 services:
-  iotsignals:
-    image: repo.secure.amsterdam.nl/datapunt/iotsignals:${ENVIRONMENT}
+  mensen:
+    image: repo.data.amsterdam.nl/datapunt/waarnemingen-mensen:${ENVIRONMENT}
     environment:
-      DATABASE_NAME: iotsignals
-      DATABASE_USER: iotsignals
+      DATABASE_NAME: waarnemingen_mensen
+      DATABASE_USER: waarnemingen_mensen
       DATABASE_PASSWORD:
       DATABASE_HOST:
       DATABASE_PORT:

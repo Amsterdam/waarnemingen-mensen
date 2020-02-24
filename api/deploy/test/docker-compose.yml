@@ -5,18 +5,17 @@ services:
     image: amsterdam/postgres11
     environment:
       POSTGRES_PASSWORD: insecure
-      POSTGRES_USER: iotsignals
-      POSTGRES_DB: iotsignals
+      POSTGRES_USER: waarnemingen_mensen
+      POSTGRES_DB: waarnemingen_mensen
 
   tests:
     build: ../../
     links:
-      - database:iotsignals_db
+      - database:waarnemingen_mensen_db
     environment:
-      DATABASE_NAME: iotsignals
-      DATABASE_USER: iotsignals
+      DATABASE_NAME: waarnemingen_mensen
+      DATABASE_USER: waarnemingen_mensen
       DATABASE_PASSWORD: insecure
-      PARKEERVAKKEN_OS_PASSWORD:
       ENVIRONMENT: test
     volumes:
         - ./run_tests.sh:/app/run_tests.sh

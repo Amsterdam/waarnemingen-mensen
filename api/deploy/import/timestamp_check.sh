@@ -14,8 +14,8 @@ dc stop
 dc rm --force
 dc pull
 
-dc run --rm iotsignals python manage.py peoplemeasurement_timestamp_check
-dc run --rm iotsignals python manage.py passage_timestamp_check
+dc run --rm waarnemingen-mensen python manage.py peoplemeasurement_timestamp_check
+dc run --rm waarnemingen-mensen python manage.py passage_timestamp_check
 
 dc stop
 

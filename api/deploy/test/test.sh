@@ -7,7 +7,7 @@ set -x
 DIR="$(dirname $0)"
 
 dc() {
-	docker-compose -p iotsignalstest -f ${DIR}/docker-compose.yml $*
+	docker-compose -p mensentest -f ${DIR}/docker-compose.yml $*
 }
 
 dc stop
