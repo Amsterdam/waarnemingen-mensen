@@ -26,13 +26,13 @@ from rest_framework import permissions
 from peoplemeasurement import views as peoplemeasurement_views
 
 from settings.routers import MensenRouterRoot
-from settings.routers import MensenRouterVersion0
+from settings.routers import MensenRouterVersion1
 
 root_router = MensenRouterRoot()
 
-router_v0 = MensenRouterVersion0()
+router_v1 = MensenRouterVersion1()
 
-router_v0.register(
+router_v1.register(
      r'people/measurement',
      viewset=peoplemeasurement_views.PeopleMeasurementViewSet, basename='peoplemeasurement')
 
@@ -69,8 +69,8 @@ schema_view = get_schema_view(
 urlpatterns = [
     # API listings
     path('', include((root_router.urls, 'mensen'), namespace='vx')),
-    # API Version 0
-    path('v0/', include((router_v0.urls, 'mensen'), namespace='v0')),
+    # API Version 1
+    path('v1/', include((router_v1.urls, 'mensen'), namespace='v1')),
     url(r"^status/", include("health.urls")),
 ]
 

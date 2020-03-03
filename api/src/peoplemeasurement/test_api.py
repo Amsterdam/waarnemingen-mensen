@@ -111,11 +111,11 @@ def create_new_object(store):
     return peoplemeasurement
 
 
-class PeopleMeasurementTestV0(APITestCase):
+class PeopleMeasurementTestV1(APITestCase):
     """ Test the people measurement endpoint """
 
     def setUp(self):
-        self.URL = '/v0/people/measurement/'
+        self.URL = '/v1/people/measurement/'
 
     def test_post_new_people_measurement(self):
         """ Test posting a new vanilla message """
@@ -147,33 +147,15 @@ class PeopleMeasurementTestV0(APITestCase):
         for i in ('density', 'count', 'speed', 'details'):
             self.assertEqual(response.data[i], None)
 
-    def test_list_peoplemeasurements(self):
-        """ Test listing all peoplemeasurements """
+    def test_get_peoplemeasurements_not_allowed(self):
+        """ Test if getting a peoplemeasurement is not allowed """
+        # First post one
+        response = self.client.post(self.URL, TEST_POST, format='json')
+        self.assertEqual(response.status_code, 201)
 
-        ## First store some records
-        pms = [
-            create_new_object(store=True),
-            create_new_object(store=True),
-            create_new_object(store=True)
-        ]
-
-        # Do the call
-        get_response = self.client.get(self.URL)
-        self.assertEqual(get_response.status_code, 200)
-        self.assertEqual(len(get_response.data['results']), len(pms))
-
-        # Test contents
-        for i, item in enumerate(get_response.data['results']):
-            for k, _ in TEST_POST['data'].items():
-                self.assertEqual(item[k], getattr(pms[i], k))
-
-    def test_get_peoplemeasurement(self):
-        """ Test getting a peoplemeasurement """
-        record = create_new_object(store=True)
-        res = self.client.get(f'{self.URL}{record.id}/')
-
-        self.assertEqual(res.status_code, 200)
-        self.assertEqual(res.data['id'], record.id)
+        # Then check if I cannot get it
+        response = self.client.get(f'{self.URL}{TEST_POST["data"]["id"]}/')
+        self.assertEqual(response.status_code, 405)
 
     def test_update_peoplemeasurements_not_allowed(self):
         """ Test if updating a peoplemeasurement is not allowed """
@@ -193,23 +175,3 @@ class PeopleMeasurementTestV0(APITestCase):
 
         response = self.client.delete(f'{self.URL}{TEST_POST["data"]["id"]}/')
         self.assertEqual(response.status_code, 405)
-
-    def test_default_response_is_json(self):
-        """ Test if the default response of the API is on JSON """
-        response = self.client.get(self.URL)
-        self.assertEqual(200, response.status_code, f"Wrong response code for {self.URL}")
-        self.assertEqual('application/json', response["Content-Type"], f"Wrong Content-Type for {self.URL}")
-
-    def test_version_filters(self):
-        """ Test filtering on date"""
-        # Create some records with different version values
-        o1 = create_new_object(store=True)
-        o2 = create_new_object(store=False)
-        o2.version = "2"
-        o2.save()
-
-        # Do a request with a version filter and check if the result is correct
-        url = f'{self.URL}?version=1'
-        response = self.client.get(url)
-        self.assertEqual(len(response.data['results']), 1)
-        self.assertEqual(response.data['results'][0]['id'], o1.id)

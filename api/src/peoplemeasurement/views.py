@@ -35,7 +35,7 @@ class PeopleMeasurementViewSet(DatapuntViewSetWritable):
 
     queryset = PeopleMeasurement.objects.all().order_by('timestamp')
 
-    http_method_names = ['post', 'list', 'get']
+    http_method_names = ['post']
 
     filter_backends = [DjangoFilterBackend]
     filter_class = PeopleMeasurementFilter
