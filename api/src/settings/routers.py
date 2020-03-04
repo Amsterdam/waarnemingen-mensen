@@ -12,30 +12,27 @@ class MensenAPIRootView(routers.APIRootView):
     List IOT Signals API's and their related information.
 
     These API endpoints are part of the
-    IOT Signalen Informatievoorziening Amsterdam
+    Waarnemingen Mensen Informatievoorziening Amsterdam
 
     The code for this application (and associated web front-end)
     is available from:
 
     - https://github.com/Amsterdam/waarnemingen-mensen
-
-    Note:
-    Most of these endpoints (will) require some form of authentication.
     """
 
     def get(self, request, *args, **kwargs):
         response = super().get(request, *args, **kwargs)
 
         # Appending the index view with API version 0 information.
-        v1root = request._request.build_absolute_uri(reverse('v0:api-root'))
+        v1root = request._request.build_absolute_uri(reverse('v1:api-root'))
 
-        response.data['v0'] = {
+        response.data['v1'] = {
             '_links': {
                 'self': {
                     'href': v1root,
                 }
             },
-            'version': get_version(API_VERSIONS['v0']),
+            'version': get_version(API_VERSIONS['v1']),
             'status': 'in development',
         }
         return response
@@ -44,16 +41,16 @@ class MensenAPIRootView(routers.APIRootView):
         return 'Mensen API'
 
 
-class MensenAPIVersion0(routers.APIRootView):
-    """Mensen API versie 0."""
+class MensenAPIVersion1(routers.APIRootView):
+    """Mensen API versie 1."""
 
     def get_view_name(self):
-        return 'Mensen API Version 0'
+        return 'Mensen API Version 1'
 
 
 class MensenRouterRoot(routers.DefaultRouter):
     APIRootView = MensenAPIRootView
 
 
-class MensenRouterVersion0(routers.DefaultRouter):
-    APIRootView = MensenAPIVersion0
+class MensenRouterVersion1(routers.DefaultRouter):
+    APIRootView = MensenAPIVersion1
