@@ -24,15 +24,15 @@ class MensenAPIRootView(routers.APIRootView):
         response = super().get(request, *args, **kwargs)
 
         # Appending the index view with API version 0 information.
-        v1root = request._request.build_absolute_uri(reverse('v0:api-root'))
+        v1root = request._request.build_absolute_uri(reverse('v1:api-root'))
 
-        response.data['v0'] = {
+        response.data['v1'] = {
             '_links': {
                 'self': {
                     'href': v1root,
                 }
             },
-            'version': get_version(API_VERSIONS['v0']),
+            'version': get_version(API_VERSIONS['v1']),
             'status': 'in development',
         }
         return response
@@ -41,11 +41,11 @@ class MensenAPIRootView(routers.APIRootView):
         return 'Mensen API'
 
 
-class MensenAPIVersion0(routers.APIRootView):
-    """Mensen API versie 0."""
+class MensenAPIVersion1(routers.APIRootView):
+    """Mensen API versie 1."""
 
     def get_view_name(self):
-        return 'Mensen API Version 0'
+        return 'Mensen API Version 1'
 
 
 class MensenRouterRoot(routers.DefaultRouter):
@@ -53,7 +53,4 @@ class MensenRouterRoot(routers.DefaultRouter):
 
 
 class MensenRouterVersion1(routers.DefaultRouter):
-    APIRootView = MensenAPIVersion0
-
-class MensenRouterVersion2(routers.DefaultRouter):
-    APIRootView = MensenAPIVersion0
+    APIRootView = MensenAPIVersion1
