@@ -40,8 +40,6 @@ INSTALLED_APPS += [
     'peoplemeasurement',
 ]
 
-ROOT_URLCONF = 'settings.urls'
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -57,9 +55,6 @@ TEMPLATES = [
         },
     },
 ]
-
-WSGI_APPLICATION = 'settings.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
