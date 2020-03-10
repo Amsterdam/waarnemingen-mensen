@@ -15,11 +15,12 @@ Including another URLconf
 
 """
 from django.conf import settings
-from django.conf.urls import url, include
+from django.conf.urls import include, url
 from django.urls import path
 
 urlpatterns = [
-    path('v1/', include('peoplemeasurement.urls')),
+    path('telcameras/v1/', include('peoplemeasurement.urls')),
+    path('telcameras/v2/', include('telcameras_v2.urls')),
     url('status/', include('health.urls')),
 ]
 

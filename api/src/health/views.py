@@ -3,6 +3,7 @@ import logging
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db import connection
+from django.http import HttpResponse
 
 try:
     # noinspection PyUnresolvedReferences
@@ -12,7 +13,6 @@ try:
 except ImportError:
     from django.db.models.loading import get_model
 
-from django.http import HttpResponse
 
 try:
     model = get_model(settings.HEALTH_MODEL)
