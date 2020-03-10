@@ -64,8 +64,16 @@ class SensorSerializer(serializers.Serializer):
     def save(self):
         directions = self.validated_data.pop('direction')
         try:
-            sensor = Sensor.objects.get(external_id=self.validated_data['external_id'])
+            sensor = Sensor.objects.get(
+                sensor_code=self.validated_data['sensor_code'],
+                sensor_type=self.validated_data['sensor_type'],
+                latitude=self.validated_data['latitude'],
+                longitude=self.validated_data['longitude'],
+                interval=self.validated_data['interval'],
+                version=self.validated_data['version'],
+            )
         except Sensor.DoesNotExist:
+            # The sensor doesn't exist exactly like posted, so we'll create a new one
             sensor = Sensor.objects.create(**self.validated_data)
 
         for direction in directions:

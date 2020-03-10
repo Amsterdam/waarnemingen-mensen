@@ -169,6 +169,67 @@ class DataPosterTest(APITestCase):
         self.assertEqual(ObservationAggregate.objects.all().count(), 2)
         self.assertEqual(PersonObservation.objects.all().count(), 14)
 
+    def test_not_creating_two_same_sensors(self):
+        self.client.post(self.URL, json.loads(TEST_POST), format='json')
+        self.client.post(self.URL, json.loads(TEST_POST), format='json')
+        self.assertEqual(Sensor.objects.all().count(), 1)  # ONLY ONE SENSOR IS CREATED
+        self.assertEqual(ObservationAggregate.objects.all().count(), 4)
+        self.assertEqual(PersonObservation.objects.all().count(), 28)
+
+    def test_creating_a_new_sensors_with_other_sensor_code(self):
+        post_data = json.loads(TEST_POST)
+        self.client.post(self.URL, post_data, format='json')
+        post_data['sensor'] = "OTHER_SENSOR_NAME"
+        self.client.post(self.URL, post_data, format='json')
+        self.assertEqual(Sensor.objects.all().count(), 2)  # TWO SENSORS CREATED
+        self.assertEqual(ObservationAggregate.objects.all().count(), 4)
+        self.assertEqual(PersonObservation.objects.all().count(), 28)
+
+    def test_creating_a_new_sensors_with_other_sensor_type(self):
+        post_data = json.loads(TEST_POST)
+        self.client.post(self.URL, post_data, format='json')
+        post_data['sensor_type'] = "OTHER_SENSOR_TYPE"
+        self.client.post(self.URL, post_data, format='json')
+        self.assertEqual(Sensor.objects.all().count(), 2)  # TWO SENSORS CREATED
+        self.assertEqual(ObservationAggregate.objects.all().count(), 4)
+        self.assertEqual(PersonObservation.objects.all().count(), 28)
+
+    def test_creating_a_new_sensors_with_other_latitude(self):
+        post_data = json.loads(TEST_POST)
+        self.client.post(self.URL, post_data, format='json')
+        post_data['latitude'] = 1.23456789
+        self.client.post(self.URL, post_data, format='json')
+        self.assertEqual(Sensor.objects.all().count(), 2)  # TWO SENSORS CREATED
+        self.assertEqual(ObservationAggregate.objects.all().count(), 4)
+        self.assertEqual(PersonObservation.objects.all().count(), 28)
+
+    def test_creating_a_new_sensors_with_other_longitude(self):
+        post_data = json.loads(TEST_POST)
+        self.client.post(self.URL, post_data, format='json')
+        post_data['longitude'] = 1.23456789
+        self.client.post(self.URL, post_data, format='json')
+        self.assertEqual(Sensor.objects.all().count(), 2)  # TWO SENSORS CREATED
+        self.assertEqual(ObservationAggregate.objects.all().count(), 4)
+        self.assertEqual(PersonObservation.objects.all().count(), 28)
+
+    def test_creating_a_new_sensors_with_other_interval(self):
+        post_data = json.loads(TEST_POST)
+        self.client.post(self.URL, post_data, format='json')
+        post_data['interval'] = 120
+        self.client.post(self.URL, post_data, format='json')
+        self.assertEqual(Sensor.objects.all().count(), 2)  # TWO SENSORS CREATED
+        self.assertEqual(ObservationAggregate.objects.all().count(), 4)
+        self.assertEqual(PersonObservation.objects.all().count(), 28)
+
+    def test_creating_a_new_sensors_with_other_version(self):
+        post_data = json.loads(TEST_POST)
+        self.client.post(self.URL, post_data, format='json')
+        post_data['version'] = '1.2.3.4'
+        self.client.post(self.URL, post_data, format='json')
+        self.assertEqual(Sensor.objects.all().count(), 2)  # TWO SENSORS CREATED
+        self.assertEqual(ObservationAggregate.objects.all().count(), 4)
+        self.assertEqual(PersonObservation.objects.all().count(), 28)
+
     def test_empty_aggregates_are_also_saved(self):
         post_data = json.loads(TEST_POST)
         # Add an empty direction dict to see if that is also stored
