@@ -192,6 +192,9 @@ class DataPosterTest(APITestCase):
         self.assertEqual(ObservationAggregate.objects.all().count(), 4)
         self.assertEqual(PersonObservation.objects.all().count(), 28)
 
+        new_sensor = Sensor.objects.all().order_by('-id')[0]
+        self.assertEqual(new_sensor.sensor_code, post_data['sensor'])
+
     def test_creating_a_new_sensors_with_other_sensor_type(self):
         post_data = json.loads(TEST_POST)
         self.client.post(self.URL, post_data, format='json')
@@ -200,6 +203,9 @@ class DataPosterTest(APITestCase):
         self.assertEqual(Sensor.objects.all().count(), 2)  # TWO SENSORS CREATED
         self.assertEqual(ObservationAggregate.objects.all().count(), 4)
         self.assertEqual(PersonObservation.objects.all().count(), 28)
+
+        new_sensor = Sensor.objects.all().order_by('-id')[0]
+        self.assertEqual(new_sensor.sensor_type, post_data['sensor_type'])
 
     def test_creating_a_new_sensors_with_other_latitude(self):
         post_data = json.loads(TEST_POST)
@@ -210,6 +216,9 @@ class DataPosterTest(APITestCase):
         self.assertEqual(ObservationAggregate.objects.all().count(), 4)
         self.assertEqual(PersonObservation.objects.all().count(), 28)
 
+        new_sensor = Sensor.objects.all().order_by('-id')[0]
+        self.assertEqual(new_sensor.latitude, post_data['latitude'])
+
     def test_creating_a_new_sensors_with_other_longitude(self):
         post_data = json.loads(TEST_POST)
         self.client.post(self.URL, post_data, format='json')
@@ -218,6 +227,9 @@ class DataPosterTest(APITestCase):
         self.assertEqual(Sensor.objects.all().count(), 2)  # TWO SENSORS CREATED
         self.assertEqual(ObservationAggregate.objects.all().count(), 4)
         self.assertEqual(PersonObservation.objects.all().count(), 28)
+
+        new_sensor = Sensor.objects.all().order_by('-id')[0]
+        self.assertEqual(new_sensor.longitude, post_data['longitude'])
 
     def test_creating_a_new_sensors_with_other_interval(self):
         post_data = json.loads(TEST_POST)
@@ -228,6 +240,9 @@ class DataPosterTest(APITestCase):
         self.assertEqual(ObservationAggregate.objects.all().count(), 4)
         self.assertEqual(PersonObservation.objects.all().count(), 28)
 
+        new_sensor = Sensor.objects.all().order_by('-id')[0]
+        self.assertEqual(new_sensor.interval, post_data['interval'])
+
     def test_creating_a_new_sensors_with_other_version(self):
         post_data = json.loads(TEST_POST)
         self.client.post(self.URL, post_data, format='json')
@@ -236,6 +251,9 @@ class DataPosterTest(APITestCase):
         self.assertEqual(Sensor.objects.all().count(), 2)  # TWO SENSORS CREATED
         self.assertEqual(ObservationAggregate.objects.all().count(), 4)
         self.assertEqual(PersonObservation.objects.all().count(), 28)
+
+        new_sensor = Sensor.objects.all().order_by('-id')[0]
+        self.assertEqual(new_sensor.version, post_data['version'])
 
     def test_newly_created_sensor_copies_over_all_other_details(self):
         post_data = json.loads(TEST_POST)
@@ -265,6 +283,16 @@ class DataPosterTest(APITestCase):
         self.assertEqual(PersonObservation.objects.all().count(), 28)
         new_sensor = Sensor.objects.all().order_by('-id')[0]
 
+        # Check whether the new version is correctly different in the new sensor
+        self.assertEqual(new_sensor.version, post_data['version'])
+
+        # Check whether the basic things are taken correctly from the new validated data
+        self.assertEqual(new_sensor.sensor_code, post_data['sensor'])
+        for attr in ('sensor_type', 'latitude', 'longitude', 'interval'):
+            self.assertEqual(getattr(new_sensor, attr), post_data[attr])
+
+        # Check whether the details which are not in the POSTed json are copied over
+        # correctly from the previously last created sensor
         for k, v in detail_fields.items():
             self.assertEqual(getattr(new_sensor, k), detail_fields[k])
 

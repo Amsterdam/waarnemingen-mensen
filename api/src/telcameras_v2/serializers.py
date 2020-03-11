@@ -50,7 +50,8 @@ class SensorSerializer(serializers.Serializer):
                 # We've got a previous version of this sensor, so we'll clone it to inherit all that info
                 sensor = last_sensors[0]
                 sensor.pk = None  # this will create a new record
-                sensor.sensor_type = self.validated_data['sensor_code']
+                sensor.sensor_code = self.validated_data['sensor_code']
+                sensor.sensor_type = self.validated_data['sensor_type']
                 sensor.latitude = self.validated_data['latitude']
                 sensor.longitude = self.validated_data['longitude']
                 sensor.interval = self.validated_data['interval']
