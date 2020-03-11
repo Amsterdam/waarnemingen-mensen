@@ -63,18 +63,35 @@ class SensorSerializer(serializers.Serializer):
 
     def save(self):
         directions = self.validated_data.pop('direction')
-        try:
-            sensor = Sensor.objects.get(
-                sensor_code=self.validated_data['sensor_code'],
-                sensor_type=self.validated_data['sensor_type'],
-                latitude=self.validated_data['latitude'],
-                longitude=self.validated_data['longitude'],
-                interval=self.validated_data['interval'],
-                version=self.validated_data['version'],
-            )
-        except Sensor.DoesNotExist:
+
+        sensors = Sensor.objects.filter(
+            sensor_code=self.validated_data['sensor_code'],
+            sensor_type=self.validated_data['sensor_type'],
+            latitude=self.validated_data['latitude'],
+            longitude=self.validated_data['longitude'],
+            interval=self.validated_data['interval'],
+            version=self.validated_data['version'],
+        ).order_by('-id')
+        if sensors.count() > 0:
+            sensor = sensors[0]
+        else:
             # The sensor doesn't exist exactly like posted, so we'll create a new one
-            sensor = Sensor.objects.create(**self.validated_data)
+            last_sensors = Sensor.objects.filter(sensor_code=self.validated_data['sensor_code']).order_by('-id')
+            if last_sensors.count() > 0:
+                # We've got a previous version of this sensor, so we'll clone it to inherit all that info
+                sensor = last_sensors[0]
+                sensor.pk = None  # this will create a new record
+                sensor.sensor_type = self.validated_data['sensor_code']
+                sensor.latitude = self.validated_data['latitude']
+                sensor.longitude = self.validated_data['longitude']
+                sensor.interval = self.validated_data['interval']
+                sensor.version = self.validated_data['version']
+                sensor.save()
+            else:
+                # There is no previous version of this sensor,
+                # so we'll create one out of thin air
+                # TODO: log this, so it doesn't go unnoticed
+                sensor = Sensor.objects.create(**self.validated_data)
 
         for direction in directions:
             signals = direction.pop('signals')

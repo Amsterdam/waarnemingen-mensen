@@ -24,7 +24,7 @@ class Sensor(models.Model):
 
 class ObservationAggregate(models.Model):
     sensor = models.ForeignKey('Sensor', on_delete=models.CASCADE)
-    aggregate_start = models.DateTimeField()                # The start of the measured time period  TODO: communicate this namechange from timestamp to start with Gerben
+    aggregate_start = models.DateTimeField()                # The start of the measured time period
 
     # azimuth grouping in the json
     azimuth = models.IntegerField()

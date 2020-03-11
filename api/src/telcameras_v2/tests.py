@@ -1,5 +1,6 @@
 import json
 import logging
+from datetime import datetime, timedelta
 
 import pytz
 from rest_framework.test import APITestCase
@@ -11,13 +12,13 @@ timezone = pytz.timezone("UTC")
 
 TEST_POST = """
 {
-    "latitude": -4.072669935670237e-15,
+    "latitude": -4.07266993567023,
     "sensor": "CMSA-GAWW-17",
     "interval": 60,
     "id": 26328123,
     "sensor_type": "counting_camera",
     "version": "2.0.0.2",
-    "longitude": -8.145339871340473e-15,
+    "longitude": -8.14533987134047,
     "timestamp": "2020-01-22T11:03:00+01:00",
     "direction": [
         {
@@ -163,11 +164,17 @@ class DataPosterTest(APITestCase):
 
     def test_post_new_record(self):
         """ Test posting a new vanilla message """
-        response = self.client.post(self.URL, json.loads(TEST_POST), format='json')
+        post_data = json.loads(TEST_POST)
+        response = self.client.post(self.URL, post_data, format='json')
         self.assertEqual(response.status_code, 201, response.data)
         self.assertEqual(Sensor.objects.all().count(), 1)
         self.assertEqual(ObservationAggregate.objects.all().count(), 2)
         self.assertEqual(PersonObservation.objects.all().count(), 14)
+
+        sensor = Sensor.objects.all()[0]
+        self.assertEqual(sensor.sensor_code, post_data['sensor'])
+        for attr in ('sensor_type', 'latitude', 'longitude', 'interval', 'version'):
+            self.assertEqual(getattr(sensor, attr), post_data[attr])
 
     def test_not_creating_two_same_sensors(self):
         self.client.post(self.URL, json.loads(TEST_POST), format='json')
@@ -229,6 +236,37 @@ class DataPosterTest(APITestCase):
         self.assertEqual(Sensor.objects.all().count(), 2)  # TWO SENSORS CREATED
         self.assertEqual(ObservationAggregate.objects.all().count(), 4)
         self.assertEqual(PersonObservation.objects.all().count(), 28)
+
+    def test_newly_created_sensor_copies_over_all_other_details(self):
+        post_data = json.loads(TEST_POST)
+        self.client.post(self.URL, post_data, format='json')
+
+        # Add some data into the other fields
+        sensor = Sensor.objects.all().order_by('-id')[0]
+        detail_fields = {
+            'owner': "Willen van Oranje",
+            'supplier': "Witte Corneliszoon de With",
+            'purpose': 'Something',
+            'area_gross': 123,
+            'area_net': 120,
+            'width': 10,
+            'length': 20,
+            'valid_from': datetime.now(pytz.UTC),
+            'valid_until': datetime.now(pytz.UTC) + timedelta(days=5)
+        }
+        for k, v in detail_fields.items():
+            setattr(sensor, k, v)
+        sensor.save()
+
+        post_data['version'] = '1.2.3.4'
+        self.client.post(self.URL, post_data, format='json')
+        self.assertEqual(Sensor.objects.all().count(), 2)  # TWO SENSORS CREATED
+        self.assertEqual(ObservationAggregate.objects.all().count(), 4)
+        self.assertEqual(PersonObservation.objects.all().count(), 28)
+        new_sensor = Sensor.objects.all().order_by('-id')[0]
+
+        for k, v in detail_fields.items():
+            self.assertEqual(getattr(new_sensor, k), detail_fields[k])
 
     def test_empty_aggregates_are_also_saved(self):
         post_data = json.loads(TEST_POST)
