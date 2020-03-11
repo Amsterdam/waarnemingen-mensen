@@ -1,11 +1,9 @@
-from django_filters.rest_framework import FilterSet
-
-from django_filters.rest_framework import DjangoFilterBackend
 from datapunt_api.pagination import HALCursorPagination
 from datapunt_api.rest import DatapuntViewSetWritable
+from django_filters.rest_framework import DjangoFilterBackend, FilterSet
 
-from .models import PeopleMeasurement
 from . import serializers
+from .models import PeopleMeasurement
 
 
 class PeopleMeasurementFilter(FilterSet):

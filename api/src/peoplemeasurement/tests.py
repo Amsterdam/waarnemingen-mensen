@@ -1,11 +1,13 @@
-import logging
-from factory import fuzzy
-import pytz
 import json
-from rest_framework.test import APITestCase
-from django.db import connection
-from peoplemeasurement.models import PeopleMeasurement
+import logging
 from uuid import uuid4
+
+import pytz
+from django.db import connection
+from rest_framework.test import APITestCase
+
+from factory import fuzzy
+from .models import PeopleMeasurement
 
 log = logging.getLogger(__name__)
 timezone = pytz.timezone("UTC")
@@ -115,7 +117,7 @@ class PeopleMeasurementTestV1(APITestCase):
     """ Test the people measurement endpoint """
 
     def setUp(self):
-        self.URL = '/v1/people/measurement/'
+        self.URL = '/telcameras/v1/'
 
     def test_post_new_people_measurement(self):
         """ Test posting a new vanilla message """

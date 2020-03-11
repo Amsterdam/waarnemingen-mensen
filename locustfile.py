@@ -9,7 +9,7 @@ import datetime, time
 from locust import HttpLocust, TaskSet, task, between
 
 
-PEOPLE_MEASUREMENT_ENDPOINT_URL = "/v0/people/measurement/"
+PEOPLE_MEASUREMENT_ENDPOINT_URL = "/telcameras/v1/"
 
 
 def get_dt_with_tz_info():

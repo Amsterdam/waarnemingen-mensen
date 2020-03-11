@@ -11,13 +11,13 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
 from settings.settings_common import *  # noqa F403
+from settings.settings_common import REST_FRAMEWORK  # noqa
 from settings.settings_common import INSTALLED_APPS
-from settings.settings_common import REST_FRAMEWORK # noqa
-
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -38,9 +38,8 @@ INSTALLED_APPS += [
     'datetimeutc',
     'settings',
     'peoplemeasurement',
+    'telcameras_v2',
 ]
-
-ROOT_URLCONF = 'settings.urls'
 
 TEMPLATES = [
     {
@@ -57,9 +56,6 @@ TEMPLATES = [
         },
     },
 ]
-
-WSGI_APPLICATION = 'settings.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases

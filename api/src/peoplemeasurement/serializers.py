@@ -1,6 +1,8 @@
 import logging
-from rest_framework import serializers
+
 from datapunt_api.rest import HALSerializer
+from rest_framework import serializers
+
 from .models import PeopleMeasurement
 
 log = logging.getLogger(__name__)

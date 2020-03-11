@@ -20,8 +20,6 @@ ALLOWED_HOSTS = ["*"]
 DATAPUNT_API_URL = os.getenv(
     "DATAPUNT_API_URL", "https://api.data.amsterdam.nl/")
 
-INTERNAL_IPS = ("127.0.0.1", "0.0.0.0")
-
 
 # Application definition
 INSTALLED_APPS = [
@@ -33,7 +31,6 @@ INSTALLED_APPS = [
     "datapunt_api",
     "rest_framework",
     "rest_framework_gis",
-    # 'rest_framework_swagger',
 ]
 
 MIDDLEWARE = [
@@ -41,7 +38,6 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    # 'authorization_django.authorization_middleware',
 ]
 
 X_FRAME_OPTIONS = 'ALLOW-FROM *'
