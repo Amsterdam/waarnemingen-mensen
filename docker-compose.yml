@@ -17,22 +17,23 @@ services:
     ports:
       - "8001:8001"
     environment:
-      - DATABASE_NAME=waarnemingen_mensen
-      - DATABASE_USER=waarnemingen_mensen
-      - DATABASE_PASSWORD=insecure
-      - DATABASE_HOST=database
-      - UWSGI_HTTP=0.0.0.0:8001
-      - UWSGI_MASTER=1
-      - UWSGI_STATIC_INDEX=index.html
-      - UWSGI_STATIC_MAP=/mensen/static=/static
-      - UWSGI_CALLABLE=application
-      - UWSGI_VACUUM=1
-      - UWSGI_STATIC_EXPIRES=/* 3600
-      - UWSGI_OFFLOAD_THREADS=1
-      - UWSGI_HARAKIRI=15
-      - UWSGI_DIE_ON_TERM=1
-      - UWSGI_MODULE=settings.wsgi:application
-      - UWSGI_PY_AUTORELOAD=1
+      DATABASE_NAME: waarnemingen_mensen
+      DATABASE_USER: waarnemingen_mensen
+      DATABASE_PASSWORD: insecure
+      DATABASE_HOST: database
+      AUTHORIZATION_TOKEN: dev
+      UWSGI_HTTP: 0.0.0.0:8001
+      UWSGI_MASTER: 1
+      UWSGI_STATIC_INDEX: index.html
+      UWSGI_STATIC_MAP: /mensen/static=/static
+      UWSGI_CALLABLE: application
+      UWSGI_VACUUM: 1
+      UWSGI_STATIC_EXPIRES: /* 3600
+      UWSGI_OFFLOAD_THREADS: 1
+      UWSGI_HARAKIRI: 15
+      UWSGI_DIE_ON_TERM: 1
+      UWSGI_MODULE: settings.wsgi:application
+      UWSGI_PY_AUTORELOAD: 1
 
   locust:
     build: .
