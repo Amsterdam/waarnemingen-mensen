@@ -3,38 +3,8 @@ from rest_framework import serializers
 
 from .models import ObservationAggregate, PersonObservation, Sensor
 
-# class PersonObservationSerializer(serializers.Serializer):
-#     class Meta:
-#         model = models.PersonObservation
-#         fields = [
-#             'record',
-#             'observation_timestamp',
-#             'distance',
-#             'time',
-#             'speed',
-#             'type',
-#         ]
-#
-#
-# class ObservationAggregateSerializer(serializers.Serializer):
-#     class Meta:
-#         model = models.ObservationAggregate
-#         fields = [
-#             'aggregate_start',  # Must come from sensorserializer.timestamp
-#             'azimuth',
-#             'count',
-#             'cumulative_distance',
-#             'cumulative_time',
-#             'median_speed',
-#         ]
-
 
 class SensorSerializer(serializers.Serializer):
-
-    # TODO: get the existing sensor instead of writing a new one
-
-    # observation_aggregates = ObservationAggregateSerializer(many=True)
-    # person_observations = PersonObservationSerializer(many=True)
 
     class Meta:
         model = Sensor
