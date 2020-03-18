@@ -64,7 +64,7 @@ class SensorSerializer(serializers.Serializer):
                 sensor = Sensor.objects.create(**self.validated_data)
 
         for direction in directions:
-            signals = direction.pop('signals')
+            signals = direction.pop('signals', [])
             direction['sensor_id'] = sensor.id
             aggregate_obj = ObservationAggregate.objects.create(**direction)
             for signal in signals:
