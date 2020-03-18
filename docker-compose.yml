@@ -18,9 +18,9 @@ services:
       - "8001:8001"
     environment:
       - DATABASE_NAME=waarnemingen_mensen
+      - DATABASE_HOST=database
       - DATABASE_USER=waarnemingen_mensen
       - DATABASE_PASSWORD=insecure
-      - DATABASE_HOST=database
       - UWSGI_HTTP=0.0.0.0:8001
       - UWSGI_MASTER=1
       - UWSGI_STATIC_INDEX=index.html
