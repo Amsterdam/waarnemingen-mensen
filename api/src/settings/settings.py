@@ -22,14 +22,12 @@ from settings.settings_common import INSTALLED_APPS
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: keep the secret key used in production secret!
-insecure_key = "insecure"
-SECRET_KEY = os.getenv("SECRET_KEY", insecure_key)
+SECRET_KEY = os.getenv('SECRET_KEY')
+DEBUG = os.getenv('DEBUG', 'false').lower() == 'true'
 
 # The token that is allowed to post data to protected endpoints
 AUTHORIZATION_TOKEN = os.environ['AUTHORIZATION_TOKEN']
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = SECRET_KEY == insecure_key
 
 ALLOWED_HOSTS = ['*']
 
