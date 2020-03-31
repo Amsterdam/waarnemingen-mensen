@@ -9,14 +9,20 @@ services:
       POSTGRES_DB: waarnemingen_mensen
 
   tests:
-    build: ../../
+    build:
+      context: ../../
+      args:
+      - SECRET_KEY=dev
+      - AUTHORIZATION_TOKEN=dev
     links:
       - database:waarnemingen_mensen_db
     environment:
-      DATABASE_NAME: waarnemingen_mensen
-      DATABASE_USER: waarnemingen_mensen
-      DATABASE_PASSWORD: insecure
-      ENVIRONMENT: test
+    - SECRET_KEY=dev
+    - AUTHORIZATION_TOKEN=dev
+    - DATABASE_NAME=waarnemingen_mensen
+    - DATABASE_USER=waarnemingen_mensen
+    - DATABASE_PASSWORD=insecure
+    - ENVIRONMENT=test
     volumes:
         - ./run_tests.sh:/app/run_tests.sh
     command: /app/run_tests.sh

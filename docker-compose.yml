@@ -9,7 +9,11 @@ services:
       POSTGRES_USER: waarnemingen_mensen
       POSTGRES_PASSWORD: insecure
   api:
-    build: ./api
+    build:
+      context: ./api
+      args:
+      - SECRET_KEY=dev
+      - AUTHORIZATION_TOKEN=dev
     volumes:
       - ./api/src:/app
     links:
@@ -17,6 +21,8 @@ services:
     ports:
       - "8001:8001"
     environment:
+      - SECRET_KEY=dev
+      - AUTHORIZATION_TOKEN=dev
       - DATABASE_NAME=waarnemingen_mensen
       - DATABASE_HOST=database
       - DATABASE_USER=waarnemingen_mensen

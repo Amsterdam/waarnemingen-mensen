@@ -3,9 +3,11 @@ import logging
 from datetime import datetime, timedelta
 
 import pytz
-from rest_framework.test import APITestCase
+from django.conf import settings
+from rest_framework.test import APIClient, APITestCase
 
-from telcameras_v2.models import ObservationAggregate, PersonObservation, Sensor
+from telcameras_v2.models import (ObservationAggregate, PersonObservation,
+                                  Sensor)
 
 log = logging.getLogger(__name__)
 timezone = pytz.timezone("UTC")
@@ -165,7 +167,8 @@ class DataPosterTest(APITestCase):
     def test_post_new_record(self):
         """ Test posting a new vanilla message """
         post_data = json.loads(TEST_POST)
-        response = self.client.post(self.URL, post_data, format='json')
+        response = self.client.post(self.URL, post_data,
+                                    **{'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}, format='json')
         self.assertEqual(response.status_code, 201, response.data)
         self.assertEqual(Sensor.objects.all().count(), 1)
         self.assertEqual(ObservationAggregate.objects.all().count(), 2)
@@ -176,18 +179,27 @@ class DataPosterTest(APITestCase):
         for attr in ('sensor_type', 'latitude', 'longitude', 'interval', 'version'):
             self.assertEqual(getattr(sensor, attr), post_data[attr])
 
+    def test_post_fails_without_token(self):
+        response = self.client.post(self.URL, json.loads(TEST_POST), format='json')
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(Sensor.objects.all().count(), 0)
+
     def test_not_creating_two_same_sensors(self):
-        self.client.post(self.URL, json.loads(TEST_POST), format='json')
-        self.client.post(self.URL, json.loads(TEST_POST), format='json')
+        self.client.post(self.URL, json.loads(TEST_POST),
+                         **{'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}, format='json')
+        self.client.post(self.URL, json.loads(TEST_POST),
+                         **{'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}, format='json')
         self.assertEqual(Sensor.objects.all().count(), 1)  # ONLY ONE SENSOR IS CREATED
         self.assertEqual(ObservationAggregate.objects.all().count(), 4)
         self.assertEqual(PersonObservation.objects.all().count(), 28)
 
     def test_creating_a_new_sensors_with_other_sensor_code(self):
         post_data = json.loads(TEST_POST)
-        self.client.post(self.URL, post_data, format='json')
+        self.client.post(self.URL, post_data,
+                         **{'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}, format='json')
         post_data['sensor'] = "OTHER_SENSOR_NAME"
-        self.client.post(self.URL, post_data, format='json')
+        self.client.post(self.URL, post_data,
+                         **{'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}, format='json')
         self.assertEqual(Sensor.objects.all().count(), 2)  # TWO SENSORS CREATED
         self.assertEqual(ObservationAggregate.objects.all().count(), 4)
         self.assertEqual(PersonObservation.objects.all().count(), 28)
@@ -197,9 +209,11 @@ class DataPosterTest(APITestCase):
 
     def test_creating_a_new_sensors_with_other_sensor_type(self):
         post_data = json.loads(TEST_POST)
-        self.client.post(self.URL, post_data, format='json')
+        self.client.post(self.URL, post_data,
+                         **{'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}, format='json')
         post_data['sensor_type'] = "OTHER_SENSOR_TYPE"
-        self.client.post(self.URL, post_data, format='json')
+        self.client.post(self.URL, post_data,
+                         **{'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}, format='json')
         self.assertEqual(Sensor.objects.all().count(), 2)  # TWO SENSORS CREATED
         self.assertEqual(ObservationAggregate.objects.all().count(), 4)
         self.assertEqual(PersonObservation.objects.all().count(), 28)
@@ -209,9 +223,11 @@ class DataPosterTest(APITestCase):
 
     def test_creating_a_new_sensors_with_other_latitude(self):
         post_data = json.loads(TEST_POST)
-        self.client.post(self.URL, post_data, format='json')
+        self.client.post(self.URL, post_data,
+                         **{'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}, format='json')
         post_data['latitude'] = 1.23456789
-        self.client.post(self.URL, post_data, format='json')
+        self.client.post(self.URL, post_data,
+                         **{'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}, format='json')
         self.assertEqual(Sensor.objects.all().count(), 2)  # TWO SENSORS CREATED
         self.assertEqual(ObservationAggregate.objects.all().count(), 4)
         self.assertEqual(PersonObservation.objects.all().count(), 28)
@@ -221,9 +237,11 @@ class DataPosterTest(APITestCase):
 
     def test_creating_a_new_sensors_with_other_longitude(self):
         post_data = json.loads(TEST_POST)
-        self.client.post(self.URL, post_data, format='json')
+        self.client.post(self.URL, post_data,
+                         **{'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}, format='json')
         post_data['longitude'] = 1.23456789
-        self.client.post(self.URL, post_data, format='json')
+        self.client.post(self.URL, post_data,
+                         **{'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}, format='json')
         self.assertEqual(Sensor.objects.all().count(), 2)  # TWO SENSORS CREATED
         self.assertEqual(ObservationAggregate.objects.all().count(), 4)
         self.assertEqual(PersonObservation.objects.all().count(), 28)
@@ -233,9 +251,11 @@ class DataPosterTest(APITestCase):
 
     def test_creating_a_new_sensors_with_other_interval(self):
         post_data = json.loads(TEST_POST)
-        self.client.post(self.URL, post_data, format='json')
+        self.client.post(self.URL, post_data,
+                         **{'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}, format='json')
         post_data['interval'] = 120
-        self.client.post(self.URL, post_data, format='json')
+        self.client.post(self.URL, post_data,
+                         **{'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}, format='json')
         self.assertEqual(Sensor.objects.all().count(), 2)  # TWO SENSORS CREATED
         self.assertEqual(ObservationAggregate.objects.all().count(), 4)
         self.assertEqual(PersonObservation.objects.all().count(), 28)
@@ -245,9 +265,11 @@ class DataPosterTest(APITestCase):
 
     def test_creating_a_new_sensors_with_other_version(self):
         post_data = json.loads(TEST_POST)
-        self.client.post(self.URL, post_data, format='json')
+        self.client.post(self.URL, post_data,
+                         **{'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}, format='json')
         post_data['version'] = '1.2.3.4'
-        self.client.post(self.URL, post_data, format='json')
+        self.client.post(self.URL, post_data,
+                         **{'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}, format='json')
         self.assertEqual(Sensor.objects.all().count(), 2)  # TWO SENSORS CREATED
         self.assertEqual(ObservationAggregate.objects.all().count(), 4)
         self.assertEqual(PersonObservation.objects.all().count(), 28)
@@ -257,7 +279,8 @@ class DataPosterTest(APITestCase):
 
     def test_newly_created_sensor_copies_over_all_other_details(self):
         post_data = json.loads(TEST_POST)
-        self.client.post(self.URL, post_data, format='json')
+        self.client.post(self.URL, post_data,
+                         **{'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}, format='json')
 
         # Add some data into the other fields
         sensor = Sensor.objects.all().order_by('-id')[0]
@@ -277,7 +300,8 @@ class DataPosterTest(APITestCase):
         sensor.save()
 
         post_data['version'] = '1.2.3.4'
-        self.client.post(self.URL, post_data, format='json')
+        self.client.post(self.URL, post_data,
+                         **{'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}, format='json')
         self.assertEqual(Sensor.objects.all().count(), 2)  # TWO SENSORS CREATED
         self.assertEqual(ObservationAggregate.objects.all().count(), 4)
         self.assertEqual(PersonObservation.objects.all().count(), 28)
@@ -307,24 +331,29 @@ class DataPosterTest(APITestCase):
             "median_speed": 0,
             "signals": []}
         )
-        response = self.client.post(self.URL, post_data, format='json')
+        response = self.client.post(self.URL, post_data,
+                                    **{'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}, format='json')
         self.assertEqual(response.status_code, 201, response.data)
         self.assertEqual(Sensor.objects.all().count(), 1)
         self.assertEqual(ObservationAggregate.objects.all().count(), 3)
         self.assertEqual(PersonObservation.objects.all().count(), 14)
 
     def test_405_on_get(self):
-        response = self.client.get(self.URL, format='json')
+        response = self.client.get(self.URL,
+                                   **{'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}, format='json')
         self.assertEqual(response.status_code, 405, response.data)
 
     def test_405_on_put(self):
-        response = self.client.put(self.URL, json.loads(TEST_POST), format='json')
+        response = self.client.put(self.URL, json.loads(TEST_POST),
+                                   **{'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}, format='json')
         self.assertEqual(response.status_code, 405, response.data)
 
     def test_405_on_patch(self):
-        response = self.client.patch(self.URL, json.loads(TEST_POST), format='json')
+        response = self.client.patch(self.URL, json.loads(TEST_POST),
+                                     **{'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}, format='json')
         self.assertEqual(response.status_code, 405, response.data)
 
     def test_405_on_delete(self):
-        response = self.client.delete(self.URL, json.loads(TEST_POST), format='json')
+        response = self.client.delete(self.URL, json.loads(TEST_POST),
+                                      **{'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}, format='json')
         self.assertEqual(response.status_code, 405, response.data)
