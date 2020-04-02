@@ -48,3 +48,16 @@ services:
     links:
       - api
     command: bash -c "locust -f /opt/src/locustfile.py --host=http://api:8001 --no-web -c 250 -r 25 --run-time 1m"
+
+  refresh_materialized_view:
+    build: ./api
+    volumes:
+      - ./api/src:/app
+    links:
+      - database
+    environment:
+      - DATABASE_HOST=database
+      - DATABASE_NAME=iotsignals
+      - DATABASE_USER=iotsignals
+      - DATABASE_PASSWORD=insecure
+    command: python manage.py refresh_cmsa_15min_materialized_view
