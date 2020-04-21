@@ -41,12 +41,12 @@ TEST_POST = {
         },{
             "timestamp": "2019-06-21T10:35:46+02:00",
             "count": "6",
-            "id": "b8018928-ff83-4b6a-8934-24f27612e841",
+            "id": "d6129055-6427-44dc-923b-dd903c2e7f98",
             "direction": "up"
         },{
             "timestamp": "2019-06-21T10:35:46+02:00",
             "count": "2",
-            "id": "b8018928-ff83-4b6a-8934-24f27612e841",
+            "id": "bba2f11f-b07b-4f27-b66d-2963ae3029bb",
             "direction": "down"
         },{
             "timestamp": "2019-06-21T10:35:46+02:00",
@@ -123,12 +123,21 @@ class PeopleMeasurementTestV1(APITestCase):
         """ Test posting a new vanilla message """
         record_count_before = get_record_count()
         response = self.client.post(self.URL, TEST_POST, format='json')
-
+    
         self.assertEqual(record_count_before+1, get_record_count())
         self.assertEqual(response.status_code, 201, response.data)
-
+    
         for k, v in TEST_POST['data'].items():
             self.assertEqual(response.data[k], v)
+    
+        newest_record = PeopleMeasurement.objects.order_by('timestamp').last()
+        self.assertEqual(newest_record.measurementdetail_set.all().count(), len(TEST_POST['details']))
+    
+        for detail in newest_record.measurementdetail_set.all():
+            posted_details = [d for d in TEST_POST['details'] if d['id'] == str(detail.id)]
+            self.assertEqual(len(posted_details), 1)
+            self.assertEqual(detail.direction, posted_details[0]['direction'])
+            self.assertAlmostEqual(detail.count, float(posted_details[0]['count']))
 
     def test_post_new_people_measurement_with_missing_density_count_speed_details(self):
         """ Test posting a new vanilla message """
@@ -149,31 +158,34 @@ class PeopleMeasurementTestV1(APITestCase):
         for i in ('density', 'count', 'speed', 'details'):
             self.assertEqual(response.data[i], None)
 
+        newest_record = PeopleMeasurement.objects.order_by('timestamp').last()
+        self.assertEqual(newest_record.measurementdetail_set.all().count(), 0)
+
     def test_get_peoplemeasurements_not_allowed(self):
         """ Test if getting a peoplemeasurement is not allowed """
         # First post one
         response = self.client.post(self.URL, TEST_POST, format='json')
         self.assertEqual(response.status_code, 201)
-
+    
         # Then check if I cannot get it
         response = self.client.get(f'{self.URL}{TEST_POST["data"]["id"]}/')
         self.assertEqual(response.status_code, 405)
-
+    
     def test_update_peoplemeasurements_not_allowed(self):
         """ Test if updating a peoplemeasurement is not allowed """
         # First post one
         response = self.client.post(self.URL, TEST_POST, format='json')
         self.assertEqual(response.status_code, 201)
-
+    
         # Then check if I cannot update it
         response = self.client.put(f'{self.URL}{TEST_POST["data"]["id"]}/', TEST_POST, format='json')
         self.assertEqual(response.status_code, 405)
-
+    
     def test_delete_peoplemeasurements_not_allowed(self):
         """ Test if deleting a peoplemeasurement is not allowed """
         # First post one
         response = self.client.post(self.URL, TEST_POST, format='json')
         self.assertEqual(response.status_code, 201)
-
+    
         response = self.client.delete(f'{self.URL}{TEST_POST["data"]["id"]}/')
         self.assertEqual(response.status_code, 405)

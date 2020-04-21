@@ -21,3 +21,10 @@ class PeopleMeasurement(models.Model):
     speed = models.FloatField(null=True)
     count = models.IntegerField(null=True)
     details = JSONField(null=True)
+
+
+class MeasurementDetail(models.Model):
+    id = models.UUIDField(primary_key=True)
+    peoplemeasurement = models.ForeignKey('PeopleMeasurement', on_delete=models.CASCADE)
+    direction = models.CharField(max_length=255)  # Can be either one of up, down, density or speed
+    count = models.FloatField()
