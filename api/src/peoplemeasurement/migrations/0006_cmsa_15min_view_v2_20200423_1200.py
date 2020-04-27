@@ -110,7 +110,7 @@ order by
 
     sql_materialized = f"""
     CREATE MATERIALIZED VIEW {_VIEW_NAME}_materialized AS
-    SELECT * FROM cmsa_15min;
+    SELECT * FROM {_VIEW_NAME};
     """
 
     reverse_sql_materialized = f"drop view if exists {_VIEW_NAME}_materialized;"
@@ -119,5 +119,9 @@ order by
         migrations.RunSQL(
             sql=sql,
             reverse_sql=reverse_sql
+        ),
+        migrations.RunSQL(
+            sql=sql_materialized,
+            reverse_sql=reverse_sql_materialized
         ),
     ]
