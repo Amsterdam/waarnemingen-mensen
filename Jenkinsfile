@@ -30,7 +30,7 @@ node {
 
     stage("Build dockers") {
         tryStep "build", {
-            docker.withRegistry('https://repo.data.amsterdam.nl','docker-registry') {
+            docker.withRegistry("${DOCKER_REGISTRY_HOST}",'docker_registry_auth') {
                 def api = docker.build("datapunt/waarnemingen-mensen:${env.BUILD_NUMBER}", "--build-arg AUTHORIZATION_TOKEN=dev --build-arg SECRET_KEY=dev api")
                 api.push()
                 api.push("acceptance")
@@ -50,7 +50,7 @@ if (BRANCH == "master") {
     node {
         stage('Push acceptance image') {
             tryStep "image tagging", {
-               docker.withRegistry('https://repo.data.amsterdam.nl','docker-registry') {
+               docker.withRegistry("${DOCKER_REGISTRY_HOST}",'docker_registry_auth') {
                     def image = docker.image("datapunt/waarnemingen-mensen:${env.BUILD_NUMBER}")
                     image.pull()
                     image.push("acceptance")
@@ -78,7 +78,7 @@ if (BRANCH == "master") {
     node {
         stage('Push production image') {
             tryStep "image tagging", {
-                docker.withRegistry('https://repo.data.amsterdam.nl','docker-registry') {
+                docker.withRegistry("${DOCKER_REGISTRY_HOST}",'docker_registry_auth') {
                     def api = docker.image("datapunt/waarnemingen-mensen:${env.BUILD_NUMBER}")
                     api.push("production")
                     api.push("latest")
