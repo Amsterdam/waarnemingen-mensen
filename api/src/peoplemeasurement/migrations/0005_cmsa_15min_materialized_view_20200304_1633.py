@@ -14,7 +14,7 @@ CREATE MATERIALIZED VIEW {_VIEW_NAME} AS
 SELECT * FROM cmsa_15min;
 """
 
-    reverse_sql = f"drop materialized view if exists {_VIEW_NAME};"
+    reverse_sql = f"DROP MATERIALIZED VIEW IF EXISTS {_VIEW_NAME};"
 
     operations = [
         migrations.RunSQL(

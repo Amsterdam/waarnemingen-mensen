@@ -4,7 +4,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('peoplemeasurement', '0005_cmsa_15min_materialized_view_20200304_1633'),
+        ('peoplemeasurement', '0007_druktemonitor_hourly_view_20200508_1506'),
     ]
 
     _VIEW_NAME = "cmsa_15min_view_v2"
@@ -35,7 +35,6 @@ AggregatedByQuarter as(
         avg(speed_avg) as speed_avg,
         count(*) as BasedOnXMessages
     from RawData
-    where total_count != 0
     group by sensor, timestamp_rounded
     order by sensor, timestamp_rounded
 ),
@@ -116,10 +115,22 @@ order by
     reverse_sql_materialized = f"DROP MATERIALIZED VIEW IF EXISTS {_VIEW_NAME}_materialized;"
 
     operations = [
+        # First drop the materialized view
+        migrations.RunSQL(
+            sql=reverse_sql_materialized,
+            reverse_sql=sql_materialized
+        ),
+        # Then drop the view
+        migrations.RunSQL(
+            sql=reverse_sql,
+            reverse_sql=sql
+        ),
+        # Then create the view again
         migrations.RunSQL(
             sql=sql,
             reverse_sql=reverse_sql
         ),
+        # And then create the materialized view again
         migrations.RunSQL(
             sql=sql_materialized,
             reverse_sql=reverse_sql_materialized
