@@ -10,4 +10,4 @@ pip-tools
 
 # Useful extra developer packages:
 factory-boy
-locustio
+locust
