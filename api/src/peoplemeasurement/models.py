@@ -1,5 +1,5 @@
+from django.contrib.gis.db import models
 from django.contrib.postgres.fields import JSONField
-from django.db import models
 
 
 class PeopleMeasurement(models.Model):
@@ -21,3 +21,15 @@ class PeopleMeasurement(models.Model):
     speed = models.FloatField(null=True)
     count = models.IntegerField(null=True)
     details = JSONField(null=True)
+
+
+class Sensors(models.Model):
+    geom = models.PointField(null=True)
+    objectnummer = models.CharField(max_length=255, null=True)
+    soort = models.CharField(max_length=255, null=True)
+    voeding = models.CharField(max_length=255, null=True)
+    rotatie = models.IntegerField(null=True)
+    actief = models.CharField(max_length=255, null=True)
+    privacyverklaring = models.CharField(max_length=255, null=True)
+    location_name = models.CharField(max_length=255, null=True)
+    width = models.FloatField(null=True)
