@@ -105,14 +105,14 @@ order by
 ;
 """
 
-    reverse_sql = f"drop view if exists {_VIEW_NAME};"
+    reverse_sql = f"DROP VIEW IF EXISTS {_VIEW_NAME};"
 
     sql_materialized = f"""
     CREATE MATERIALIZED VIEW {_VIEW_NAME}_materialized AS
     SELECT * FROM {_VIEW_NAME};
     """
 
-    reverse_sql_materialized = f"drop view if exists {_VIEW_NAME}_materialized;"
+    reverse_sql_materialized = f"DROP MATERIALIZED VIEW IF EXISTS {_VIEW_NAME}_materialized;"
 
     operations = [
         # First drop the materialized view

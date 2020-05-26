@@ -46,7 +46,7 @@ ORDER BY
     sensor ASC
 ;"""
 
-    reverse_sql = f"drop view if exists {_VIEW_NAME};"
+    reverse_sql = f"DROP VIEW IF EXISTS {_VIEW_NAME};"
 
     operations = [
         migrations.RunSQL(
