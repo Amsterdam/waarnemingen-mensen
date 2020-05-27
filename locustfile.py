@@ -1,8 +1,8 @@
 """
 This is a (much needed) load test for this repo. These are some example usages:
 
-locust --host=http://127.0.0.1:8001 --headless -u 250 -t 25 --run-time 1m PeopleUser
-locust --host=http://127.0.0.1:8001 --headless -u 250 -t 25 --run-time 30s
+locust --host=http://127.0.0.1:8001 --headless --users 250 --hatch-rate 25 --run-time 1m PeopleUser
+locust --host=http://127.0.0.1:8001 --headless --users 250 --hatch-rate 25 --run-time 30s
 """
 from uuid import uuid4
 import datetime, time
