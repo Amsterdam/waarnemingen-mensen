@@ -1,12 +1,12 @@
 """
 This is a (much needed) load test for this repo. These are some example usages:
 
-locust --host=http://127.0.0.1:8001 --no-web -c 250 -r 25 --run-time 1m PeopleUser
-locust --host=http://127.0.0.1:8001 --no-web -c 250 -r 25 --run-time 30s
+locust --host=http://127.0.0.1:8001 --headless --users 250 --hatch-rate 25 --run-time 1m PeopleUser
+locust --host=http://127.0.0.1:8001 --headless --users 250 --hatch-rate 25 --run-time 30s
 """
 from uuid import uuid4
 import datetime, time
-from locust import HttpLocust, TaskSet, task, between
+from locust import HttpUser, TaskSet, task, between
 
 
 PEOPLE_MEASUREMENT_ENDPOINT_URL = "/telcameras/v1/"
@@ -49,13 +49,10 @@ def create_message():
     }
 
 
-class PeopleBehaviour(TaskSet):
+class PeopleUser(HttpUser):
+    weight = 1
+    wait_time = between(0, 1)
+
     @task(1)
     def post_people(self):
         self.client.post(PEOPLE_MEASUREMENT_ENDPOINT_URL, json=create_message())
-
-
-class PeopleUser(HttpLocust):
-    task_set = PeopleBehaviour
-    weight = 1
-    wait_time = between(0, 1)

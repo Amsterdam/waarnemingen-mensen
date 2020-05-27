@@ -47,7 +47,7 @@ services:
       - ./:/opt/src
     links:
       - api
-    command: bash -c "locust -f /opt/src/locustfile.py --host=http://api:8001 --no-web -c 250 -r 25 --run-time 1m"
+    command: bash -c "locust -f /opt/src/locustfile.py --host=http://api:8001 --headless --users 250 --hatch-rate 25 --run-time 1m"
 
   refresh_materialized_view:
     build: ./api

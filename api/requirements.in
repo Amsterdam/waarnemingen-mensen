@@ -1,7 +1,7 @@
 # Define all requirements, only pin when necessary (and if so, add a comment explaining why).
 # See # https://git.datapunt.amsterdam.nl/Datapunt/python-best-practices/blob/master/dependency_management/
 
-django<3.0
+django
 django-datetime-utc
 django-filter
 django-extensions

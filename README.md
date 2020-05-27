@@ -48,4 +48,4 @@ and starting it from the browser http://127.0.0.1:8089.
 
 Or run it headless:
 
-    locust --host=http://127.0.0.1:8001 --no-web -c 250 -r 25 --run-time 30s
+    locust --host=http://127.0.0.1:8001 --headless --users 250 --hatch-rate 25 --run-time 30s
