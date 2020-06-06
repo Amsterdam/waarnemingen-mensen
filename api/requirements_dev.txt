@@ -16,7 +16,7 @@ django-datetime-utc==1.0.2  # via -r ./requirements.txt
 django-debug-toolbar==2.2  # via -r ./requirements.txt
 django-extensions==2.2.9  # via -r ./requirements.txt
 django-filter==2.2.0      # via -r ./requirements.txt
-django==3.0.6             # via -r ./requirements.txt, django-datetime-utc, django-debug-toolbar, django-filter, djangorestframework, drf-yasg
+django==3.0.7             # via -r ./requirements.txt, django-datetime-utc, django-debug-toolbar, django-filter, djangorestframework, drf-yasg
 djangorestframework-csv==2.1.0  # via -r ./requirements.txt, drf-amsterdam
 djangorestframework-gis==0.15  # via -r ./requirements.txt
 djangorestframework-xml==2.0.0  # via -r ./requirements.txt, drf-amsterdam
