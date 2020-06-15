@@ -5,7 +5,7 @@
 #    pip-compile --output-file=requirements_dev.txt requirements_dev.in
 #
 asgiref==3.2.7            # via -r ./requirements.txt, django
-certifi==2020.4.5.1       # via -r ./requirements.txt, geventhttpclient, requests, sentry-sdk
+certifi==2020.4.5.2       # via -r ./requirements.txt, geventhttpclient, requests, sentry-sdk
 chardet==3.0.4            # via -r ./requirements.txt, requests
 click==7.1.2              # via flask, pip-tools
 configargparse==1.2.3     # via locust
@@ -15,8 +15,8 @@ defusedxml==0.6.0         # via -r ./requirements.txt, djangorestframework-xml
 django-datetime-utc==1.0.2  # via -r ./requirements.txt
 django-debug-toolbar==2.2  # via -r ./requirements.txt
 django-extensions==2.2.9  # via -r ./requirements.txt
-django-filter==2.2.0      # via -r ./requirements.txt
-django==3.0.6             # via -r ./requirements.txt, django-datetime-utc, django-debug-toolbar, django-filter, djangorestframework, drf-yasg
+django-filter==2.3.0      # via -r ./requirements.txt
+django==3.0.7             # via -r ./requirements.txt, django-datetime-utc, django-debug-toolbar, django-filter, djangorestframework, drf-yasg
 djangorestframework-csv==2.1.0  # via -r ./requirements.txt, drf-amsterdam
 djangorestframework-gis==0.15  # via -r ./requirements.txt
 djangorestframework-xml==2.0.0  # via -r ./requirements.txt, drf-amsterdam
@@ -28,19 +28,19 @@ factory-boy==2.12.0       # via -r requirements_dev.in
 faker==4.1.0              # via factory-boy
 flask-basicauth==0.2.0    # via locust
 flask==1.1.2              # via flask-basicauth, locust
-gevent==20.5.1            # via geventhttpclient, locust
+gevent==20.6.1            # via geventhttpclient, locust
 geventhttpclient==1.4.2   # via locust
-greenlet==0.4.15          # via gevent
+greenlet==0.4.16          # via gevent
 idna==2.9                 # via -r ./requirements.txt, requests
-inflection==0.4.0         # via -r ./requirements.txt, drf-yasg
+inflection==0.5.0         # via -r ./requirements.txt, drf-yasg
 itsdangerous==1.1.0       # via flask
 itypes==1.2.0             # via -r ./requirements.txt, coreapi
 jinja2==2.11.2            # via -r ./requirements.txt, coreschema, flask
-locust==1.0.2             # via -r requirements_dev.in
+locust==1.0.3             # via -r requirements_dev.in
 markupsafe==1.1.1         # via -r ./requirements.txt, jinja2
 msgpack==1.0.0            # via locust
 packaging==20.4           # via -r ./requirements.txt, drf-yasg
-pip-tools==5.1.2          # via -r requirements_dev.in
+pip-tools==5.2.1          # via -r requirements_dev.in
 psutil==5.7.0             # via locust
 psycopg2-binary==2.8.5    # via -r ./requirements.txt
 pyparsing==2.4.7          # via -r ./requirements.txt, packaging
