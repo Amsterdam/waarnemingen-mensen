@@ -1,75 +1,75 @@
 from rest_framework import serializers
 
-from .models import ObservationAggregate, PersonObservation, Sensor
+from .models import CountAggregate, Observation, PersonAggregate
 
 
-class SensorSerializer(serializers.Serializer):
+class CountAggregateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CountAggregate
+        fields = [
+            'message',
+            'version',
+            'external_id',
+            'type',
+            'azimuth',
+            'count_in',
+            'count_out',
+        ]
+
+
+class PersonAggregateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PersonAggregate
+        fields = [
+            'message',
+            'version',
+            'person_id',
+            'observation_timestamp',
+            'record',
+            'speed',
+            'geom',
+            'quality',
+            'distances',
+        ]
+
+class ObservationSerializer(serializers.ModelSerializer):
+    counts = CountAggregateSerializer(many=True)
+    persons = PersonAggregateSerializer(many=True)
 
     class Meta:
-        model = Sensor
+        model = Observation
         fields = [
-            'external_id',
-            'sensor_code',
+            'sensor',
             'sensor_type',
+            'sensor_state',
+            'owner',
+            'supplier',
+            'purpose',
             'latitude',
             'longitude',
             'interval',
-            'version',
-            'direction',
+            'timestamp_message',
+            'timestamp_start',
+            'counts',
+            'persons'
         ]
 
-    def to_internal_value(self, data):
-        if data:
-            data['external_id'] = data.pop('id')
-            data['sensor_code'] = data.pop('sensor')
+    def create(self, validated_data):
+        counts = validated_data.pop('counts')
+        persons = validated_data.pop('persons')
 
-            for direction in data['direction']:
-                direction['aggregate_start'] = data['timestamp']
-            del data['timestamp']
+        observation = Observation.objects.create(**validated_data)
 
-        # data = super().to_internal_value(data)
-        return data
+        for count in counts:
+            CountAggregate.objects.create(
+                observation=observation,
+                **count
+            )
 
-    def save(self):
-        directions = self.validated_data.pop('direction')
+        for person in persons:
+            PersonAggregate.objects.create(
+                observation=observation,
+                **person
+            )
 
-        sensors = Sensor.objects.filter(
-            sensor_code=self.validated_data['sensor_code'],
-            sensor_type=self.validated_data['sensor_type'],
-            latitude=self.validated_data['latitude'],
-            longitude=self.validated_data['longitude'],
-            interval=self.validated_data['interval'],
-            version=self.validated_data['version'],
-        ).order_by('-id')
-        if sensors.count() > 0:
-            sensor = sensors[0]
-        else:
-            # The sensor doesn't exist exactly like posted, so we'll create a new one
-            last_sensors = Sensor.objects.filter(sensor_code=self.validated_data['sensor_code']).order_by('-id')
-            if last_sensors.count() > 0:
-                # We've got a previous version of this sensor, so we'll clone it to inherit all that info
-                sensor = last_sensors[0]
-                sensor.pk = None  # this will create a new record
-                sensor.sensor_code = self.validated_data['sensor_code']
-                sensor.sensor_type = self.validated_data['sensor_type']
-                sensor.latitude = self.validated_data['latitude']
-                sensor.longitude = self.validated_data['longitude']
-                sensor.interval = self.validated_data['interval']
-                sensor.version = self.validated_data['version']
-                sensor.save()
-            else:
-                # There is no previous version of this sensor,
-                # so we'll create one out of thin air
-                # TODO: log this, so it doesn't go unnoticed
-                sensor = Sensor.objects.create(**self.validated_data)
-
-        for direction in directions:
-            signals = direction.pop('signals', [])
-            direction['sensor_id'] = sensor.id
-            aggregate_obj = ObservationAggregate.objects.create(**direction)
-            for signal in signals:
-                signal['sensor_id'] = sensor.id
-                signal['observation_aggregate_id'] = aggregate_obj.id
-                PersonObservation.objects.create(**signal)
-
-        return sensor
+        return observation
