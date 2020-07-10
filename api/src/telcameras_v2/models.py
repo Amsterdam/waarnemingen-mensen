@@ -1,5 +1,5 @@
-from django.db import models
 from django.contrib.postgres import fields as postgres_fields
+from django.db import models
 
 
 class Observation(models.Model):
@@ -35,10 +35,10 @@ class PersonAggregate(models.Model):
     message = models.IntegerField()                 # Coming from root message. Volgnummer bericht,
     version = models.CharField(max_length=50)       # Coming from root message. E.g. "CS_count_0.0.1" versie van het bericht (zowel qua structuur als qua inhoud, dus mogelijk wijzigend met elke versiewijziging van de camerasoftware).
 
-    record = models.IntegerField()
     person_id = models.UUIDField()              # Coming from "personId"
-    quality = models.IntegerField()
-    speed = models.FloatField()
     observation_timestamp = models.DateTimeField()
+    record = models.IntegerField()
+    speed = models.FloatField(null=True)
     geom = models.TextField()
+    quality = models.IntegerField()
     distances = postgres_fields.JSONField()

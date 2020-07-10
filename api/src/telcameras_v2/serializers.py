@@ -1,18 +1,40 @@
 from rest_framework import serializers
 
-from .models import Observation, CountAggregate, PersonAggregate
+from .models import CountAggregate, Observation, PersonAggregate
 
 
 class CountAggregateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CountAggregate
+        fields = [
+            'message',
+            'version',
+            'external_id',
+            'type',
+            'azimuth',
+            'count_in',
+            'count_out',
+        ]
 
+
+class PersonAggregateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PersonAggregate
+        fields = [
+            'message',
+            'version',
+            'person_id',
+            'observation_timestamp',
+            'record',
+            'speed',
+            'geom',
+            'quality',
+            'distances',
+        ]
 
 class ObservationSerializer(serializers.ModelSerializer):
-    message = serializers.IntegerField()
-    message_type = serializers.CharField(allow_blank=True)
-    version = serializers.CharField(allow_blank=True)
-    aggregate = serializers.ListField()
+    counts = CountAggregateSerializer(many=True)
+    persons = PersonAggregateSerializer(many=True)
 
     class Meta:
         model = Observation
@@ -28,32 +50,26 @@ class ObservationSerializer(serializers.ModelSerializer):
             'interval',
             'timestamp_message',
             'timestamp_start',
-            'message',
-            'message_type',
-            'version',
-            'aggregate'
+            'counts',
+            'persons'
         ]
 
     def create(self, validated_data):
-        message = validated_data.pop('message')
-        message_type = validated_data.pop('message_type')
-        version = validated_data.pop('version')
-        aggregates = validated_data.pop('aggregate')
+        counts = validated_data.pop('counts')
+        persons = validated_data.pop('persons')
+
         observation = Observation.objects.create(**validated_data)
 
-        if message_type == 'count':
-            for aggregate in aggregates:
-                aggregate['external_id'] = aggregate.pop('id')
-                count_aggr = CountAggregate(**aggregate)
-                count_aggr.observation = observation
-                count_aggr.message = message
-                count_aggr.version = version
-                count_aggr.save()
+        for count in counts:
+            CountAggregate.objects.create(
+                observation=observation,
+                **count
+            )
 
-        # TODO: these need to be removed
-        observation.message = message
-        observation.message_type = message_type
-        observation.version = version
-        observation.aggregate = aggregates
+        for person in persons:
+            PersonAggregate.objects.create(
+                observation=observation,
+                **person
+            )
 
         return observation
