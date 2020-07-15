@@ -24,10 +24,17 @@ class CountAggregate(models.Model):
     version = models.CharField(max_length=50)       # e.g. "CS_count_0.0.1" versie van het bericht (zowel qua structuur als qua inhoud, dus mogelijk wijzigend met elke versiewijziging van de camerasoftware).
 
     external_id = models.CharField(max_length=255)  # Coming from the field "id". e.g. "Line 0" (no idea what else it can be).
-    type = models.CharField(max_length=255)         # e.g. "line". No idea what else it can be
-    azimuth = models.IntegerField()
-    count_in = models.IntegerField()
-    count_out = models.IntegerField()
+    type = models.CharField(max_length=255)         # e.g. "line" or "zone". No idea what else it can be.
+
+    # For a type "line"
+    azimuth = models.IntegerField(null=True)
+    count_in = models.IntegerField(null=True)
+    count_out = models.IntegerField(null=True)
+
+    # for a type "zone"
+    area = models.FloatField(null=True)
+    geom = models.TextField(null=True)
+    count = models.IntegerField(null=True)
 
 
 class PersonAggregate(models.Model):

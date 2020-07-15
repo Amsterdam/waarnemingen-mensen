@@ -40,6 +40,13 @@ TEST_POST = """
                     "azimuth": 170,
                     "count_in": 15,
                     "count_out": 12
+                },
+                {
+                    "type": "zone",
+                    "id": "Zone 0",
+                    "area": 27.5,
+                    "geom": "4.3 6.9,9.4 7.3,9.4 1.9,5.2 2.0",
+                    "count": 5
                 }
             ]
         }, 
@@ -52,8 +59,8 @@ TEST_POST = """
             "purpose": ["safety", "comfort"],
             "latitude": 52.361081,
             "longitude": 4.873822,
-        "interval": 60,
-        "timestamp_message": "2020-06-12T15:39:39.701Z",
+            "interval": 60,
+            "timestamp_message": "2020-06-12T15:39:39.701Z",
             "timestamp_start": "2020-06-12T15:05:00.000Z",
             "message": 215,
             "version": "CS_person_0.0.1",
@@ -132,24 +139,52 @@ class DataPosterTest(APITestCase):
                 self.assertEqual(getattr(observation, attr), post_data['data'][0][attr])
 
         # Check the CountAggregate record
-        self.assertEqual(CountAggregate.objects.all().count(), 1)
-        count_aggr = CountAggregate.objects.all()[0]
-        for attr in ('type', 'azimuth', 'count_in', 'count_out'):
-            self.assertEqual(getattr(count_aggr, attr), post_data['data'][0]['aggregate'][0][attr])
-        self.assertEqual(count_aggr.external_id, post_data['data'][0]['aggregate'][0]['id'])
-        self.assertEqual(count_aggr.message, post_data['data'][0]['message'])
-        self.assertEqual(count_aggr.version, post_data['data'][0]['version'])
+        self.assertEqual(CountAggregate.objects.all().count(), len(post_data['data'][0]['aggregate']))
+        for count_aggr in CountAggregate.objects.all():
+
+            fields_to_check = []
+            posted_count_aggregate = None
+
+            # Get the post data for this CountAggregate (they might not be in the same order)
+            for postedCountAggregate in post_data['data'][0]['aggregate']:
+                if postedCountAggregate['type'] == count_aggr.type:
+                    posted_count_aggregate = postedCountAggregate
+
+                if count_aggr.type == 'line':
+                    fields_to_check = ('type', 'azimuth', 'count_in', 'count_out')
+                elif count_aggr.type == 'zone':
+                    fields_to_check = ('type', 'area', 'geom', 'count')
+
+            # Check whether we actually found the correct posted count aggregate
+            self.assertEqual(type(posted_count_aggregate), dict)
+
+            for attr in fields_to_check:
+                self.assertEqual(getattr(count_aggr, attr), posted_count_aggregate[attr])
+            self.assertEqual(count_aggr.external_id, posted_count_aggregate['id'])
+            self.assertEqual(count_aggr.message, post_data['data'][0]['message'])
+            self.assertEqual(count_aggr.version, post_data['data'][0]['version'])
 
         # Check the PersonAggregate
-        self.assertEqual(PersonAggregate.objects.all().count(), 2)
+        self.assertEqual(PersonAggregate.objects.all().count(), len(post_data['data'][1]['aggregate']))
         for i, pers_aggr in enumerate(PersonAggregate.objects.all()):
+            # Get the post data for this PersonAggregate (they might not be in the same order)
+            posted_person_aggregate = None
+            for postedPersonAggregate in post_data['data'][1]['aggregate']:
+                if postedPersonAggregate['personId'] == str(pers_aggr.person_id):
+                    posted_person_aggregate = postedPersonAggregate
+                    break
+
+            # Check whether we actually found the correct posted person aggregate
+            self.assertEqual(type(posted_person_aggregate), dict)
+
+            # Check the values
             for attr in ('observation_timestamp', 'record', 'speed', 'geom', 'quality', 'distances'):
                 if type(getattr(pers_aggr, attr)) is datetime:
-                    self.assertEqual(getattr(pers_aggr, attr), parser.parse(post_data['data'][1]['aggregate'][i][attr]))
+                    self.assertEqual(getattr(pers_aggr, attr), parser.parse(posted_person_aggregate[attr]))
                 else:
-                    self.assertEqual(getattr(pers_aggr, attr), post_data['data'][1]['aggregate'][i][attr])
+                    self.assertEqual(getattr(pers_aggr, attr), posted_person_aggregate[attr])
 
-            self.assertEqual(str(pers_aggr.person_id), post_data['data'][1]['aggregate'][i]['personId'])
+            self.assertEqual(str(pers_aggr.person_id), posted_person_aggregate['personId'])
 
     def test_post_fails_without_token(self):
         response = self.client.post(self.URL, json.loads(TEST_POST), format='json')
@@ -162,7 +197,7 @@ class DataPosterTest(APITestCase):
         self.client.post(self.URL, json.loads(TEST_POST),
                          **{'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}, format='json')
         self.assertEqual(Observation.objects.all().count(), 2)
-        self.assertEqual(CountAggregate.objects.all().count(), 2)
+        self.assertEqual(CountAggregate.objects.all().count(), 4)
         self.assertEqual(PersonAggregate.objects.all().count(), 4)
 
     def test_sending_a_completely_malformed_record(self):

@@ -14,6 +14,9 @@ class CountAggregateSerializer(serializers.ModelSerializer):
             'azimuth',
             'count_in',
             'count_out',
+            'area',
+            'geom',
+            'count'
         ]
 
 
@@ -31,6 +34,7 @@ class PersonAggregateSerializer(serializers.ModelSerializer):
             'quality',
             'distances',
         ]
+
 
 class ObservationSerializer(serializers.ModelSerializer):
     counts = CountAggregateSerializer(many=True)
