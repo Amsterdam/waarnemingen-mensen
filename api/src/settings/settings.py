@@ -40,7 +40,6 @@ INSTALLED_APPS += [
     'settings',
     'peoplemeasurement',
     'telcameras_v2',
-    'telcameras_vondelpark_tmp',
 ]
 
 TEMPLATES = [
