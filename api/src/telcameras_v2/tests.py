@@ -1,12 +1,12 @@
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from decimal import Decimal
 
 import pytz
 from dateutil import parser
 from django.conf import settings
-from rest_framework.test import APIClient, APITestCase
+from rest_framework.test import APITestCase
 
 from telcameras_v2.models import CountAggregate, Observation, PersonAggregate
 
