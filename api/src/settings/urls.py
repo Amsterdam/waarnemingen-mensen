@@ -21,7 +21,6 @@ from django.urls import path
 urlpatterns = [
     path('telcameras/v1/', include('peoplemeasurement.urls')),
     path('telcameras/v2/', include('telcameras_v2.urls')),
-    path('telcameras/vondelpark_tmp/', include('telcameras_vondelpark_tmp.urls')),
     url('status/', include('health.urls')),
 ]
 
