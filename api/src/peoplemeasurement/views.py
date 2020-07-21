@@ -1,9 +1,17 @@
+import logging
+import sys
+
 from datapunt_api.pagination import HALCursorPagination
 from datapunt_api.rest import DatapuntViewSetWritable
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet
+from rest_framework import exceptions, status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 from . import serializers
 from .models import PeopleMeasurement
+
+logger = logging.getLogger(__name__)
 
 
 class PeopleMeasurementFilter(FilterSet):
@@ -34,6 +42,7 @@ class PeopleMeasurementViewSet(DatapuntViewSetWritable):
     queryset = PeopleMeasurement.objects.all().order_by('timestamp')
 
     http_method_names = ['post']
+    permission_classes = [IsAuthenticated]
 
     filter_backends = [DjangoFilterBackend]
     filter_class = PeopleMeasurementFilter
@@ -53,3 +62,16 @@ class PeopleMeasurementViewSet(DatapuntViewSetWritable):
         serializer_class = self.get_serializer_class()
         kwargs['context'] = self.get_serializer_context()
         return serializer_class(*args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+        try:
+            response = super().create(request, *args, **kwargs)
+            return response
+        except exceptions.ValidationError as e:
+            logger.error(f"{e} in message: {request.data}")
+            return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            error_message = f"Got {sys.exc_info()[1].__repr__()} in message: {request.data}"
+            logger.error(error_message)
+            # Also return the error message for easier debugging on the sending side
+            return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
