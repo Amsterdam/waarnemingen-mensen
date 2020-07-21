@@ -1,6 +1,7 @@
 from datapunt_api.pagination import HALCursorPagination
 from datapunt_api.rest import DatapuntViewSetWritable
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet
+from rest_framework.permissions import IsAuthenticated
 
 from . import serializers
 from .models import PeopleMeasurement
@@ -34,6 +35,7 @@ class PeopleMeasurementViewSet(DatapuntViewSetWritable):
     queryset = PeopleMeasurement.objects.all().order_by('timestamp')
 
     http_method_names = ['post']
+    permission_classes = [IsAuthenticated]
 
     filter_backends = [DjangoFilterBackend]
     filter_class = PeopleMeasurementFilter

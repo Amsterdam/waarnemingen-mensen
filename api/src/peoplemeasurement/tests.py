@@ -3,16 +3,19 @@ import logging
 from uuid import uuid4
 
 import pytz
+from django.conf import settings
 from django.db import connection
+from factory import fuzzy
 from rest_framework.test import APITestCase
 
-from factory import fuzzy
 from .models import PeopleMeasurement
 
 log = logging.getLogger(__name__)
 timezone = pytz.timezone("UTC")
 
 BBOX = [52.03560, 4.58565, 52.48769, 5.31360]
+
+AUTHORIZATION_HEADER = {'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}
 
 TEST_POST = {
     "data": {
@@ -119,10 +122,16 @@ class PeopleMeasurementTestV1(APITestCase):
     def setUp(self):
         self.URL = '/telcameras/v1/'
 
+    def test_post_fails_without_token(self):
+        record_count_before = get_record_count()
+        response = self.client.post(self.URL, TEST_POST, format='json')
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(record_count_before, 0)
+
     def test_post_new_people_measurement(self):
         """ Test posting a new vanilla message """
         record_count_before = get_record_count()
-        response = self.client.post(self.URL, TEST_POST, format='json')
+        response = self.client.post(self.URL, TEST_POST, **AUTHORIZATION_HEADER, format='json')
 
         self.assertEqual(record_count_before+1, get_record_count())
         self.assertEqual(response.status_code, 201, response.data)
@@ -138,7 +147,7 @@ class PeopleMeasurementTestV1(APITestCase):
         del test_post['data']['count']
         del test_post['data']['speed']
         del test_post['details']
-        response = self.client.post(self.URL, test_post, format='json')
+        response = self.client.post(self.URL, test_post, **AUTHORIZATION_HEADER, format='json')
 
         self.assertEqual(record_count_before+1, get_record_count())
         self.assertEqual(response.status_code, 201, response.data)
@@ -149,31 +158,39 @@ class PeopleMeasurementTestV1(APITestCase):
         for i in ('density', 'count', 'speed', 'details'):
             self.assertEqual(response.data[i], None)
 
+    def test_post_wrongy_formatted_message(self):
+        """ Test posting a new vanilla message """
+        record_count_before = get_record_count()
+        response = self.client.post(self.URL, {'wrongly': 'formatted message'}, **AUTHORIZATION_HEADER, format='json')
+
+        self.assertEqual(record_count_before, get_record_count())
+        self.assertEqual(response.status_code, 400, response.data)
+
     def test_get_peoplemeasurements_not_allowed(self):
         """ Test if getting a peoplemeasurement is not allowed """
         # First post one
-        response = self.client.post(self.URL, TEST_POST, format='json')
+        response = self.client.post(self.URL, TEST_POST, **AUTHORIZATION_HEADER, format='json')
         self.assertEqual(response.status_code, 201)
 
         # Then check if I cannot get it
-        response = self.client.get(f'{self.URL}{TEST_POST["data"]["id"]}/')
+        response = self.client.get(f'{self.URL}{TEST_POST["data"]["id"]}/', **AUTHORIZATION_HEADER)
         self.assertEqual(response.status_code, 405)
 
     def test_update_peoplemeasurements_not_allowed(self):
         """ Test if updating a peoplemeasurement is not allowed """
         # First post one
-        response = self.client.post(self.URL, TEST_POST, format='json')
+        response = self.client.post(self.URL, TEST_POST, **AUTHORIZATION_HEADER, format='json')
         self.assertEqual(response.status_code, 201)
 
         # Then check if I cannot update it
-        response = self.client.put(f'{self.URL}{TEST_POST["data"]["id"]}/', TEST_POST, format='json')
+        response = self.client.put(f'{self.URL}{TEST_POST["data"]["id"]}/', TEST_POST, **AUTHORIZATION_HEADER, format='json')
         self.assertEqual(response.status_code, 405)
 
     def test_delete_peoplemeasurements_not_allowed(self):
         """ Test if deleting a peoplemeasurement is not allowed """
         # First post one
-        response = self.client.post(self.URL, TEST_POST, format='json')
+        response = self.client.post(self.URL, TEST_POST, **AUTHORIZATION_HEADER, format='json')
         self.assertEqual(response.status_code, 201)
 
-        response = self.client.delete(f'{self.URL}{TEST_POST["data"]["id"]}/')
+        response = self.client.delete(f'{self.URL}{TEST_POST["data"]["id"]}/', **AUTHORIZATION_HEADER)
         self.assertEqual(response.status_code, 405)

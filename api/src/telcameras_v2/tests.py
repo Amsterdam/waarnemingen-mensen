@@ -13,6 +13,8 @@ from telcameras_v2.models import CountAggregate, Observation, PersonAggregate
 log = logging.getLogger(__name__)
 timezone = pytz.timezone("UTC")
 
+AUTHORIZATION_HEADER = {'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}
+
 # In the posts that we receive, all root fields in the objects are the same,
 # except for the version, the message (id), the message_type and the aggregate
 TEST_POST = """
@@ -117,12 +119,7 @@ class DataPosterTest(APITestCase):
     def test_post_new_record(self):
         """ Test posting a new vanilla message """
         post_data = json.loads(TEST_POST)
-        response = self.client.post(
-            self.URL,
-            post_data,
-            **{'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"},
-            format='json'
-        )
+        response = self.client.post(self.URL, post_data, **AUTHORIZATION_HEADER, format='json')
 
         # Check the Observation record
         self.assertEqual(response.status_code, 201, response.data)
@@ -192,18 +189,15 @@ class DataPosterTest(APITestCase):
         self.assertEqual(Observation.objects.all().count(), 0)
 
     def test_sending_the_same_record_twice(self):
-        self.client.post(self.URL, json.loads(TEST_POST),
-                         **{'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}, format='json')
-        self.client.post(self.URL, json.loads(TEST_POST),
-                         **{'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}, format='json')
+        self.client.post(self.URL, json.loads(TEST_POST), **AUTHORIZATION_HEADER, format='json')
+        self.client.post(self.URL, json.loads(TEST_POST), **AUTHORIZATION_HEADER, format='json')
         self.assertEqual(Observation.objects.all().count(), 2)
         self.assertEqual(CountAggregate.objects.all().count(), 4)
         self.assertEqual(PersonAggregate.objects.all().count(), 4)
 
     def test_sending_a_completely_malformed_record(self):
         post_data = json.loads('{"this_is": "malformed data"}')
-        response = self.client.post(self.URL, post_data,
-                         **{'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}, format='json')
+        response = self.client.post(self.URL, post_data, **AUTHORIZATION_HEADER, format='json')
 
         self.assertEqual(Observation.objects.all().count(), 0)
         self.assertEqual(CountAggregate.objects.all().count(), 0)
@@ -211,21 +205,17 @@ class DataPosterTest(APITestCase):
         self.assertEqual(response.status_code, 400, response.data)
 
     def test_405_on_get(self):
-        response = self.client.get(self.URL,
-                                   **{'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}, format='json')
+        response = self.client.get(self.URL, **AUTHORIZATION_HEADER, format='json')
         self.assertEqual(response.status_code, 405, response.data)
 
     def test_405_on_put(self):
-        response = self.client.put(self.URL, json.loads(TEST_POST),
-                                   **{'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}, format='json')
+        response = self.client.put(self.URL, json.loads(TEST_POST), **AUTHORIZATION_HEADER, format='json')
         self.assertEqual(response.status_code, 405, response.data)
 
     def test_405_on_patch(self):
-        response = self.client.patch(self.URL, json.loads(TEST_POST),
-                                     **{'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}, format='json')
+        response = self.client.patch(self.URL, json.loads(TEST_POST), **AUTHORIZATION_HEADER, format='json')
         self.assertEqual(response.status_code, 405, response.data)
 
     def test_405_on_delete(self):
-        response = self.client.delete(self.URL, json.loads(TEST_POST),
-                                      **{'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}, format='json')
+        response = self.client.delete(self.URL, json.loads(TEST_POST), **AUTHORIZATION_HEADER, format='json')
         self.assertEqual(response.status_code, 405, response.data)
