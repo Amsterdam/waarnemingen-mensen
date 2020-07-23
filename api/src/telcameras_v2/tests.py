@@ -204,6 +204,33 @@ class DataPosterTest(APITestCase):
         self.assertEqual(PersonAggregate.objects.all().count(), 0)
         self.assertEqual(response.status_code, 400, response.data)
 
+    def test_geom_fields_to_null(self):
+        post_data = json.loads(TEST_POST)
+        post_data['data'][0]['aggregate'][1]['geom'] = None
+        post_data['data'][1]['aggregate'][0]['geom'] = None
+        post_data['data'][1]['aggregate'][1]['geom'] = None
+        response = self.client.post(self.URL, post_data, **AUTHORIZATION_HEADER, format='json')
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(Observation.objects.all().count(), 1)
+
+    def test_absent_geom_fields(self):
+        post_data = json.loads(TEST_POST)
+        del post_data['data'][0]['aggregate'][1]['geom']
+        del post_data['data'][1]['aggregate'][0]['geom']
+        del post_data['data'][1]['aggregate'][1]['geom']
+        response = self.client.post(self.URL, post_data, **AUTHORIZATION_HEADER, format='json')
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(Observation.objects.all().count(), 1)
+
+    def test_geom_fields_to_empty_string(self):
+        post_data = json.loads(TEST_POST)
+        post_data['data'][0]['aggregate'][1]['geom'] = ''
+        post_data['data'][1]['aggregate'][0]['geom'] = ''
+        post_data['data'][1]['aggregate'][1]['geom'] = ''
+        response = self.client.post(self.URL, post_data, **AUTHORIZATION_HEADER, format='json')
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(Observation.objects.all().count(), 1)
+
     def test_405_on_get(self):
         response = self.client.get(self.URL, **AUTHORIZATION_HEADER, format='json')
         self.assertEqual(response.status_code, 405, response.data)

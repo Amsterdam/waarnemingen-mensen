@@ -31,12 +31,16 @@ class RecordViewSet(DatapuntViewSetWritable):
                         count['external_id'] = count.pop('id')  # Count aggregates have an id, so to avoid colisions with the django orm id we rename the existing id that to "external_id"
                         count['message'] = message
                         count['version'] = version
+                        if 'geom' in count:
+                            count['geom'] = None if not count['geom'] else count['geom']
                         counts.append(count)
                 elif obs['message_type'] == 'person':
                     for person in obs['aggregate']:
                         person['message'] = message
                         person['version'] = version
                         person['person_id'] = person.pop('personId')
+                        if 'geom' in person:
+                            person['geom'] = None if not person['geom'] else person['geom']
                         persons.append(person)
 
             observation['counts'] = counts
