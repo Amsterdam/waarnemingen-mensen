@@ -46,6 +46,6 @@ class PersonAggregate(models.Model):
     observation_timestamp = models.DateTimeField()
     record = models.IntegerField()
     speed = models.FloatField(null=True)
-    geom = models.TextField()
+    geom = models.TextField(null=True)
     quality = models.IntegerField()
     distances = postgres_fields.JSONField()
