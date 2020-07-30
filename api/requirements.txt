@@ -4,17 +4,17 @@
 #
 #    pip-compile --output-file=requirements.txt requirements.in
 #
-asgiref==3.2.7            # via django
-certifi==2020.4.5.2       # via requests, sentry-sdk
+asgiref==3.2.10           # via django
+certifi==2020.6.20        # via requests, sentry-sdk
 chardet==3.0.4            # via requests
 coreapi==2.3.3            # via drf-yasg
 coreschema==0.0.4         # via coreapi, drf-yasg
 defusedxml==0.6.0         # via djangorestframework-xml
 django-datetime-utc==1.0.2  # via -r requirements.in
 django-debug-toolbar==2.2  # via -r requirements.in
-django-extensions==2.2.9  # via -r requirements.in
+django-extensions==3.0.3  # via -r requirements.in
 django-filter==2.3.0      # via -r requirements.in
-django==3.0.7             # via -r requirements.in, django-datetime-utc, django-debug-toolbar, django-filter, djangorestframework, drf-yasg
+django==3.0.8             # via -r requirements.in, django-datetime-utc, django-debug-toolbar, django-filter, djangorestframework, drf-yasg
 djangorestframework-csv==2.1.0  # via drf-amsterdam
 djangorestframework-gis==0.15  # via -r requirements.in
 djangorestframework-xml==2.0.0  # via -r requirements.in, drf-amsterdam
@@ -22,7 +22,7 @@ djangorestframework==3.11.0  # via -r requirements.in, djangorestframework-csv, 
 drf-amsterdam==0.3.2      # via -r requirements.in
 drf-extensions==0.6.0     # via drf-amsterdam
 drf-yasg==1.17.1          # via -r requirements.in
-idna==2.9                 # via requests
+idna==2.10                # via requests
 inflection==0.5.0         # via drf-yasg
 itypes==1.2.0             # via coreapi
 jinja2==2.11.2            # via coreschema
@@ -32,12 +32,12 @@ psycopg2-binary==2.8.5    # via -r requirements.in
 pyparsing==2.4.7          # via packaging
 python-dateutil==2.8.1    # via django-datetime-utc
 pytz==2020.1              # via -r requirements.in, django
-requests==2.23.0          # via -r requirements.in, coreapi
+requests==2.24.0          # via -r requirements.in, coreapi
 ruamel.yaml.clib==0.2.0   # via ruamel.yaml
 ruamel.yaml==0.16.10      # via drf-yasg
-sentry-sdk==0.14.4        # via -r requirements.in
+sentry-sdk==0.16.2        # via -r requirements.in
 six==1.15.0               # via django-extensions, djangorestframework-csv, drf-yasg, packaging, python-dateutil
 sqlparse==0.3.1           # via django, django-debug-toolbar
 unicodecsv==0.14.1        # via djangorestframework-csv
 uritemplate==3.0.1        # via coreapi, drf-yasg
-urllib3==1.25.9           # via requests, sentry-sdk
+urllib3==1.25.10          # via requests, sentry-sdk

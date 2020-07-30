@@ -11,3 +11,5 @@ pip-tools
 # Useful extra developer packages:
 factory-boy
 locust
+ipython
+model_bakery

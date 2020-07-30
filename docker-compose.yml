@@ -1,7 +1,7 @@
 version: "2.0"
 services:
   database:
-    image: amsterdam/postgres11
+    image: timescale/timescaledb-postgis:1.4.2-pg11
     ports:
       - "5432:5432"
     environment:
@@ -39,6 +39,8 @@ services:
       - UWSGI_DIE_ON_TERM=1
       - UWSGI_MODULE=settings.wsgi:application
       - UWSGI_PY_AUTORELOAD=1
+    command:
+      python manage.py runserver_plus 0.0.0.0:8001 --print-sql
 
   locust:
     build: .

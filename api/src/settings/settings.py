@@ -27,6 +27,7 @@ DEBUG = os.getenv('DEBUG', 'false').lower() == 'true'
 
 # The token that is allowed to post data to protected endpoints
 AUTHORIZATION_TOKEN = os.environ['AUTHORIZATION_TOKEN']
+SHELL_PLUS_PRINT_SQL_TRUNCATE = 5000
 
 
 ALLOWED_HOSTS = ['*']
