@@ -71,7 +71,9 @@ class PeopleMeasurementViewSet(DatapuntViewSetWritable):
             logger.error(f"{e} in message: {request.data}")
             return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            error_message = f"Got {sys.exc_info()[1].__repr__()} in message: {request.data}"
+            error_message = sys.exc_info()[1].__repr__()
             logger.error(error_message)
+
+            long_error_message = f"Got {error_message} in message: {request.data}"
             # Also return the error message for easier debugging on the sending side
-            return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
+            return Response(long_error_message, status=status.HTTP_400_BAD_REQUEST)
