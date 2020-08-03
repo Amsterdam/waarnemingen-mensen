@@ -49,6 +49,10 @@ class RecordViewSet(DatapuntViewSetWritable):
             del observation['message_type']
             del observation['aggregate']
 
+            # Round lat/longs to 13 decimal places, because sometimes they are absurdly long
+            observation['latitude'] = round(observation['latitude'], 13)
+            observation['longitude'] = round(observation['longitude'], 13)
+
             observation_serializer = ObservationSerializer(data=observation)
             observation_serializer.is_valid(raise_exception=True)
             observation_serializer.save()
