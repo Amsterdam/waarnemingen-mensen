@@ -2,7 +2,7 @@ import logging
 import sys
 
 from datapunt_api.rest import DatapuntViewSetWritable
-from rest_framework import status
+from rest_framework import exceptions, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -59,8 +59,6 @@ class RecordViewSet(DatapuntViewSetWritable):
 
             return Response("", status=status.HTTP_201_CREATED)
 
-        except Exception:
-            error_message = f"Got {sys.exc_info()[1].__repr__()} in message: {request.data}"
-            logger.error(error_message)
-            # Currently still returning the error message for easier debugging
-            return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
+        except (exceptions.ValidationError, KeyError, TypeError) as e:
+            logger.error(e)
+            return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
