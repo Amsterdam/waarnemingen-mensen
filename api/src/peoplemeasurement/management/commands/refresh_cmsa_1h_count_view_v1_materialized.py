@@ -7,6 +7,7 @@ log = logging.getLogger(__name__)
 
 VIEW_NAME = 'cmsa_1h_count_view_v1_materialized'
 
+
 @transaction.atomic
 class Command(BaseCommand):
     def handle(self, *args, **options):
