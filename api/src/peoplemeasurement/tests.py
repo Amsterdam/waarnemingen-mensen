@@ -159,7 +159,6 @@ class PeopleMeasurementTestV1(APITestCase):
             self.assertEqual(response.data[i], None)
 
     def test_post_wrongy_formatted_message(self):
-        """ Test posting a new vanilla message """
         record_count_before = get_record_count()
         response = self.client.post(self.URL, {'wrongly': 'formatted message'}, **AUTHORIZATION_HEADER, format='json')
 
@@ -192,5 +191,6 @@ class PeopleMeasurementTestV1(APITestCase):
         response = self.client.post(self.URL, TEST_POST, **AUTHORIZATION_HEADER, format='json')
         self.assertEqual(response.status_code, 201)
 
+        # Then check if I cannot delete it
         response = self.client.delete(f'{self.URL}{TEST_POST["data"]["id"]}/', **AUTHORIZATION_HEADER)
         self.assertEqual(response.status_code, 405)
