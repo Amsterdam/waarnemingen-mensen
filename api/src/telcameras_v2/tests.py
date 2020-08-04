@@ -231,6 +231,16 @@ class DataPosterTest(APITestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(Observation.objects.all().count(), 1)
 
+    def test_lat_lng_with_many_decimals(self):
+        post_data = json.loads(TEST_POST)
+        post_data['data'][0]['latitude'] = 52.3921439524031
+        post_data['data'][0]['longitude'] = 4.885872984800177
+        post_data['data'][1]['latitude'] = post_data['data'][0]['latitude']
+        post_data['data'][1]['longitude'] = post_data['data'][0]['longitude']
+        response = self.client.post(self.URL, post_data, **AUTHORIZATION_HEADER, format='json')
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(Observation.objects.all().count(), 1)
+
     def test_405_on_get(self):
         response = self.client.get(self.URL, **AUTHORIZATION_HEADER, format='json')
         self.assertEqual(response.status_code, 405, response.data)

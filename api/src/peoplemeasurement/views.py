@@ -1,5 +1,4 @@
 import logging
-import sys
 
 from datapunt_api.pagination import HALCursorPagination
 from datapunt_api.rest import DatapuntViewSetWritable
@@ -68,6 +67,6 @@ class PeopleMeasurementViewSet(DatapuntViewSetWritable):
             response = super().create(request, *args, **kwargs)
             return response
         except (exceptions.ValidationError, KeyError, TypeError) as e:
-            logger.error(f"{e} in message: {request.data}")
+            logger.error(e)
             return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
 

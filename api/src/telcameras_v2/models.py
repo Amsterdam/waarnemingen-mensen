@@ -9,8 +9,8 @@ class Observation(models.Model):
     owner = models.CharField(max_length=255, null=True)     # e.g. "gemeente Amsterdam" or  "Prorail"   # Verantwoordelijke Eigenaar van de Camera
     supplier = models.CharField(max_length=255, null=True)  # e.g. "Connection Systems"            # Leverancier die de camera beheert in opdracht van de eigenaar.
     purpose = postgres_fields.ArrayField(models.CharField(max_length=255), null=True)  # Doel van de camera
-    latitude = models.DecimalField(max_digits=9, decimal_places=6)
-    longitude = models.DecimalField(max_digits=9, decimal_places=6)
+    latitude = models.DecimalField(max_digits=16, decimal_places=13)
+    longitude = models.DecimalField(max_digits=16, decimal_places=13)
     interval = models.SmallIntegerField()                   # e.g. 60     # seconds that this message spans
     timestamp_message = models.DateTimeField()
     timestamp_start = models.DateTimeField()
