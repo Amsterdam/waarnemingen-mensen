@@ -165,6 +165,16 @@ class PeopleMeasurementTestV1(APITestCase):
         self.assertEqual(record_count_before, get_record_count())
         self.assertEqual(response.status_code, 400, response.data)
 
+    def test_post_same_id_twice(self):
+        # Post it once
+        response = self.client.post(self.URL, TEST_POST, **AUTHORIZATION_HEADER, format='json')
+        self.assertEqual(response.status_code, 201)
+
+        # Post it twice
+        response = self.client.post(self.URL, TEST_POST, **AUTHORIZATION_HEADER, format='json')
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()['id'][0], 'people measurement with this id already exists.')
+
     def test_get_peoplemeasurements_not_allowed(self):
         """ Test if getting a peoplemeasurement is not allowed """
         # First post one

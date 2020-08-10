@@ -68,5 +68,4 @@ class PeopleMeasurementViewSet(DatapuntViewSetWritable):
             return response
         except (exceptions.ValidationError, KeyError, TypeError) as e:
             logger.error(e)
-            return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
-
+            raise e
