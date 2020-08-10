@@ -99,5 +99,6 @@ if SENTRY_DSN:
     sentry_sdk.init(
         dsn=SENTRY_DSN,
         integrations=[DjangoIntegration()],
-        ignore_errors=['ExpiredSignatureError']
+        ignore_errors=['ExpiredSignatureError'],
+        request_bodies='always'
     )
