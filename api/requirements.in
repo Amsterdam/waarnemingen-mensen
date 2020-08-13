@@ -6,6 +6,7 @@ django-datetime-utc
 django-filter
 django-extensions
 django-debug-toolbar
+django-sentry-400-middleware
 djangorestframework
 djangorestframework-gis
 djangorestframework-xml
