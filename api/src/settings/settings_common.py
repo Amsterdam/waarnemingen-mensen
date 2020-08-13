@@ -38,6 +38,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django_sentry_400_middleware.Sentry400CatchMiddleware",
 ]
 
 X_FRAME_OPTIONS = 'ALLOW-FROM *'
