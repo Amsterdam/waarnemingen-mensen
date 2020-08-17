@@ -33,3 +33,4 @@ class Sensors(models.Model):
     privacyverklaring = models.CharField(max_length=255, null=True)
     location_name = models.CharField(max_length=255, null=True)
     width = models.FloatField(null=True)
+    gebiedstype = models.CharField(max_length=255, null=True)
