@@ -1,12 +1,11 @@
 # Define all requirements, only pin when necessary (and if so, add a comment explaining why).
 # See # https://git.datapunt.amsterdam.nl/Datapunt/python-best-practices/blob/master/dependency_management/
 
-django<3.1  # Testing in Django 3.1 gives this ImportError: Could not import 'rest_framework_extensions.utils.default_object_cache_key_func' for API setting 'DEFAULT_OBJECT_CACHE_KEY_FUNC'. ImportError: cannot import name 'EmptyResultSet' from 'django.db.models.sql.datastructures'
+django
 django-datetime-utc
 django-filter
 django-extensions
 django-debug-toolbar
-django-sentry-400-middleware
 djangorestframework
 djangorestframework-gis
 djangorestframework-xml
