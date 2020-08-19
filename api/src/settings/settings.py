@@ -24,7 +24,7 @@ DEBUG = os.getenv('DEBUG', 'false').lower() == 'true'
 
 # The token that is allowed to post data to protected endpoints
 AUTHORIZATION_TOKEN = os.environ['AUTHORIZATION_TOKEN']
-
+GET_AUTHORIZATION_TOKEN = os.environ['GET_AUTHORIZATION_TOKEN']
 
 ALLOWED_HOSTS = ['*']
 X_FRAME_OPTIONS = 'ALLOW-FROM *'
@@ -140,17 +140,14 @@ REST_FRAMEWORK = dict(
     UNAUTHENTICATED_USER={},
     UNAUTHENTICATED_TOKEN={},
     DEFAULT_AUTHENTICATION_CLASSES=(
-        # 'rest_framework.authentication.BasicAuthentication',
-        # 'rest_framework.authentication.SessionAuthentication',
-        'contrib.rest_framework.authentication.SimpleTokenAuthentication',
+        'contrib.rest_framework.authentication.SimplePostTokenAuthentication',
     ),
     DEFAULT_PAGINATION_CLASS=("datapunt_api.pagination.HALPagination",),
     DEFAULT_RENDERER_CLASSES=(
         "rest_framework.renderers.JSONRenderer",
         "datapunt_api.renderers.PaginatedCSVRenderer",
         "rest_framework.renderers.BrowsableAPIRenderer",
-        # must be lowest!
-        "rest_framework_xml.renderers.XMLRenderer",
+        "rest_framework_xml.renderers.XMLRenderer",  # must be lowest!
     ),
     DEFAULT_FILTER_BACKENDS=(
         # 'rest_framework.filters.SearchFilter',

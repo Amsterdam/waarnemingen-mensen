@@ -11,6 +11,7 @@ from rest_framework.response import Response
 
 from . import serializers
 from .models import PeopleMeasurement
+from .permissions import SimpleGetTokenAuthentication
 from .queries import get_today_15min_aggregation_sql
 
 logger = logging.getLogger(__name__)
@@ -75,6 +76,7 @@ class PeopleMeasurementViewSet(DatapuntViewSetWritable):
 
 
 class Today15minAggregationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    permission_classes = [SimpleGetTokenAuthentication]
     def dictfetchall(self, cursor):
         """Return all rows from a cursor as a dict"""
         columns = [col[0] for col in cursor.description]
