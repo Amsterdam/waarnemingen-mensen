@@ -213,5 +213,9 @@ class PeopleMeasurementTestV1(APITestCase):
 
         # test whether the endpoint responds correctly
         response = self.client.get(self.URL_AGGREGATE, **AUTHORIZATION_HEADER)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 2)
+
+        # TODO update this test and remove 404
+        self.assertEqual(response.status_code, 404)
+        # These testcases have intentionally been disabled for now, until auth has been implemented
+#        self.assertEqual(response.status_code, 200)
+#        self.assertEqual(len(response.data), 2)
