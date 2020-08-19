@@ -1,14 +1,17 @@
 import logging
+from datetime import date
 
 from datapunt_api.pagination import HALCursorPagination
 from datapunt_api.rest import DatapuntViewSetWritable
+from django.db import connection
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet
-from rest_framework import exceptions, status
+from rest_framework import exceptions, mixins, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from . import serializers
 from .models import PeopleMeasurement
+from .queries import get_today_15min_aggregation_sql
 
 logger = logging.getLogger(__name__)
 
@@ -69,3 +72,20 @@ class PeopleMeasurementViewSet(DatapuntViewSetWritable):
         except (exceptions.ValidationError, KeyError, TypeError) as e:
             logger.error(e)
             raise e
+
+
+class Today15minAggregationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    def dictfetchall(self, cursor):
+        """Return all rows from a cursor as a dict"""
+        columns = [col[0] for col in cursor.description]
+        return [
+            dict(zip(columns, row))
+            for row in cursor.fetchall()
+        ]
+
+    def list(self, request, *args, **kwargs):
+        with connection.cursor() as cursor:
+            cursor.execute(get_today_15min_aggregation_sql(datestr=str(date.today())))
+            queryset = self.dictfetchall(cursor)
+        serializer = serializers.Today15minAggregationSerializer(queryset, many=True)
+        return Response(serializer.data)

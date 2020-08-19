@@ -1,5 +1,5 @@
-import json
 import logging
+from datetime import datetime
 from uuid import uuid4
 
 import pytz
@@ -70,19 +70,19 @@ def get_record_count():
         return 0
 
 
-def create_new_object(store):
-    peoplemeasurement = PeopleMeasurement(
+def create_new_object(timestamp_str="2019-06-21T10:35:46+02:00"):
+    return PeopleMeasurement.objects.create(
         id=str(uuid4()),
         version="1",
-        timestamp="2019-06-21T10:35:46+02:00",
-        sensor="sensorX",
+        timestamp=timestamp_str,
+        sensor="TEST",
         sensortype="sensortypeA",
         latitude="52.37131273473",
         longitude="4.89371899382",
         density=fuzzy.FuzzyFloat(0, 3).fuzz(),
         speed=fuzzy.FuzzyFloat(0, 3).fuzz(),
         count=fuzzy.FuzzyInteger(0, 100).fuzz(),
-        details=json.dumps([{
+        details=[{
             "timestamp": "2019-06-21T10:35:46+02:00",
             "count": "1.486830472946167",
             "id": "f6c08c28-a800-4e03-b23c-44a6b2d9f53d",
@@ -108,12 +108,8 @@ def create_new_object(store):
             "id": "043bb61d-f396-436e-989b-88ce3fb4ded3",
             "direction": "speed"
         }
-        ])
+        ]
     )
-
-    if store:
-        peoplemeasurement.save()
-    return peoplemeasurement
 
 
 class PeopleMeasurementTestV1(APITestCase):
@@ -121,6 +117,7 @@ class PeopleMeasurementTestV1(APITestCase):
 
     def setUp(self):
         self.URL = '/telcameras/v1/'
+        self.URL_AGGREGATE = '/telcameras/v1/15minaggregate/'
 
     def test_post_fails_without_token(self):
         record_count_before = get_record_count()
@@ -204,3 +201,17 @@ class PeopleMeasurementTestV1(APITestCase):
         # Then check if I cannot delete it
         response = self.client.delete(f'{self.URL}{TEST_POST["data"]["id"]}/', **AUTHORIZATION_HEADER)
         self.assertEqual(response.status_code, 405)
+
+    def test_get_15min_aggregation_records(self):
+        # Insert some records at 14 hours
+        for i in range(3):
+            create_new_object(timestamp_str=datetime.now().replace(hour=14, minute=5).astimezone().replace(microsecond=0).isoformat())
+
+        # and some more at 16 hours
+        for i in range(3):
+            create_new_object(timestamp_str=datetime.now().replace(hour=16, minute=5).astimezone().replace(microsecond=0).isoformat())
+
+        # test whether the endpoint responds correctly
+        response = self.client.get(self.URL_AGGREGATE, **AUTHORIZATION_HEADER)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 2)
