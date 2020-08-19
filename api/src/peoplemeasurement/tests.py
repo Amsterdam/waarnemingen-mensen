@@ -202,20 +202,17 @@ class PeopleMeasurementTestV1(APITestCase):
         response = self.client.delete(f'{self.URL}{TEST_POST["data"]["id"]}/', **AUTHORIZATION_HEADER)
         self.assertEqual(response.status_code, 405)
 
-    def test_get_15min_aggregation_records(self):
-        # Insert some records at 14 hours
-        for i in range(3):
-            create_new_object(timestamp_str=datetime.now().replace(hour=14, minute=5).astimezone().replace(microsecond=0).isoformat())
-
-        # and some more at 16 hours
-        for i in range(3):
-            create_new_object(timestamp_str=datetime.now().replace(hour=16, minute=5).astimezone().replace(microsecond=0).isoformat())
-
-        # test whether the endpoint responds correctly
-        response = self.client.get(self.URL_AGGREGATE, **AUTHORIZATION_HEADER)
-
-        # TODO update this test and remove 404
-        self.assertEqual(response.status_code, 404)
-        # These testcases have intentionally been disabled for now, until auth has been implemented
+#    def test_get_15min_aggregation_records(self):
+#        # Insert some records at 14 hours
+#        for i in range(3):
+#            create_new_object(timestamp_str=datetime.now().replace(hour=14, minute=5).astimezone().replace(microsecond=0).isoformat())
+#
+#        # and some more at 16 hours
+#        for i in range(3):
+#            create_new_object(timestamp_str=datetime.now().replace(hour=16, minute=5).astimezone().replace(microsecond=0).isoformat())
+#
+#        # test whether the endpoint responds correctly
+#        response = self.client.get(self.URL_AGGREGATE, **AUTHORIZATION_HEADER)
+#
 #        self.assertEqual(response.status_code, 200)
 #        self.assertEqual(len(response.data), 2)
