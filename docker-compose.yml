@@ -13,7 +13,8 @@ services:
       context: ./api
       args:
       - SECRET_KEY=dev
-      - AUTHORIZATION_TOKEN=dev
+      - AUTHORIZATION_TOKEN=auth-token
+      - GET_AUTHORIZATION_TOKEN=get-auth-token
     volumes:
       - ./api/src:/app
     links:
@@ -22,7 +23,8 @@ services:
       - "8001:8001"
     environment:
       - SECRET_KEY=dev
-      - AUTHORIZATION_TOKEN=dev
+      - AUTHORIZATION_TOKEN=auth-token
+      - GET_AUTHORIZATION_TOKEN=get-auth-token
       - DATABASE_NAME=waarnemingen_mensen
       - DATABASE_HOST=database
       - DATABASE_USER=waarnemingen_mensen
@@ -48,8 +50,9 @@ services:
     links:
       - api
     environment:
-      - AUTHORIZATION_TOKEN=dev
       - SECRET_KEY=dev
+      - AUTHORIZATION_TOKEN=auth-token
+      - GET_AUTHORIZATION_TOKEN=get-auth-token
     command: bash -c "locust -f /opt/src/locustfile.py --host=http://api:8001 --headless --users 250 --hatch-rate 25 --run-time 1m"
 
   refresh_materialized_view:

@@ -13,12 +13,14 @@ services:
       context: ../../
       args:
       - SECRET_KEY=dev
-      - AUTHORIZATION_TOKEN=dev
+      - AUTHORIZATION_TOKEN=auth-token
+      - GET_AUTHORIZATION_TOKEN=get-auth-token
     links:
       - database:waarnemingen_mensen_db
     environment:
     - SECRET_KEY=dev
-    - AUTHORIZATION_TOKEN=dev
+    - AUTHORIZATION_TOKEN=auth-token
+    - GET_AUTHORIZATION_TOKEN=get-auth-token
     - DATABASE_NAME=waarnemingen_mensen
     - DATABASE_USER=waarnemingen_mensen
     - DATABASE_PASSWORD=insecure

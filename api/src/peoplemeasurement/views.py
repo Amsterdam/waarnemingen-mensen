@@ -9,6 +9,7 @@ from rest_framework import exceptions, mixins, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from contrib.rest_framework.authentication import SimpleGetTokenAuthentication
 from . import serializers
 from .models import PeopleMeasurement
 from .queries import get_today_15min_aggregation_sql
@@ -75,6 +76,9 @@ class PeopleMeasurementViewSet(DatapuntViewSetWritable):
 
 
 class Today15minAggregationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    authentication_classes = [SimpleGetTokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
     def dictfetchall(self, cursor):
         """Return all rows from a cursor as a dict"""
         columns = [col[0] for col in cursor.description]

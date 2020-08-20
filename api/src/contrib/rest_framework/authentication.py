@@ -17,3 +17,12 @@ class SimpleTokenAuthentication(TokenAuthentication):
 
         user = User(is_authenticated=True)
         return user, None
+
+
+class SimpleGetTokenAuthentication(TokenAuthentication):
+    def authenticate_credentials(self, key):
+        if not key == settings.GET_AUTHORIZATION_TOKEN:
+            raise AuthenticationFailed("Invalid token.")
+
+        user = User(is_authenticated=True)
+        return user, None
