@@ -1,7 +1,7 @@
 import logging
 from datetime import date
 
-from datapunt_api.pagination import HALCursorPagination
+from datapunt_api.pagination import HALCursorPagination, HALPagination
 from datapunt_api.rest import DatapuntViewSetWritable
 from django.db import connection
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet
@@ -78,6 +78,7 @@ class PeopleMeasurementViewSet(DatapuntViewSetWritable):
 class Today15minAggregationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     authentication_classes = [SimpleGetTokenAuthentication]
     permission_classes = [IsAuthenticated]
+    pagination_class = HALPagination
 
     def dictfetchall(self, cursor):
         """Return all rows from a cursor as a dict"""

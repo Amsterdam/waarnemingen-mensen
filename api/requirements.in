@@ -1,7 +1,9 @@
 # Define all requirements, only pin when necessary (and if so, add a comment explaining why).
 # See # https://git.datapunt.amsterdam.nl/Datapunt/python-best-practices/blob/master/dependency_management/
 
-django
+# drf-extensions fails on 3.1: https://github.com/chibisov/drf-extensions/issues/294
+# drf-amsterdam fails on >=3.0. It uses {% load staticfiles %} which was removed in 3.0.
+Django<3.0
 django-datetime-utc
 django-filter
 django-extensions
