@@ -4,6 +4,7 @@ from datetime import date
 from datapunt_api.pagination import HALCursorPagination, HALPagination
 from datapunt_api.rest import DatapuntViewSetWritable
 from django.db import connection
+from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet
 from rest_framework import exceptions, mixins, viewsets
 from rest_framework.permissions import IsAuthenticated
@@ -90,7 +91,12 @@ class Today15minAggregationViewSet(mixins.ListModelMixin, viewsets.GenericViewSe
 
     def list(self, request, *args, **kwargs):
         with connection.cursor() as cursor:
-            cursor.execute(get_today_15min_aggregation_sql(datestr=str(date.today())))
+            startdate = timezone.now() \
+                .astimezone() \
+                .replace(hour=0, minute=0, second=0, microsecond=0)\
+                .isoformat()
+            raw_sql = get_today_15min_aggregation_sql(datestr=startdate)
+            cursor.execute(raw_sql)
             queryset = self.dictfetchall(cursor)
         serializer = serializers.Today15minAggregationSerializer(queryset, many=True)
         return Response(serializer.data)
