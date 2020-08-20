@@ -235,6 +235,19 @@ class PeopleMeasurementTestGetV1(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 2)
 
+    def test_get_15min_aggregation_timezone(self):
+        # Insert records for each hour
+        for i in range(0, 24):
+            create_new_object(timestamp_str=datetime.now()
+                              .replace(hour=i, minute=0, second=0)
+                              .astimezone().replace(microsecond=0)
+                              .isoformat())
+
+        # test whether the endpoint responds correctly
+        response = self.client.get(self.URL, **GET_AUTHORIZATION_HEADER)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 23)
+
     def test_get_15min_aggregation_records_fails_without_token(self):
         response = self.client.get(self.URL)
         self.assertEqual(response.status_code, 401)
