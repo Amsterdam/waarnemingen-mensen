@@ -140,7 +140,7 @@ REST_FRAMEWORK = dict(
     UNAUTHENTICATED_USER={},
     UNAUTHENTICATED_TOKEN={},
     DEFAULT_AUTHENTICATION_CLASSES=(
-        'contrib.rest_framework.authentication.SimplePostTokenAuthentication',
+        'contrib.rest_framework.authentication.SimpleTokenAuthentication',
     ),
     DEFAULT_PAGINATION_CLASS=("datapunt_api.pagination.HALPagination",),
     DEFAULT_RENDERER_CLASSES=(

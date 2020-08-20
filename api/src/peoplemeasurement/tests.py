@@ -5,6 +5,7 @@ from uuid import uuid4
 import pytz
 from django.conf import settings
 from django.db import connection
+from django.test import override_settings
 from factory import fuzzy
 from rest_framework.test import APITestCase
 
@@ -15,8 +16,10 @@ timezone = pytz.timezone("UTC")
 
 BBOX = [52.03560, 4.58565, 52.48769, 5.31360]
 
-POST_AUTHORIZATION_HEADER = {'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}
-GET_AUTHORIZATION_HEADER = {'HTTP_AUTHORIZATION': f"Token {settings.GET_AUTHORIZATION_TOKEN}"}
+POST_AUTH_TOKEN = 'post-auth-token'
+GET_AUTH_TOKEN = 'get-auth-token'
+POST_AUTHORIZATION_HEADER = {'HTTP_AUTHORIZATION': f"Token {POST_AUTH_TOKEN}"}
+GET_AUTHORIZATION_HEADER = {'HTTP_AUTHORIZATION': f"Token {GET_AUTH_TOKEN}"}
 
 TEST_POST = {
     "data": {
@@ -113,6 +116,8 @@ def create_new_object(timestamp_str="2019-06-21T10:35:46+02:00"):
     )
 
 
+@override_settings(AUTHORIZATION_TOKEN=POST_AUTH_TOKEN)
+@override_settings(GET_AUTHORIZATION_TOKEN=GET_AUTH_TOKEN)
 class PeopleMeasurementTestPostV1(APITestCase):
     """ Test the people measurement endpoint """
 
@@ -122,6 +127,12 @@ class PeopleMeasurementTestPostV1(APITestCase):
     def test_post_fails_without_token(self):
         record_count_before = get_record_count()
         response = self.client.post(self.URL, TEST_POST, format='json')
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(record_count_before, 0)
+
+    def test_post_fails_with_wrong_token(self):
+        record_count_before = get_record_count()
+        response = self.client.post(self.URL, TEST_POST, **GET_AUTHORIZATION_HEADER, format='json')
         self.assertEqual(response.status_code, 401)
         self.assertEqual(record_count_before, 0)
 
@@ -203,6 +214,8 @@ class PeopleMeasurementTestPostV1(APITestCase):
         self.assertEqual(response.status_code, 405)
 
 
+@override_settings(AUTHORIZATION_TOKEN=POST_AUTH_TOKEN)
+@override_settings(GET_AUTHORIZATION_TOKEN=GET_AUTH_TOKEN)
 class PeopleMeasurementTestGetV1(APITestCase):
 
     def setUp(self):
@@ -224,4 +237,8 @@ class PeopleMeasurementTestGetV1(APITestCase):
 
     def test_get_15min_aggregation_records_fails_without_token(self):
         response = self.client.get(self.URL)
+        self.assertEqual(response.status_code, 401)
+
+    def test_get_15min_aggregation_records_fails_with_wrong_token(self):
+        response = self.client.get(self.URL, **POST_AUTHORIZATION_HEADER)
         self.assertEqual(response.status_code, 401)
