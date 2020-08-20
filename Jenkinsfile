@@ -31,7 +31,7 @@ node {
     stage("Build dockers") {
         tryStep "build", {
             docker.withRegistry("${DOCKER_REGISTRY_HOST}",'docker_registry_auth') {
-                def api = docker.build("datapunt/waarnemingen-mensen:${env.BUILD_NUMBER}", "--build-arg AUTHORIZATION_TOKEN=dev --build-arg SECRET_KEY=dev api")
+                def api = docker.build("datapunt/waarnemingen-mensen:${env.BUILD_NUMBER}", "--build-arg AUTHORIZATION_TOKEN=dev --build-arg GET_AUTHORIZATION_TOKEN=get-auth-token --build-arg SECRET_KEY=dev api")
                 api.push()
                 api.push("acceptance")
             }
