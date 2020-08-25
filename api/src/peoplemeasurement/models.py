@@ -34,3 +34,13 @@ class Sensors(models.Model):
     location_name = models.CharField(max_length=255, null=True)
     width = models.FloatField(null=True)
     gebiedstype = models.CharField(max_length=255, null=True)
+
+
+class Servicelevel(models.Model):
+    type_parameter = models.CharField(max_length=50)
+    type_gebied = models.CharField(max_length=50)
+    type_tijd = models.CharField(max_length=50)
+    level_nr = models.IntegerField()
+    level_label = models.CharField(max_length=50)
+    lowerlimit = models.FloatField(blank=True, null=True)
+    upperlimit = models.FloatField(blank=True, null=True)
