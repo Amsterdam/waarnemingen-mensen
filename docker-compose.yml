@@ -1,4 +1,4 @@
-version: "2.0"
+version: "3.0"
 services:
   database:
     image: amsterdam/postgres11
@@ -10,13 +10,13 @@ services:
       POSTGRES_PASSWORD: insecure
   api:
     build:
-      context: ./api
+      context: .
       args:
       - SECRET_KEY=dev
       - AUTHORIZATION_TOKEN=auth-token
       - GET_AUTHORIZATION_TOKEN=get-auth-token
     volumes:
-      - ./api/src:/app
+      - ./src:/app
     links:
       - database
     ports:
@@ -43,7 +43,9 @@ services:
       - UWSGI_PY_AUTORELOAD=1
 
   locust:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile_locust
     volumes:
       - ./reports:/opt/reports
       - ./:/opt/src
@@ -56,9 +58,9 @@ services:
     command: bash -c "locust -f /opt/src/locustfile.py --host=http://api:8001 --headless --users 250 --hatch-rate 25 --run-time 1m"
 
   refresh_materialized_view:
-    build: ./api
+    build: .
     volumes:
-      - ./api/src:/app
+      - ./src:/app
     links:
       - database
     environment:
