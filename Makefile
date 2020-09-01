@@ -2,6 +2,8 @@
 # https://git.datapunt.amsterdam.nl/Datapunt/python-best-practices/blob/master/dependency_management/
 #
 # VERSION = 2020.01.29
+.PHONY: app
+dc = docker-compose
 
 PYTHON = python3
 
@@ -19,3 +21,21 @@ requirements: pip-tools             ## Upgrade requirements (in requirements.in)
 	pip-compile --upgrade --output-file requirements_dev.txt requirements_dev.in
 
 upgrade: requirements install       ## Run 'requirements' and 'install' targets
+
+migrations:
+	$(dc) run --rm app python manage.py makemigrations
+
+migrate:
+	$(dc) run --rm app python manage.py migrate
+
+build:
+	$(dc) build
+
+app:
+	$(dc) up app
+
+test:
+	$(dc) run --rm test pytest /tests $(ARGS)
+
+pdb:
+	$(dc) run --rm test pytest --pdb $(ARGS)

@@ -24,7 +24,7 @@ node {
 
     stage('Test') {
         tryStep "test", {
-            sh "api/deploy/test/test.sh"
+            sh "deploy/test/test.sh"
         }
     }
 

@@ -10,7 +10,7 @@ services:
 
   tests:
     build:
-      context: ../../api
+      context: ../../src
       args:
       - SECRET_KEY=dev
       - AUTHORIZATION_TOKEN=auth-token

@@ -1,4 +1,4 @@
-FROM amsterdam/python:3.8-buster
+FROM amsterdam/python:3.8-buster as app
 MAINTAINER datapunt@amsterdam.nl
 
 ENV PYTHONUNBUFFERED 1
@@ -24,8 +24,19 @@ WORKDIR /app
 
 USER datapunt
 
-RUN export DJANGO_SETTINGS_MODULE=containers.settings
+ENV DJANGO_SETTINGS_MODULE=settings.settings
 
 RUN python manage.py collectstatic --no-input
 
 CMD uwsgi
+
+
+# Tests
+FROM app as tests
+WORKDIR /tests
+COPY tests /tests
+
+ENV COVERAGE_FILE=/tmp/.coverage
+ENV PYTHONPATH=/app
+
+CMD ["pytest"]

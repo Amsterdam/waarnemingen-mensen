@@ -9,17 +9,15 @@ from django.test import override_settings
 from factory import fuzzy
 from rest_framework.test import APITestCase
 
-from .models import PeopleMeasurement
+from peoplemeasurement.models import PeopleMeasurement
 
 log = logging.getLogger(__name__)
 timezone = pytz.timezone("UTC")
 
 BBOX = [52.03560, 4.58565, 52.48769, 5.31360]
 
-POST_AUTH_TOKEN = 'post-auth-token'
-GET_AUTH_TOKEN = 'get-auth-token'
-POST_AUTHORIZATION_HEADER = {'HTTP_AUTHORIZATION': f"Token {POST_AUTH_TOKEN}"}
-GET_AUTHORIZATION_HEADER = {'HTTP_AUTHORIZATION': f"Token {GET_AUTH_TOKEN}"}
+POST_AUTHORIZATION_HEADER = {'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}
+GET_AUTHORIZATION_HEADER = {'HTTP_AUTHORIZATION': f"Token {settings.GET_AUTHORIZATION_TOKEN}"}
 
 TEST_POST = {
     "data": {
@@ -116,8 +114,8 @@ def create_new_object(timestamp_str="2019-06-21T10:35:46+02:00"):
     )
 
 
-@override_settings(AUTHORIZATION_TOKEN=POST_AUTH_TOKEN)
-@override_settings(GET_AUTHORIZATION_TOKEN=GET_AUTH_TOKEN)
+@override_settings(AUTHORIZATION_TOKEN=settings.AUTHORIZATION_TOKEN)
+@override_settings(GET_AUTHORIZATION_TOKEN=settings.GET_AUTHORIZATION_TOKEN)
 class PeopleMeasurementTestPostV1(APITestCase):
     """ Test the people measurement endpoint """
 
@@ -214,8 +212,8 @@ class PeopleMeasurementTestPostV1(APITestCase):
         self.assertEqual(response.status_code, 405)
 
 
-@override_settings(AUTHORIZATION_TOKEN=POST_AUTH_TOKEN)
-@override_settings(GET_AUTHORIZATION_TOKEN=GET_AUTH_TOKEN)
+@override_settings(AUTHORIZATION_TOKEN=settings.AUTHORIZATION_TOKEN)
+@override_settings(GET_AUTHORIZATION_TOKEN=settings.GET_AUTHORIZATION_TOKEN)
 class PeopleMeasurementTestGetV1(APITestCase):
 
     def setUp(self):
