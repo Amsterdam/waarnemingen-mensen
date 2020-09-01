@@ -40,7 +40,7 @@ services:
       - UWSGI_OFFLOAD_THREADS=1
       - UWSGI_HARAKIRI=15
       - UWSGI_DIE_ON_TERM=1
-      - UWSGI_MODULE=settings.wsgi:application
+      - UWSGI_MODULE=main.wsgi:application
       - UWSGI_PY_AUTORELOAD=1
 
   test:
@@ -73,7 +73,7 @@ services:
       - UWSGI_OFFLOAD_THREADS=1
       - UWSGI_HARAKIRI=15
       - UWSGI_DIE_ON_TERM=1
-      - UWSGI_MODULE=settings.wsgi:application
+      - UWSGI_MODULE=main.wsgi:application
       - UWSGI_PY_AUTORELOAD=1
     depends_on:
       - database

@@ -24,7 +24,7 @@ WORKDIR /app
 
 USER datapunt
 
-ENV DJANGO_SETTINGS_MODULE=settings.settings
+ENV DJANGO_SETTINGS_MODULE=main.settings
 
 RUN python manage.py collectstatic --no-input
 

@@ -52,7 +52,7 @@ INSTALLED_APPS = [
     "rest_framework_gis",
     'health',
     'datetimeutc',
-    'settings',
+    'main',
     'peoplemeasurement',
     'telcameras_v2',
 ]
@@ -76,9 +76,9 @@ TEMPLATES = [
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
-ROOT_URLCONF = "settings.urls"
+ROOT_URLCONF = "main.urls"
 
-WSGI_APPLICATION = "settings.wsgi.application"
+WSGI_APPLICATION = "main.wsgi.application"
 
 DATABASES = {
     "default": {
