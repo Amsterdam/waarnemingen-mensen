@@ -31,6 +31,9 @@ migrate:
 build:
 	$(dc) build
 
+push: build
+	$(dc) push
+
 app:
 	$(dc) up app
 
@@ -39,3 +42,12 @@ test:
 
 pdb:
 	$(dc) run --rm test pytest --pdb $(ARGS)
+
+clean:
+	$(dc) down -v
+
+bash:
+	$(dc) run --rm dev bash
+
+env:
+	env | sort
