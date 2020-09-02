@@ -14,5 +14,4 @@ locust
 pytest
 pytest-cov
 pytest-django
-pytest-cov
 pytest-factoryboy

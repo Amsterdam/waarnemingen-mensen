@@ -5,7 +5,6 @@ from uuid import uuid4
 import pytz
 from django.conf import settings
 from django.db import connection
-from django.test import override_settings
 from factory import fuzzy
 from rest_framework.test import APITestCase
 
@@ -114,8 +113,6 @@ def create_new_object(timestamp_str="2019-06-21T10:35:46+02:00"):
     )
 
 
-@override_settings(AUTHORIZATION_TOKEN=settings.AUTHORIZATION_TOKEN)
-@override_settings(GET_AUTHORIZATION_TOKEN=settings.GET_AUTHORIZATION_TOKEN)
 class PeopleMeasurementTestPostV1(APITestCase):
     """ Test the people measurement endpoint """
 
@@ -212,8 +209,6 @@ class PeopleMeasurementTestPostV1(APITestCase):
         self.assertEqual(response.status_code, 405)
 
 
-@override_settings(AUTHORIZATION_TOKEN=settings.AUTHORIZATION_TOKEN)
-@override_settings(GET_AUTHORIZATION_TOKEN=settings.GET_AUTHORIZATION_TOKEN)
 class PeopleMeasurementTestGetV1(APITestCase):
 
     def setUp(self):

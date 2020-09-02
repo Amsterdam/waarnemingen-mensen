@@ -52,7 +52,6 @@ INSTALLED_APPS = [
     "rest_framework_gis",
     'health',
     'datetimeutc',
-    'main',
     'peoplemeasurement',
     'telcameras_v2',
 ]
@@ -84,8 +83,8 @@ DATABASES = {
     "default": {
         "ENGINE": "django.contrib.gis.db.backends.postgis",
         "NAME": os.getenv("DATABASE_NAME", "waarnemingen_mensen"),
-        "USER": os.getenv("DATABASE_USER", "postgres"),
-        "PASSWORD": os.getenv("DATABASE_PASSWORD", ""),
+        "USER": os.getenv("DATABASE_USER", "waarnemingen_mensen"),
+        "PASSWORD": os.getenv("DATABASE_PASSWORD", "insecure"),
         "HOST": os.getenv("DATABASE_HOST", "database"),
         "CONN_MAX_AGE": 20,
         "PORT": os.getenv("DATABASE_PORT", "5432"),

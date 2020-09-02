@@ -35,7 +35,7 @@ push: build
 	$(dc) push
 
 app:
-	$(dc) up app
+	$(dc) up --rm app
 
 test:
 	$(dc) run --rm test pytest /tests $(ARGS)
