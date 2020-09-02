@@ -6,10 +6,12 @@ from django.core.management.base import BaseCommand
 log = logging.getLogger(__name__)
 
 
+VIEW_NAME = 'cmsa_15min_materialized'
+
 @transaction.atomic
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        log.info("Start refreshing the cmsa_15min_materialized")
+        log.info(f"Start refreshing the {VIEW_NAME}")
         with connection.cursor() as cursor:
-            cursor.execute("REFRESH MATERIALIZED VIEW cmsa_15min_materialized;")
-        log.info("Done refreshing the cmsa_15min_materialized")
+            cursor.execute(f"REFRESH MATERIALIZED VIEW {VIEW_NAME};")
+        log.info(f"Done refreshing the {VIEW_NAME}")
