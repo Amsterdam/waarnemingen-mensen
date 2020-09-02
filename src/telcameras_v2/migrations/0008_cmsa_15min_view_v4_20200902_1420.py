@@ -4,7 +4,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('peoplemeasurement', '0013_servicelevel'),
+        ('telcameras_v2', '0007_auto_20200803_1902'),
     ]
 
     _VIEW_NAME = "cmsa_15min_view_v4"
