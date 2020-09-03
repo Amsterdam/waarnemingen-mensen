@@ -5,7 +5,7 @@ from django.core.management.base import BaseCommand
 
 log = logging.getLogger(__name__)
 
-VIEW_NAME = 'cmsa_15min_view_v2_materialized'
+VIEW_NAME = 'cmsa_15min_view_v4_materialized'
 
 
 @transaction.atomic
