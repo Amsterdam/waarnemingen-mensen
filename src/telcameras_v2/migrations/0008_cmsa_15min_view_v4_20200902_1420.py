@@ -9,8 +9,9 @@ class Migration(migrations.Migration):
 
     _VIEW_NAME = "cmsa_15min_view_v4"
 
-    sql = f"""
-CREATE VIEW {_VIEW_NAME} AS
+    # NOTE: the regex in this query causes a DeprecationWarning: invalid escape sequence
+    # For this reason we use a rawstring for that part of the query
+    sql = f"CREATE VIEW {_VIEW_NAME} AS" + r"""
 with rawdata as(
     with observatie_snelheid as(
         with observatie_persoon as (
