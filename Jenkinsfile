@@ -1,101 +1,115 @@
 #!groovy
-
-def tryStep(String message, Closure block, Closure tearDown = null) {
-    try {
-        block();
-    }
-    catch (Throwable t) {
-//         NOTE: This slack message has been disabled for now, until automatic builds are implemented
-//         slackSend message: "${env.JOB_NAME}: ${message} failure ${env.BUILD_URL}", channel: '#waarnemingen-deployments', color: 'danger'
-        throw t;
-    }
-    finally {
-        if (tearDown) {
-            tearDown();
-        }
-    }
-}
+def PROJECT_NAME = "waarnemingen-mensen"
+def SLACK_CHANNEL = '#waarnemingen-deployments'
+def PLAYBOOK = 'deploy-waarnemingen-mensen.yml'
+def SLACK_MESSAGE = [
+    "title_link": BUILD_URL,
+    "fields": [
+        ["title": "Project","value": PROJECT_NAME],
+        ["title":"Branch", "value": BRANCH_NAME, "short":true],
+        ["title":"Build number", "value": BUILD_NUMBER, "short":true]
+    ]
+]
 
 
-node {
-    stage("Checkout") {
-        checkout scm
+pipeline {
+    agent any
+
+    environment {
+        SHORT_UUID = sh( script: "uuidgen | cut -d '-' -f1", returnStdout: true).trim()
+        COMPOSE_PROJECT_NAME = "${PROJECT_NAME}-${env.SHORT_UUID}"
+        VERSION = env.BRANCH_NAME.replace('/', '-').toLowerCase().replace(
+            'master', 'latest'
+        )
+        IS_RELEASE = "${env.BRANCH_NAME ==~ "release/.*"}"
     }
 
-    stage('Test') {
-        tryStep "test", {
-            sh "api/deploy/test/test.sh"
-        }
-    }
-
-    stage("Build dockers") {
-        tryStep "build", {
-            docker.withRegistry("${DOCKER_REGISTRY_HOST}",'docker_registry_auth') {
-                def api = docker.build("datapunt/waarnemingen-mensen:${env.BUILD_NUMBER}", "--build-arg AUTHORIZATION_TOKEN=dev --build-arg GET_AUTHORIZATION_TOKEN=get-auth-token --build-arg SECRET_KEY=dev api")
-                api.push()
-                api.push("acceptance")
+    stages {
+        stage('Test') {
+            steps {
+                sh 'make test'
             }
         }
-    }
 
-    stage("Locust load test") {
-        sh("./api/deploy/docker-locust-load-test.sh")
-    }
-}
+        stage('Build') {
+            steps {
+                sh 'make build'
+            }
+        }
 
-String BRANCH = "${env.BRANCH_NAME}"
+        stage('Push and deploy') {
+            when {
+                anyOf {
+                    branch 'master'
+                    buildingTag()
+                    environment name: 'IS_RELEASE', value: 'true'
+                }
+            }
+            stages {
+                stage('Push') {
+                    steps {
+                        retry(3) {
+                            sh 'make push'
+                        }
+                    }
+                }
 
-if (BRANCH == "master") {
+                stage('Deploy to acceptance') {
+                    when {
+                        anyOf {
+                            environment name: 'IS_RELEASE', value: 'true'
+                            branch 'master'
+                        }
+                    }
+                    steps {
+                        sh 'VERSION=acceptance make push'
+                        build job: 'Subtask_Openstack_Playbook', parameters: [
+                            string(name: 'PLAYBOOK', value: PLAYBOOK),
+                            string(name: 'INVENTORY', value: "acceptance"),
+                            string(
+                                name: 'PLAYBOOKPARAMS',
+                                value: "-e deployversion=${VERSION}"
+                            )
+                        ], wait: true
+                    }
+                }
 
-    node {
-        stage('Push acceptance image') {
-            tryStep "image tagging", {
-               docker.withRegistry("${DOCKER_REGISTRY_HOST}",'docker_registry_auth') {
-                    def image = docker.image("datapunt/waarnemingen-mensen:${env.BUILD_NUMBER}")
-                    image.pull()
-                    image.push("acceptance")
+                stage('Deploy to production') {
+                    when { buildingTag() }
+                    steps {
+                        sh 'VERSION=production make push'
+                        build job: 'Subtask_Openstack_Playbook', parameters: [
+                            string(name: 'PLAYBOOK', value: PLAYBOOK),
+                            string(name: 'INVENTORY', value: "production"),
+                            string(
+                                name: 'PLAYBOOKPARAMS',
+                                value: "-e deployversion=${VERSION}"
+                            )
+                        ], wait: true
+
+                        slackSend(channel: SLACK_CHANNEL, attachments: [SLACK_MESSAGE <<
+                            [
+                                "color": "#36a64f",
+                                "title": "Deploy to production succeeded :rocket:",
+                            ]
+                        ])
+                    }
                 }
             }
         }
-    }
 
-    node {
-        stage("Deploy to ACC") {
-            tryStep "deployment", {
-                build job: 'Subtask_Openstack_Playbook',
-                parameters: [
-                    [$class: 'StringParameterValue', name: 'INVENTORY', value: 'acceptance'],
-                    [$class: 'StringParameterValue', name: 'PLAYBOOK', value: 'deploy-waarnemingen-mensen.yml'],
-                ]
-            }
+    }
+    post {
+        always {
+            sh 'make clean'
         }
-    }
-
-    stage('Waiting for approval') {
-        input "Deploy to Production?"
-    }
-
-    node {
-        stage('Push production image') {
-            tryStep "image tagging", {
-                docker.withRegistry("${DOCKER_REGISTRY_HOST}",'docker_registry_auth') {
-                    def api = docker.image("datapunt/waarnemingen-mensen:${env.BUILD_NUMBER}")
-                    api.push("production")
-                    api.push("latest")
-                }
-            }
-        }
-    }
-
-    node {
-        stage("Deploy") {
-            tryStep "deployment", {
-                build job: 'Subtask_Openstack_Playbook',
-                parameters: [
-                        [$class: 'StringParameterValue', name: 'INVENTORY', value: 'production'],
-                        [$class: 'StringParameterValue', name: 'PLAYBOOK', value: 'deploy-waarnemingen-mensen.yml'],
+        failure {
+            slackSend(channel: SLACK_CHANNEL, attachments: [SLACK_MESSAGE <<
+                [
+                    "color": "#D53030",
+                    "title": "Build failed :fire:",
                 ]
-            }
+            ])
         }
     }
 }

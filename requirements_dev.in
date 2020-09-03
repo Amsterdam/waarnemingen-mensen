@@ -11,3 +11,7 @@ pip-tools
 # Useful extra developer packages:
 factory-boy
 locust
+pytest
+pytest-cov
+pytest-django
+pytest-factoryboy

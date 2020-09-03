@@ -11,18 +11,18 @@ coreschema==0.0.4         # via coreapi, drf-yasg
 defusedxml==0.6.0         # via djangorestframework-xml
 django-datetime-utc==1.0.3  # via -r requirements.in
 django-debug-toolbar==2.2  # via -r requirements.in
-django-extensions==3.0.5  # via -r requirements.in
+django-extensions==3.0.6  # via -r requirements.in
 django-filter==2.3.0      # via -r requirements.in
-django==2.2.15            # via -r requirements.in, django-datetime-utc, django-debug-toolbar, django-filter, djangorestframework, drf-yasg
+django==2.2.16            # via -r requirements.in, django-datetime-utc, django-debug-toolbar, django-filter, djangorestframework, drf-yasg
 djangorestframework-csv==2.1.0  # via drf-amsterdam
 djangorestframework-gis==0.15  # via -r requirements.in
 djangorestframework-xml==2.0.0  # via -r requirements.in, drf-amsterdam
 djangorestframework==3.11.1  # via -r requirements.in, djangorestframework-csv, djangorestframework-gis, drf-amsterdam, drf-extensions, drf-yasg
-drf-amsterdam==0.3.2      # via -r requirements.in
+drf-amsterdam==0.4.0      # via -r requirements.in
 drf-extensions==0.6.0     # via drf-amsterdam
 drf-yasg==1.17.1          # via -r requirements.in
 idna==2.10                # via requests
-inflection==0.5.0         # via drf-yasg
+inflection==0.5.1         # via drf-yasg
 itypes==1.2.0             # via coreapi
 jinja2==2.11.2            # via coreschema
 markupsafe==1.1.1         # via jinja2
@@ -34,7 +34,7 @@ pytz==2020.1              # via -r requirements.in, django
 requests==2.24.0          # via -r requirements.in, coreapi
 ruamel.yaml.clib==0.2.0   # via ruamel.yaml
 ruamel.yaml==0.16.10      # via drf-yasg
-sentry-sdk==0.16.5        # via -r requirements.in
+sentry-sdk==0.17.2        # via -r requirements.in
 six==1.15.0               # via djangorestframework-csv, drf-yasg, packaging, python-dateutil
 sqlparse==0.3.1           # via django, django-debug-toolbar
 unicodecsv==0.14.1        # via djangorestframework-csv
