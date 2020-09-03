@@ -16,6 +16,7 @@ services:
       - SECRET_KEY=dev
       - AUTHORIZATION_TOKEN=auth-token
       - GET_AUTHORIZATION_TOKEN=get-auth-token
+    image: docker-registry.data.amsterdam.nl/datapunt/waarnemingen-mensen:${VERSION:-latest}
     volumes:
       - ./src:/src
     links:
