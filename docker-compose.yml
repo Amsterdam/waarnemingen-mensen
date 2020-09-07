@@ -12,6 +12,7 @@ services:
   app:
     build:
       context: .
+      target: app
       args:
       - SECRET_KEY=dev
       - AUTHORIZATION_TOKEN=auth-token
