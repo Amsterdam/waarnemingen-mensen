@@ -27,6 +27,13 @@ log = logging.getLogger(__name__)
 
 
 def health(request):
+    # check debug
+    if settings.DEBUG:
+        log.exception("Debug mode not allowed in production")
+        return HttpResponse(
+            "Debug mode not allowed in production",
+            content_type="text/plain", status=500)
+
     # check database
     try:
         with connection.cursor() as cursor:
