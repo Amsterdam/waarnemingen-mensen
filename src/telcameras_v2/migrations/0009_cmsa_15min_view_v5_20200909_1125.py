@@ -4,18 +4,19 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('telcameras_v2', '0007_auto_20200803_1902'),
+        ('telcameras_v2', '0008_cmsa_15min_view_v4_20200902_1420'),
     ]
 
-    # VIEW DESCRIPTION: This view combines the data from the peoplemeasurement data and the telcameras_v2 data
-    # into a union view.
-    _VIEW_NAME = "cmsa_15min_view_v4"
+    # VIEW DESCRIPTION: This view only uses data from the telcameras_v2 from the time we actually have data, and
+    # then disregards data from peoplemeasurement (v1)
+    _VIEW_NAME = "cmsa_15min_view_v5"
 
     # NOTE: the regex in this query causes a DeprecationWarning: invalid escape sequence
     # For this reason we use a rawstring for that part of the query
     sql = f"CREATE VIEW {_VIEW_NAME} AS" + r"""
 WITH rawdata AS (
-    WITH v2_observatie_snelheid AS (
+    WITH v2_feed_start_date as (select sensor, min(timestamp_start) as start_of_feed from telcameras_v2_observation group by sensor),
+        v2_observatie_snelheid AS (
         WITH v2_observatie_persoon AS (
             WITH 
                 v2_observatie_persoon_3d AS (
@@ -83,6 +84,7 @@ WITH rawdata AS (
             dp.details
         FROM peoplemeasurement_peoplemeasurement dp
         JOIN v1_data_uniek csdu ON dp.id::text = csdu.idt
+        LEFT JOIN v2_feed_start_date v2dfsd ON v2dfsd.sensor=dp.sensor where dp.timestamp<v2dfsd.start_of_feed
     ),
     v1_data AS (
         SELECT
