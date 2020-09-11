@@ -110,6 +110,18 @@ TEST_POST = """
 """
 
 
+def create_new_v2_json(timestamp_str="2019-06-21T10:35:46+02:00"):
+    test_post = json.loads(TEST_POST)
+    for i in range(2):
+        test_post['data'][i]['timestamp_message'] = timestamp_str
+        test_post['data'][i]['timestamp_start'] = timestamp_str
+
+    for personaggregate in test_post['data'][1]['aggregate']:
+        personaggregate['observation_timestamp'] = timestamp_str
+
+    return json.dumps(test_post)
+
+
 class DataPosterTest(APITestCase):
     """ Test the second iteration of the api, which receives data in a new format """
 
