@@ -1,5 +1,5 @@
 import logging
-from datetime import date
+from datetime import timedelta
 
 from datapunt_api.pagination import HALCursorPagination, HALPagination
 from datapunt_api.rest import DatapuntViewSetWritable
@@ -91,10 +91,7 @@ class Today15minAggregationViewSet(mixins.ListModelMixin, viewsets.GenericViewSe
 
     def list(self, request, *args, **kwargs):
         with connection.cursor() as cursor:
-            startdate = timezone.now() \
-                .astimezone() \
-                .replace(hour=0, minute=0, second=0, microsecond=0)\
-                .isoformat()
+            startdate = (timezone.now() - timedelta(days=1)).astimezone().isoformat()
             raw_sql = get_today_15min_aggregation_sql(datestr=startdate)
             cursor.execute(raw_sql)
             queryset = self.dictfetchall(cursor)

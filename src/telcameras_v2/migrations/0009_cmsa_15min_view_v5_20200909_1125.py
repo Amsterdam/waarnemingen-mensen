@@ -84,7 +84,8 @@ WITH rawdata AS (
             dp.details
         FROM peoplemeasurement_peoplemeasurement dp
         JOIN v1_data_uniek csdu ON dp.id::text = csdu.idt
-        LEFT JOIN v2_feed_start_date v2dfsd ON v2dfsd.sensor=dp.sensor where dp.timestamp<v2dfsd.start_of_feed
+        LEFT JOIN v2_feed_start_date v2dfsd ON v2dfsd.sensor=dp.sensor
+        WHERE dp.timestamp<v2dfsd.start_of_feed
     ),
     v1_data AS (
         SELECT
