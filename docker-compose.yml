@@ -15,8 +15,6 @@ services:
       target: app
       args:
       - SECRET_KEY=dev
-      - AUTHORIZATION_TOKEN=auth-token
-      - GET_AUTHORIZATION_TOKEN=get-auth-token
     image: docker-registry.data.amsterdam.nl/datapunt/waarnemingen-mensen:${VERSION:-latest}
     volumes:
       - ./src:/src
@@ -26,8 +24,6 @@ services:
       - "8001:8001"
     environment:
       - SECRET_KEY=dev
-      - AUTHORIZATION_TOKEN=auth-token
-      - GET_AUTHORIZATION_TOKEN=get-auth-token
       - UWSGI_HTTP=0.0.0.0:8001
       - UWSGI_MASTER=1
       - UWSGI_STATIC_INDEX=index.html
@@ -47,8 +43,6 @@ services:
       target: tests
       args:
         - SECRET_KEY=dev
-        - AUTHORIZATION_TOKEN=auth-token
-        - GET_AUTHORIZATION_TOKEN=get-auth-token
     volumes:
       - ./src:/src
       - ./tests:/tests
@@ -56,8 +50,6 @@ services:
     environment:
       - DJANGO_SETTINGS_MODULE=main.settings
       - SECRET_KEY=dev
-      - AUTHORIZATION_TOKEN=auth-token
-      - GET_AUTHORIZATION_TOKEN=get-auth-token
     depends_on:
       - database
     entrypoint: /deploy/wait-for-it.sh database:5432 --
@@ -73,7 +65,5 @@ services:
       - app
     environment:
       - SECRET_KEY=dev
-      - AUTHORIZATION_TOKEN=auth-token
-      - GET_AUTHORIZATION_TOKEN=get-auth-token
     command: bash -c "locust -f /opt/src/locustfile.py --host=http://app:8001 --headless --users 250 --hatch-rate 25 --run-time 1m"
 

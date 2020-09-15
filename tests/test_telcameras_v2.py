@@ -10,10 +10,11 @@ from rest_framework.test import APITestCase
 
 from telcameras_v2.models import CountAggregate, Observation, PersonAggregate
 
+from .tools_for_testing import create_auth_headers_by_group_name
+
 log = logging.getLogger(__name__)
 timezone = pytz.timezone("UTC")
 
-AUTHORIZATION_HEADER = {'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}
 
 # In the posts that we receive, all root fields in the objects are the same,
 # except for the version, the message (id), the message_type and the aggregate
@@ -127,11 +128,12 @@ class DataPosterTest(APITestCase):
 
     def setUp(self):
         self.URL = '/telcameras/v2/'
+        self.POST_AUTHORIZATION_HEADER = create_auth_headers_by_group_name(settings.GROUP_POST_DATA)
 
     def test_post_new_record(self):
         """ Test posting a new vanilla message """
         post_data = json.loads(TEST_POST)
-        response = self.client.post(self.URL, post_data, **AUTHORIZATION_HEADER, format='json')
+        response = self.client.post(self.URL, post_data, **self.POST_AUTHORIZATION_HEADER, format='json')
 
         # Check the Observation record
         self.assertEqual(response.status_code, 201, response.data)
@@ -201,15 +203,15 @@ class DataPosterTest(APITestCase):
         self.assertEqual(Observation.objects.all().count(), 0)
 
     def test_sending_the_same_record_twice(self):
-        self.client.post(self.URL, json.loads(TEST_POST), **AUTHORIZATION_HEADER, format='json')
-        self.client.post(self.URL, json.loads(TEST_POST), **AUTHORIZATION_HEADER, format='json')
+        self.client.post(self.URL, json.loads(TEST_POST), **self.POST_AUTHORIZATION_HEADER, format='json')
+        self.client.post(self.URL, json.loads(TEST_POST), **self.POST_AUTHORIZATION_HEADER, format='json')
         self.assertEqual(Observation.objects.all().count(), 2)
         self.assertEqual(CountAggregate.objects.all().count(), 4)
         self.assertEqual(PersonAggregate.objects.all().count(), 4)
 
     def test_sending_a_completely_malformed_record(self):
         post_data = json.loads('{"this_is": "malformed data"}')
-        response = self.client.post(self.URL, post_data, **AUTHORIZATION_HEADER, format='json')
+        response = self.client.post(self.URL, post_data, **self.POST_AUTHORIZATION_HEADER, format='json')
 
         self.assertEqual(Observation.objects.all().count(), 0)
         self.assertEqual(CountAggregate.objects.all().count(), 0)
@@ -221,7 +223,7 @@ class DataPosterTest(APITestCase):
         post_data['data'][0]['aggregate'][1]['geom'] = None
         post_data['data'][1]['aggregate'][0]['geom'] = None
         post_data['data'][1]['aggregate'][1]['geom'] = None
-        response = self.client.post(self.URL, post_data, **AUTHORIZATION_HEADER, format='json')
+        response = self.client.post(self.URL, post_data, **self.POST_AUTHORIZATION_HEADER, format='json')
         self.assertEqual(response.status_code, 201)
         self.assertEqual(Observation.objects.all().count(), 1)
 
@@ -230,7 +232,7 @@ class DataPosterTest(APITestCase):
         del post_data['data'][0]['aggregate'][1]['geom']
         del post_data['data'][1]['aggregate'][0]['geom']
         del post_data['data'][1]['aggregate'][1]['geom']
-        response = self.client.post(self.URL, post_data, **AUTHORIZATION_HEADER, format='json')
+        response = self.client.post(self.URL, post_data, **self.POST_AUTHORIZATION_HEADER, format='json')
         self.assertEqual(response.status_code, 201)
         self.assertEqual(Observation.objects.all().count(), 1)
 
@@ -239,7 +241,7 @@ class DataPosterTest(APITestCase):
         post_data['data'][0]['aggregate'][1]['geom'] = ''
         post_data['data'][1]['aggregate'][0]['geom'] = ''
         post_data['data'][1]['aggregate'][1]['geom'] = ''
-        response = self.client.post(self.URL, post_data, **AUTHORIZATION_HEADER, format='json')
+        response = self.client.post(self.URL, post_data, **self.POST_AUTHORIZATION_HEADER, format='json')
         self.assertEqual(response.status_code, 201)
         self.assertEqual(Observation.objects.all().count(), 1)
 
@@ -249,22 +251,22 @@ class DataPosterTest(APITestCase):
         post_data['data'][0]['longitude'] = 4.885872984800177
         post_data['data'][1]['latitude'] = post_data['data'][0]['latitude']
         post_data['data'][1]['longitude'] = post_data['data'][0]['longitude']
-        response = self.client.post(self.URL, post_data, **AUTHORIZATION_HEADER, format='json')
+        response = self.client.post(self.URL, post_data, **self.POST_AUTHORIZATION_HEADER, format='json')
         self.assertEqual(response.status_code, 201)
         self.assertEqual(Observation.objects.all().count(), 1)
 
     def test_405_on_get(self):
-        response = self.client.get(self.URL, **AUTHORIZATION_HEADER, format='json')
+        response = self.client.get(self.URL, **self.POST_AUTHORIZATION_HEADER, format='json')
         self.assertEqual(response.status_code, 405, response.data)
 
     def test_405_on_put(self):
-        response = self.client.put(self.URL, json.loads(TEST_POST), **AUTHORIZATION_HEADER, format='json')
+        response = self.client.put(self.URL, json.loads(TEST_POST), **self.POST_AUTHORIZATION_HEADER, format='json')
         self.assertEqual(response.status_code, 405, response.data)
 
     def test_405_on_patch(self):
-        response = self.client.patch(self.URL, json.loads(TEST_POST), **AUTHORIZATION_HEADER, format='json')
+        response = self.client.patch(self.URL, json.loads(TEST_POST), **self.POST_AUTHORIZATION_HEADER, format='json')
         self.assertEqual(response.status_code, 405, response.data)
 
     def test_405_on_delete(self):
-        response = self.client.delete(self.URL, json.loads(TEST_POST), **AUTHORIZATION_HEADER, format='json')
+        response = self.client.delete(self.URL, json.loads(TEST_POST), **self.POST_AUTHORIZATION_HEADER, format='json')
         self.assertEqual(response.status_code, 405, response.data)

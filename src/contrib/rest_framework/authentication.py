@@ -1,8 +1,9 @@
 from typing import NamedTuple
 
 from django.conf import settings
-from rest_framework.authentication import (TokenAuthentication,
-                                           get_authorization_header)
+from django.contrib.auth.models import Group, User
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.authtoken.models import Token
 from rest_framework.exceptions import AuthenticationFailed
 
 
@@ -12,17 +13,21 @@ class User(NamedTuple):
 
 class SimpleTokenAuthentication(TokenAuthentication):
     def authenticate_credentials(self, key):
-        if not key == settings.AUTHORIZATION_TOKEN:
-            raise AuthenticationFailed("Invalid token.")
+        group = Group.objects.get(name=settings.GROUP_POST_DATA)
+        tokens = Token.objects.filter(key=key)
+        if tokens.count() == 1 and group in tokens[0].user.groups.all():
+            user = User(is_authenticated=True)
+            return user, None
 
-        user = User(is_authenticated=True)
-        return user, None
+        raise AuthenticationFailed("Invalid token.")
 
 
 class SimpleGetTokenAuthentication(TokenAuthentication):
     def authenticate_credentials(self, key):
-        if not key == settings.GET_AUTHORIZATION_TOKEN:
-            raise AuthenticationFailed("Invalid token.")
+        group = Group.objects.get(name=settings.GROUP_GET_DATA)
+        tokens = Token.objects.filter(key=key)
+        if tokens.count() == 1 and group in tokens[0].user.groups.all():
+            user = User(is_authenticated=True)
+            return user, None
 
-        user = User(is_authenticated=True)
-        return user, None
+        raise AuthenticationFailed("Invalid token.")

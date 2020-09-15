@@ -23,8 +23,8 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG', 'false').lower() == 'true'
 
 # The token that is allowed to post data to protected endpoints
-AUTHORIZATION_TOKEN = os.environ['AUTHORIZATION_TOKEN']
-GET_AUTHORIZATION_TOKEN = os.environ['GET_AUTHORIZATION_TOKEN']
+GROUP_POST_DATA = "data_posters"
+GROUP_GET_DATA = "data_getters"
 
 ALLOWED_HOSTS = ['*']
 X_FRAME_OPTIONS = 'ALLOW-FROM *'
@@ -42,6 +42,7 @@ MIDDLEWARE = [
 
 
 INSTALLED_APPS = [
+    "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.staticfiles",
     "django_filters",
@@ -49,6 +50,7 @@ INSTALLED_APPS = [
     "django.contrib.gis",
     "datapunt_api",
     "rest_framework",
+    'rest_framework.authtoken',
     "rest_framework_gis",
     'health',
     'datetimeutc',

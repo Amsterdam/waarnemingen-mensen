@@ -11,17 +11,13 @@ from rest_framework.test import APITestCase
 
 from peoplemeasurement.models import PeopleMeasurement
 
-from .test_telcameras_v2 import \
-    AUTHORIZATION_HEADER as V2_POST_AUTHORIZATION_HEADER
 from .test_telcameras_v2 import create_new_v2_json
+from .tools_for_testing import create_auth_headers_by_group_name
 
 log = logging.getLogger(__name__)
 timezone = pytz.timezone("UTC")
 
 BBOX = [52.03560, 4.58565, 52.48769, 5.31360]
-
-POST_AUTHORIZATION_HEADER = {'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}
-GET_AUTHORIZATION_HEADER = {'HTTP_AUTHORIZATION': f"Token {settings.GET_AUTHORIZATION_TOKEN}"}
 
 TEST_POST = {
     "data": {
@@ -122,6 +118,7 @@ class PeopleMeasurementTestPostV1(APITestCase):
 
     def setUp(self):
         self.URL = '/telcameras/v1/'
+        self.POST_AUTHORIZATION_HEADER = create_auth_headers_by_group_name(settings.GROUP_POST_DATA)
 
     def test_post_fails_without_token(self):
         record_count_before = get_record_count()
@@ -131,14 +128,14 @@ class PeopleMeasurementTestPostV1(APITestCase):
 
     def test_post_fails_with_wrong_token(self):
         record_count_before = get_record_count()
-        response = self.client.post(self.URL, TEST_POST, **GET_AUTHORIZATION_HEADER, format='json')
+        response = self.client.post(self.URL, TEST_POST, **{'HTTP_AUTHORIZATION': f"Token wrongtoken"}, format='json')
         self.assertEqual(response.status_code, 401)
         self.assertEqual(record_count_before, 0)
 
     def test_post_new_people_measurement(self):
         """ Test posting a new vanilla message """
         record_count_before = get_record_count()
-        response = self.client.post(self.URL, TEST_POST, **POST_AUTHORIZATION_HEADER, format='json')
+        response = self.client.post(self.URL, TEST_POST, **self.POST_AUTHORIZATION_HEADER, format='json')
 
         self.assertEqual(response.status_code, 201, response.data)
         self.assertEqual(record_count_before+1, get_record_count())
@@ -154,7 +151,7 @@ class PeopleMeasurementTestPostV1(APITestCase):
         del test_post['data']['count']
         del test_post['data']['speed']
         del test_post['details']
-        response = self.client.post(self.URL, test_post, **POST_AUTHORIZATION_HEADER, format='json')
+        response = self.client.post(self.URL, test_post, **self.POST_AUTHORIZATION_HEADER, format='json')
 
         self.assertEqual(record_count_before+1, get_record_count())
         self.assertEqual(response.status_code, 201, response.data)
@@ -167,49 +164,49 @@ class PeopleMeasurementTestPostV1(APITestCase):
 
     def test_post_wrongy_formatted_message(self):
         record_count_before = get_record_count()
-        response = self.client.post(self.URL, {'wrongly': 'formatted message'}, **POST_AUTHORIZATION_HEADER, format='json')
+        response = self.client.post(self.URL, {'wrongly': 'formatted message'}, **self.POST_AUTHORIZATION_HEADER, format='json')
 
         self.assertEqual(record_count_before, get_record_count())
         self.assertEqual(response.status_code, 400, response.data)
 
     def test_post_same_id_twice(self):
         # Post it once
-        response = self.client.post(self.URL, TEST_POST, **POST_AUTHORIZATION_HEADER, format='json')
+        response = self.client.post(self.URL, TEST_POST, **self.POST_AUTHORIZATION_HEADER, format='json')
         self.assertEqual(response.status_code, 201)
 
         # Post it twice
-        response = self.client.post(self.URL, TEST_POST, **POST_AUTHORIZATION_HEADER, format='json')
+        response = self.client.post(self.URL, TEST_POST, **self.POST_AUTHORIZATION_HEADER, format='json')
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json()['id'][0], 'people measurement with this id already exists.')
 
     def test_get_peoplemeasurements_not_allowed(self):
         """ Test if getting a peoplemeasurement is not allowed """
         # First post one
-        response = self.client.post(self.URL, TEST_POST, **POST_AUTHORIZATION_HEADER, format='json')
+        response = self.client.post(self.URL, TEST_POST, **self.POST_AUTHORIZATION_HEADER, format='json')
         self.assertEqual(response.status_code, 201)
 
         # Then check if I cannot get it
-        response = self.client.get(f'{self.URL}{TEST_POST["data"]["id"]}/', **POST_AUTHORIZATION_HEADER)
+        response = self.client.get(f'{self.URL}{TEST_POST["data"]["id"]}/', **self.POST_AUTHORIZATION_HEADER)
         self.assertEqual(response.status_code, 405)
 
     def test_update_peoplemeasurements_not_allowed(self):
         """ Test if updating a peoplemeasurement is not allowed """
         # First post one
-        response = self.client.post(self.URL, TEST_POST, **POST_AUTHORIZATION_HEADER, format='json')
+        response = self.client.post(self.URL, TEST_POST, **self.POST_AUTHORIZATION_HEADER, format='json')
         self.assertEqual(response.status_code, 201)
 
         # Then check if I cannot update it
-        response = self.client.put(f'{self.URL}{TEST_POST["data"]["id"]}/', TEST_POST, **POST_AUTHORIZATION_HEADER, format='json')
+        response = self.client.put(f'{self.URL}{TEST_POST["data"]["id"]}/', TEST_POST, **self.POST_AUTHORIZATION_HEADER, format='json')
         self.assertEqual(response.status_code, 405)
 
     def test_delete_peoplemeasurements_not_allowed(self):
         """ Test if deleting a peoplemeasurement is not allowed """
         # First post one
-        response = self.client.post(self.URL, TEST_POST, **POST_AUTHORIZATION_HEADER, format='json')
+        response = self.client.post(self.URL, TEST_POST, **self.POST_AUTHORIZATION_HEADER, format='json')
         self.assertEqual(response.status_code, 201)
 
         # Then check if I cannot delete it
-        response = self.client.delete(f'{self.URL}{TEST_POST["data"]["id"]}/', **POST_AUTHORIZATION_HEADER)
+        response = self.client.delete(f'{self.URL}{TEST_POST["data"]["id"]}/', **self.POST_AUTHORIZATION_HEADER)
         self.assertEqual(response.status_code, 405)
 
 
@@ -218,6 +215,8 @@ class PeopleMeasurementTestGetV1(APITestCase):
     def setUp(self):
         self.URL = '/telcameras/v1/15minaggregate/'
         self.POST_URL_V2 = '/telcameras/v2/'
+        self.POST_AUTHORIZATION_HEADER = create_auth_headers_by_group_name(settings.GROUP_POST_DATA)
+        self.GET_AUTHORIZATION_HEADER = create_auth_headers_by_group_name(settings.GROUP_GET_DATA)
 
     # NOTE: The test below fails because older data from the v1 view isn't loaded. This is because the v5 view
     # apparently doesn't work correctly yet. For this endpoint that doesn't matter though, since it only serves the
@@ -248,7 +247,7 @@ class PeopleMeasurementTestGetV1(APITestCase):
     #         )
     #
     #     # test whether the endpoint responds correctly
-    #     response = self.client.get(self.URL, **GET_AUTHORIZATION_HEADER)
+    #     response = self.client.get(self.URL, **self.GET_AUTHORIZATION_HEADER)
     #     self.assertEqual(response.status_code, 200)
     #     self.assertEqual(len(response.data), 26)
 
@@ -264,12 +263,12 @@ class PeopleMeasurementTestGetV1(APITestCase):
             self.client.post(
                 self.POST_URL_V2,
                 json.loads(create_new_v2_json(timestamp_str=timestamp_str)),
-                **V2_POST_AUTHORIZATION_HEADER,
+                **self.POST_AUTHORIZATION_HEADER,
                 format='json'
             )
 
         # test whether the endpoint responds correctly
-        response = self.client.get(self.URL, **GET_AUTHORIZATION_HEADER)
+        response = self.client.get(self.URL, **self.GET_AUTHORIZATION_HEADER)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 24)
 
@@ -278,5 +277,5 @@ class PeopleMeasurementTestGetV1(APITestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_get_15min_aggregation_records_fails_with_wrong_token(self):
-        response = self.client.get(self.URL, **POST_AUTHORIZATION_HEADER)
+        response = self.client.get(self.URL, **self.POST_AUTHORIZATION_HEADER)
         self.assertEqual(response.status_code, 401)
