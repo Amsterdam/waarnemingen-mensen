@@ -35,6 +35,11 @@ Then add the requirements:
 
     pip install -r requirements.txt
 
+And add a user with post rights and one with get rights:
+
+    python manage.py add_api_user username password data_posters
+    python manage.py add_api_user username password data_getters
+
 
 # Stress testing with locust
 We've got a simple locust test script which fires a bunch of requests. It is automatically started by the locust 
