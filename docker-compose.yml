@@ -3,7 +3,7 @@ services:
   database:
     image: amsterdam/postgres11
     ports:
-      - "5432:5432"
+      - 5432
     environment:
       POSTGRES_DB: waarnemingen_mensen
       POSTGRES_USER: waarnemingen_mensen
@@ -23,7 +23,7 @@ services:
     links:
       - database
     ports:
-      - "8001:8001"
+      - 8001
     environment:
       - SECRET_KEY=dev
       - AUTHORIZATION_TOKEN=auth-token
