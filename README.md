@@ -37,8 +37,8 @@ Then add the requirements:
 
 And add a user with post rights and one with get rights:
 
-    python manage.py add_api_user username password data_posters
-    python manage.py add_api_user username password data_getters
+    python manage.py add_api_user username data_posters
+    python manage.py add_api_user username data_getters
 
 
 # Stress testing with locust

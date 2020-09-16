@@ -14,7 +14,6 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('username', type=str)
-        parser.add_argument('password', type=str)
         parser.add_argument('group_name', type=str)
 
     def handle(self, *args, **options):
@@ -25,7 +24,7 @@ class Command(BaseCommand):
             raise CommandError(f"Group {options['group_name']} does not exist. "
                                f"It should be one of {groups}")
 
-        user = User.objects.create_user(options['username'], options['password'])
+        user = User.objects.create_user(options['username'])
         user.groups.add(group)
         token = Token.objects.create(user=user)
         print("Token:", token.key)
