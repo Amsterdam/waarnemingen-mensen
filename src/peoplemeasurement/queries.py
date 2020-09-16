@@ -1,7 +1,12 @@
 def get_today_15min_aggregation_sql(datestr):
     """ Based on the cmsa_15min_view_v5, adjusted for a datatime range of the past 24 hours"""
     return r"""
-WITH rawdata AS (
+WITH v2_selectie AS ( --selecteer alle ID is van V2 records inclusief die in het laatste kwartier
+	SELECT o.id
+	FROM telcameras_v2_observation o
+	WHERE o.timestamp_start >= '{datestr}'
+),
+rawdata AS (
     WITH v2_feed_start_date as (select sensor, min(timestamp_start) as start_of_feed from telcameras_v2_observation group by sensor),
         v2_observatie_snelheid AS (
         WITH v2_observatie_persoon AS (
@@ -107,6 +112,7 @@ WITH rawdata AS (
         FROM telcameras_v2_observation o
         LEFT JOIN v2_observatie_snelheid s ON o.id = s.observation_id
         LEFT JOIN v2_countaggregate_zone_count c ON o.id = c.observation_id
+        JOIN v2_selectie d ON d.id = o.id
     )
     SELECT
         v1_data.sensor,
