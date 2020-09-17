@@ -5,6 +5,7 @@ WITH v2_feed_start_date AS (
     SELECT o.sensor,
     min(o.timestamp_start) AS start_of_feed
     FROM telcameras_v2_observation o
+    WHERE o.timestamp_start >= '{datestr}'
     GROUP BY o.sensor
 ),
 mat_view_updated AS (
@@ -18,6 +19,7 @@ v2_selectie AS (
     FROM telcameras_v2_observation o
     LEFT JOIN mat_view_updated u ON o.sensor::text = u.sensor::text
     WHERE o.timestamp_start >= u.last_updated
+    AND o.timestamp_start >= '{datestr}'
     OR u.last_updated IS NULL
 ),
 rawdata AS (
@@ -33,6 +35,7 @@ rawdata AS (
                 WHERE pa.speed IS NOT NULL
                 AND pa.geom IS NOT NULL
                 AND pa.geom::text <> ''::text
+                AND observation_timestamp > '{datestr}'
             ),
             v2_observatie_persoon_2d AS (
                 SELECT
@@ -43,6 +46,7 @@ rawdata AS (
                 JOIN v2_selectie s ON pa.observation_id = s.id
                 WHERE pa.speed IS NOT NULL
                 AND (pa.geom IS NULL OR pa.geom::text = ''::text)
+                AND observation_timestamp > '{datestr}'
             )
             SELECT
                 v2_observatie_persoon_3d.observation_id,
@@ -82,7 +86,8 @@ rawdata AS (
         FROM peoplemeasurement_peoplemeasurement o
         LEFT JOIN mat_view_updated u ON o.sensor::text = u.sensor::text
         LEFT JOIN v2_feed_start_date v2dfsd ON v2dfsd.sensor::text = o.sensor::text
-        WHERE o."timestamp" >= u.last_updated
+        WHERE timestamp > '{datestr}'
+        AND o."timestamp" >= u.last_updated
         AND (o."timestamp" < v2dfsd.start_of_feed OR v2dfsd.start_of_feed IS NULL)
         GROUP BY o.sensor, o."timestamp"
     ),
@@ -93,6 +98,9 @@ rawdata AS (
             dp.details
         FROM peoplemeasurement_peoplemeasurement dp
         JOIN v1_data_uniek csdu ON dp.id::text = csdu.idt
+        LEFT JOIN v2_feed_start_date v2dfsd ON v2dfsd.sensor=dp.sensor
+        WHERE dp.timestamp<v2dfsd.start_of_feed
+        AND dp.timestamp > '{datestr}'
     ),
     v1_data AS (
         SELECT
