@@ -4,92 +4,95 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('telcameras_v2', '0008_cmsa_15min_view_v4_20200902_1420'),
+        ('telcameras_v2', '0010_auto_20200911_1519'),
     ]
 
     # VIEW DESCRIPTION: This view only uses data from the telcameras_v2 from the time we actually have data, and
     # then disregards data from peoplemeasurement (v1)
-    _VIEW_NAME = "cmsa_15min_view_v5"
+    _VIEW_NAME = "cmsa_15min_view_v6"
 
     # NOTE: the regex in this query causes a DeprecationWarning: invalid escape sequence
     # For this reason we use a rawstring for that part of the query
     sql = f"CREATE VIEW {_VIEW_NAME} AS" + r"""
 WITH rawdata AS (
-    WITH v2_feed_start_date as (select sensor, min(timestamp_start) as start_of_feed from telcameras_v2_observation group by sensor),
-        v2_observatie_snelheid AS (
+    WITH v2_feed_start_date AS (
+        SELECT o.sensor,
+        min(o.timestamp_start) AS start_of_feed
+        FROM telcameras_v2_observation o
+        GROUP BY o.sensor
+    ),
+    v2_observatie_snelheid AS (
         WITH v2_observatie_persoon AS (
-            WITH 
-                v2_observatie_persoon_3d AS (
-                    SELECT 
-                        observation_id,
-                        speed,
-                        (array_replace(regexp_matches(geom::text, '([0-9.]*)\)'::text), ''::text, '0'::text))[1]::numeric
-                            - (array_replace(regexp_matches(geom::text, '\(([0-9.-]*)'::text), ''::text, '0'::text))[1]::numeric AS tijd
-                    FROM telcameras_v2_personaggregate
-                    WHERE speed IS NOT NULL
-                    AND geom IS NOT NULL
-                    AND geom::text <> ''::text
-                ), 
-                v2_observatie_persoon_2d AS (
-                    SELECT
-                        observation_id,
-                        speed,
-                        1 AS tijd
-                    FROM telcameras_v2_personaggregate
-                    WHERE speed IS NOT NULL
-                    AND (geom IS NULL OR geom::text = ''::text)
-                )
-                SELECT 
-                    v2_observatie_persoon_3d.observation_id,
-                    v2_observatie_persoon_3d.speed,
-                    v2_observatie_persoon_3d.tijd
-                FROM v2_observatie_persoon_3d UNION ALL SELECT 
-                    v2_observatie_persoon_2d.observation_id,
-                    v2_observatie_persoon_2d.speed,
-                    v2_observatie_persoon_2d.tijd
-                FROM v2_observatie_persoon_2d
+            WITH v2_observatie_persoon_3d AS (
+                SELECT
+                    p.observation_id,
+                    p.speed,
+                    (array_replace(regexp_matches(p.geom::text, '([0-9.]*)\)'::text), ''::text, '0'::text))[1]::numeric - (array_replace(regexp_matches(p.geom::text, '\(([0-9.-]*)'::text), ''::text, '0'::text))[1]::numeric AS tijd
+                FROM telcameras_v2_personaggregate p
+                WHERE p.speed IS NOT NULL
+                AND p.geom IS NOT NULL
+                AND p.geom::text <> ''::text
+            ),
+            v2_observatie_persoon_2d AS (
+                SELECT
+                    p.observation_id,
+                    p.speed,
+                    1 AS tijd
+                FROM telcameras_v2_personaggregate p
+                WHERE p.speed IS NOT NULL
+                AND (p.geom IS NULL OR p.geom::text = ''::text)
+            )
+            SELECT
+                v2_observatie_persoon_3d.observation_id,
+                v2_observatie_persoon_3d.speed,
+                v2_observatie_persoon_3d.tijd
+            FROM v2_observatie_persoon_3d
+            UNION ALL
+            SELECT
+                v2_observatie_persoon_2d.observation_id,
+                v2_observatie_persoon_2d.speed,
+                v2_observatie_persoon_2d.tijd
+            FROM v2_observatie_persoon_2d
         )
-        SELECT
-            v2_observatie_persoon.observation_id,
-            CASE
-                WHEN sum(v2_observatie_persoon.tijd) IS NOT NULL 
-                AND sum(v2_observatie_persoon.tijd) <> 0::numeric 
-                THEN 
-                    round((sum(v2_observatie_persoon.speed * v2_observatie_persoon.tijd::double precision) / sum(v2_observatie_persoon.tijd)::double precision)::numeric, 2)
-                ELSE NULL::numeric
-            END AS speed_avg
+        SELECT v2_observatie_persoon.observation_id,
+        CASE
+            WHEN sum(v2_observatie_persoon.tijd) IS NOT NULL AND sum(v2_observatie_persoon.tijd) <> 0::numeric 
+            THEN round((sum(v2_observatie_persoon.speed * v2_observatie_persoon.tijd::double precision) / sum(v2_observatie_persoon.tijd)::double precision)::numeric, 2)
+            ELSE NULL::numeric
+        END AS speed_avg
         FROM v2_observatie_persoon
         GROUP BY v2_observatie_persoon.observation_id
-    ), 
+    ),
     v2_countaggregate_zone_count AS (
-        SELECT
-            observation_id,
-            max(azimuth) AS azimuth,
-            max(count_in) AS count_in,
-            max(count_out) AS count_out,
-            max(area) AS area,
-            max(count) AS count
-        FROM telcameras_v2_countaggregate
-        GROUP BY observation_id
+        SELECT 
+            c.observation_id,
+            max(c.azimuth) AS azimuth,
+            max(c.count_in) AS count_in,
+            max(c.count_out) AS count_out,
+            max(c.area) AS area,
+            max(c.count) AS count
+        FROM telcameras_v2_countaggregate c
+        GROUP BY c.observation_id
     ),
     v1_data_uniek AS (
-        SELECT max(id::text) AS idt
-        FROM peoplemeasurement_peoplemeasurement
-        GROUP BY sensor, "timestamp"
+        SELECT max(a.id::text) AS idt
+        FROM peoplemeasurement_peoplemeasurement a
+        LEFT JOIN v2_feed_start_date fsd ON fsd.sensor::text = a.sensor::text
+        WHERE a."timestamp" < fsd.start_of_feed
+        OR fsd.start_of_feed IS NULL
+        GROUP BY a.sensor, a."timestamp"
     ),
     v1_data_sel AS (
-        SELECT
+        SELECT 
             dp.sensor,
             dp."timestamp",
             dp.details
         FROM peoplemeasurement_peoplemeasurement dp
         JOIN v1_data_uniek csdu ON dp.id::text = csdu.idt
-        LEFT JOIN v2_feed_start_date v2dfsd ON v2dfsd.sensor=dp.sensor
-        WHERE dp.timestamp<v2dfsd.start_of_feed
     ),
     v1_data AS (
         SELECT
-            v1_data_sel.sensor||'_v1' AS sensor,
+            v1_data_sel.sensor,
             v1_data_sel."timestamp",
             COALESCE(sum((detail_elems.value ->> 'count'::text)::integer) FILTER (WHERE (detail_elems.value ->> 'direction'::text) = 'down'::text), 0::bigint) + COALESCE(sum((detail_elems.value ->> 'count'::text)::integer) FILTER (WHERE (detail_elems.value ->> 'direction'::text) = 'up'::text), 0::bigint) AS total_count,
             COALESCE(sum((detail_elems.value ->> 'count'::text)::integer) FILTER (WHERE (detail_elems.value ->> 'direction'::text) = 'down'::text), 0::bigint) AS count_down,
@@ -109,7 +112,8 @@ WITH rawdata AS (
             COALESCE(c.count_in::integer, 0) AS count_up,
             COALESCE(c.count_out::integer, 0) AS count_down,
             CASE
-                WHEN c.area IS NOT NULL AND c.area <> 0::double precision AND c.count IS NOT NULL AND c.count > 0 THEN c.count::double precision / c.area
+                WHEN c.area IS NOT NULL AND c.area <> 0::double precision AND c.count IS NOT NULL AND c.count > 0
+                THEN c.count::double precision / c.area
                 ELSE NULL::double precision
             END AS density_avg,
             s.speed_avg
@@ -125,7 +129,9 @@ WITH rawdata AS (
         v1_data.count_up,
         v1_data.density_avg,
         v1_data.speed_avg
-    FROM v1_data UNION ALL SELECT
+    FROM v1_data
+    UNION ALL
+    SELECT
         v2_data.sensor,
         v2_data."timestamp",
         v2_data.total_count,
@@ -213,20 +219,15 @@ SELECT
     p.speed_avg_p50,
     p.speed_avg_p80
 FROM aggregatedbyquarter aq
-LEFT JOIN percentiles p ON aq.sensor::text = p.sensor::TEXT
-    AND date_part('dow'::text, aq.timestamp_rounded) = p.dayofweek::double PRECISION
-    AND aq.timestamp_rounded::time without time zone = p.castedtimestamp
-ORDER BY
-    aq.sensor,
-    aq.timestamp_rounded
+LEFT JOIN percentiles p ON aq.sensor::text = p.sensor::TEXT AND date_part('dow'::text, aq.timestamp_rounded) = p.dayofweek::double precision AND aq.timestamp_rounded::time without time zone = p.castedtimestamp
+ORDER BY aq.sensor, aq.timestamp_rounded
 ;
 """
 
     reverse_sql = f"DROP VIEW IF EXISTS {_VIEW_NAME};"
 
     sql_materialized = f"""
-    CREATE MATERIALIZED VIEW {_VIEW_NAME}_materialized AS
-    SELECT * FROM {_VIEW_NAME};
+    CREATE MATERIALIZED VIEW cmsa_15min_view_v6_materialized AS SELECT * FROM cmsa_15min_view_v6;
     """
 
     reverse_sql_materialized = f"DROP MATERIALIZED VIEW IF EXISTS {_VIEW_NAME}_materialized;"
