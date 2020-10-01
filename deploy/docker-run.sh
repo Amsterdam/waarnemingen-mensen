@@ -4,5 +4,4 @@ set -u   # crash on missing env variables
 set -e   # stop on any error
 
 # run uwsgi
-cd /src/
-exec uwsgi --ini /src/settings/uwsgi.ini
+exec uwsgi --ini main/uwsgi.ini

@@ -9,46 +9,47 @@ services:
       POSTGRES_USER: waarnemingen_mensen
       POSTGRES_PASSWORD: insecure
 
-  app:
+  x-app: &base-app
     build:
       context: .
       target: app
-      args:
-      - SECRET_KEY=dev
-      - AUTHORIZATION_TOKEN=auth-token
-      - GET_AUTHORIZATION_TOKEN=get-auth-token
-    image: docker-registry.data.amsterdam.nl/datapunt/waarnemingen-mensen:${VERSION:-latest}
-    volumes:
-      - ./src:/src
-    links:
+    depends_on:
       - database
-    ports:
-      - 8001
-    environment:
-      - SECRET_KEY=dev
-      - AUTHORIZATION_TOKEN=auth-token
-      - GET_AUTHORIZATION_TOKEN=get-auth-token
-
-  test:
-    build:
-      context: .
-      target: tests
-      args:
-        - SECRET_KEY=dev
-        - AUTHORIZATION_TOKEN=auth-token
-        - GET_AUTHORIZATION_TOKEN=get-auth-token
     volumes:
       - ./src:/src
       - ./tests:/tests
       - ./deploy:/deploy
-    environment:
-      - DJANGO_SETTINGS_MODULE=main.settings
-      - SECRET_KEY=dev
-      - AUTHORIZATION_TOKEN=auth-token
-      - GET_AUTHORIZATION_TOKEN=get-auth-token
-    depends_on:
-      - database
+    environment: &base-app-env
+      SECRET_KEY: "insecure"
+      DEBUG: "true"
+      AUTHORIZATION_TOKEN: "auth-token"
+      GET_AUTHORIZATION_TOKEN: "get-auth-token"
     entrypoint: /deploy/wait-for-it.sh database:5432 --
+
+  dev:
+    <<: *base-app
+    build:
+      context: .
+      target: dev
+    command: python manage.py runserver 0.0.0.0:8000
+
+  app:
+    <<: *base-app
+    build:
+      context: .
+      target: app
+    image: docker-registry.data.amsterdam.nl/datapunt/waarnemingen-mensen:${VERSION:-latest}
+    command: /deploy/docker-run.sh
+
+
+  test:
+    <<: *base-app
+    build:
+      context: .
+      target: tests
+    environment:
+      <<: *base-app-env
+      DJANGO_SETTINGS_MODULE: "main.settings"
 
   locust:
     build:
@@ -60,8 +61,8 @@ services:
     links:
       - app
     environment:
-      - SECRET_KEY=dev
-      - AUTHORIZATION_TOKEN=auth-token
-      - GET_AUTHORIZATION_TOKEN=get-auth-token
+      SECRET_KEY: "insecure"
+      AUTHORIZATION_TOKEN: "auth-token"
+      GET_AUTHORIZATION_TOKEN: "get-auth-token"
     command: bash -c "locust -f /opt/src/locustfile.py --host=http://app:8001 --headless --users 250 --hatch-rate 25 --run-time 1m"
 

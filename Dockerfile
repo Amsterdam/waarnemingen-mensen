@@ -1,38 +1,47 @@
 FROM amsterdam/python:3.8-buster as app
 MAINTAINER datapunt@amsterdam.nl
 
-ENV PYTHONUNBUFFERED 1
-ARG AUTHORIZATION_TOKEN
-ARG GET_AUTHORIZATION_TOKEN
-ARG SECRET_KEY
-
-EXPOSE 8000
-
-RUN mkdir -p /static && chown datapunt /static
-
-WORKDIR /src/
-
-COPY requirements.txt /src/
+WORKDIR /app_install
+COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
-COPY src /src/
-COPY deploy /deploy/
+COPY deploy /deploy
 
-USER datapunt
+WORKDIR /src
+COPY src .
+
+ARG SECRET_KEY=not-used
+ARG AUTHORIZATION_TOKEN=not-used
+ARG GET_AUTHORIZATION_TOKEN=not-used
 RUN python manage.py collectstatic --no-input
 
-CMD uwsgi
+USER datapunt
 
-# Tests
-FROM app as tests
+CMD ["/deploy/docker-run.sh"]
 
-WORKDIR /src/
+# stage 2, dev
+FROM app as dev
+
 USER root
-COPY requirements_dev.txt /src/
+WORKDIR /app_install
+ADD requirements_dev.txt requirements_dev.txt
 RUN pip install -r requirements_dev.txt
 
+WORKDIR /src
+USER datapunt
+
+# Any process that requires to write in the home dir
+# we write to /tmp since we have no home dir
+ENV HOME /tmp
+
+CMD ["./manage.py", "runserver", "0.0.0.0:8000"]
+
+# stage 3, tests
+FROM dev as tests
+
+USER datapunt
 WORKDIR /tests
-COPY tests /tests
+ADD tests .
 
 ENV COVERAGE_FILE=/tmp/.coverage
 ENV PYTHONPATH=/src
