@@ -1,0 +1,27 @@
+# By default, Compose reads two files, a docker-compose.yml and an
+# optional docker-compose.override.yml file. By convention,
+# the docker-compose.yml contains your base configuration. The
+# override file, as its name implies, can contain configuration
+# overrides for existing services or entirely new services.
+# See https://docs.docker.com/compose/extends/
+#
+# Usage: copy this file, name it ".docker-compose.override.yml" and
+# set your own values.
+
+version: "3.5"
+services:
+  database:
+    ports:
+      - "5415:5432"		# allows to run database on different port on host
+  app:
+    ports:
+      - "8080:8000"		# allows to run app on different port on host
+    user: 1003:1003		# set current user id so it has access to mounted volumes
+
+  dev:
+    ports:
+      - "8080:8000"
+    user: 1003:1003
+
+  test:
+    user: 1003:1003
