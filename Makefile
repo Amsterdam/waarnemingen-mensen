@@ -3,7 +3,11 @@
 #
 # VERSION = 2020.01.29
 .PHONY: app
+
 dc = docker-compose
+run = $(dc) run --rm
+manage = $(run) dev python manage.py
+pytest = $(run) test pytest $(ARGS)
 
 PYTHON = python3
 
@@ -22,32 +26,41 @@ requirements: pip-tools             ## Upgrade requirements (in requirements.in)
 
 upgrade: requirements install       ## Run 'requirements' and 'install' targets
 
-migrations:
-	$(dc) run --rm app python manage.py makemigrations
+migrations:                         ## Make migrations
+	$(manage) makemigrations $(ARGS)
 
-migrate:
-	$(dc) run --rm app python manage.py migrate
+migrate:                            ## Migrate
+	$(manage) migrate
 
-build:
+urls:                               ## Show available URLs
+	$(manage) show_urls
+
+build:                              ## Build docker image
 	$(dc) build
 
-push: build
+push: build                         ## Push docker image to registry
 	$(dc) push
 
-app:
-	$(dc) up --rm app
+app:                                ## Run app
+	$(run) --service-ports app
 
-test:
+bash:                               ## Run the container and start bash
+	$(run) dev bash
+
+shell:                              ## Run shell_plus and print sql
+	$(manage) shell_plus --print-sql
+
+dev: 						        ## Run the development app (and run extra migrations first)
+	$(run) --service-ports dev
+
+test:                               ## Execute tests
 	$(dc) run --rm test pytest /tests $(ARGS)
 
-pdb:
+pdb:                                ## Execute tests with python debugger
 	$(dc) run --rm test pytest --pdb $(ARGS)
 
-clean:
-	$(dc) down -v
+clean:                              ## Clean docker stuff
+	$(dc) down -v --remove-orphans
 
-bash:
-	$(dc) run --rm dev bash
-
-env:
+env:                                ## Print current env
 	env | sort
