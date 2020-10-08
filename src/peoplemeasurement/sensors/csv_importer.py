@@ -1,8 +1,6 @@
 import csv
 import logging
 
-from chardet import UniversalDetector
-
 
 class CsvImporter:
 
@@ -24,8 +22,7 @@ class CsvImporter:
         :return: The number of imported rows from the csv
         """
         try:
-            encoding = self._get_encoding()
-            with open(self.csv_file_path, 'r', encoding=encoding) as csv_file:
+            with open(self.csv_file_path, 'r', encoding=None) as csv_file:
                 csv_reader = csv.DictReader(f=csv_file, delimiter=self.delimiter)
 
                 num_imported_rows = self._import_csv_reader(csv_reader)
@@ -61,20 +58,3 @@ class CsvImporter:
         """
         raise NotImplementedError()
 
-    def _get_encoding(self):
-        if self.encoding:
-            return self.encoding
-
-        detector = UniversalDetector()
-        detector.reset()
-        for line in open(self.csv_file_path, 'rb'):
-            detector.feed(line)
-            if detector.done:
-                break
-        detector.close()
-
-        encoding = detector.result['encoding']
-        confidence = detector.result['confidence']
-        self.logger.info(f"Determined encoding of file {self.csv_file_path}: "
-                         f"'{encoding}', with {confidence} confidence")
-        return encoding

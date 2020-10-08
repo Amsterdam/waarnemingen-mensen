@@ -1,10 +1,8 @@
-import datetime
 import os
 from unittest import mock
 from unittest.mock import mock_open
 
 import pytest
-from django.db.models import DateField, IntegerField, BooleanField, FloatField
 
 from peoplemeasurement.sensors.csv_importer import CsvImporter
 
@@ -42,12 +40,10 @@ class TestCsvImporter:
 
     @mock.patch("builtins.open", new_callable=mock_open)
     @mock.patch("peoplemeasurement.sensors.csv_importer.csv")
-    @mock.patch("peoplemeasurement.sensors.csv_importer.CsvImporter._get_encoding")
     @mock.patch("peoplemeasurement.sensors.csv_importer.CsvImporter._import_csv_reader")
     def test_import_csv(
-        self, mocked_import, mocked_get_encoding, mocked_csv, mocked_file
+        self, mocked_import, mocked_csv, mocked_file
     ):
-        mocked_get_encoding.return_value = "test-encoding"
         mocked_csv.DictReader.return_value = "foobar"
         mocked_import.return_value = 99
 
@@ -165,9 +161,3 @@ class TestCsvImporter:
         importer = CsvImporter(csv_file_path=None)
         with pytest.raises(ValueError):
             importer.to_float(input_str)
-
-    def test_get_encoding(self):
-        encoding = CsvImporter(
-            csv_file_path="x.csv", encoding="foo-bar-baz"
-        )._get_encoding()
-        assert encoding == "foo-bar-baz"
