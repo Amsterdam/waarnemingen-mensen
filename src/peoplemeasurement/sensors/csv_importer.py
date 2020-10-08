@@ -37,10 +37,7 @@ class CsvImporter:
             return
 
     def get_value(self, value):
-        value = value.strip() if value else None
-        if value is None or value.upper() == 'NULL':
-            return None
-        return value
+        return value.strip() if value else None
 
     def to_int(self, value):
         value = self.get_value(value)

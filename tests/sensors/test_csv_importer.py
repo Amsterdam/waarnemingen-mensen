@@ -78,21 +78,6 @@ class TestCsvImporter:
         )
 
     @pytest.mark.parametrize(
-        "null_str",
-        [
-            "NULL",
-            "null",
-        ],
-    )
-    def test_get_value_null(self, null_str):
-        """
-        Test the get value method and assert that 'NULL' returns None.
-        """
-        importer = CsvImporter(csv_file_path=None)
-        result = importer.get_value(null_str)
-        assert result is None, "Expected NULL to result in None"
-
-    @pytest.mark.parametrize(
         "input_str,expected_output",
         [
             ("    lstrip", "lstrip"),
