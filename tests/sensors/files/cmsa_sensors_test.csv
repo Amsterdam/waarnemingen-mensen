@@ -1,0 +1,34 @@
+gid;geom;objectnummer;soort;voeding;rotatie;actief;privacyverklaring;location_name;width;gebiedstype;gebied
+1;0101000020E6100000749C363EEE961340CB918433AE2F4A40;GAWW-03;2D sensor;Eigen voeding via lichtnet;115;Ja;;Stoofsteeg;2.68;Red_light;Wallen
+4;0101000020E6100000F7240BF379981340329BB635D82F4A40;GAWW-02;2D sensor;Eigen voeding via lichtnet;115;Ja;;Oudekennissteeg;3.17;Red_light;Wallen
+6;0101000020E61000000D9AA78471991340EF0797E9F22F4A40;GAWW-01;2D sensor;Eigen voeding via lichtnet;115;Ja;;Korte Niezel;3.75;Red_light;Wallen
+7;0101000020E6100000254E380543971340F7C6B546A92F4A40;GAWW-05;2D sensor;Eigen voeding via lichtnet;14;Ja;;Oudezijds Achterburgwal t.h.v. 116;4.15;Red_light;Wallen
+10;0101000020E6100000949D2397A497134084D151B3AC2F4A40;GAWW-06;2D sensor;Eigen voeding via lichtnet;20;Nee;;Oudezijds Achterburgwal t.h.v. 97;1;Red_light;Wallen
+13;0101000020E6100000C4510317759713408E93C2BCC72F4A40;GAWW-04;2D sensor;Eigen voeding via lichtnet;30;Ja;;Oudezijds Voorburgwal t.h.v. 107;4.38;Red_light;Wallen
+14;0101000020E61000007C40457AF699134086AB0320EE2F4A40;GAWW-07;2D sensor;Eigen voeding via lichtnet;110;Ja;;Stormsteeg t.h.v. 3;3.63;Red_light;Wallen
+23;0101000020E6100000DCDEC90281911340838362D0AE2F4A40;Kalverstraat;2D sensor;Eigen voeding via lichtnet;200;Ja;;Kalverstraat t.h.v. 1;1;Shopping;Winkelgebied centrum
+53;0101000020E61000008A01124DA09813409BFCBBE3B9304A40;GVCV01;2D sensor;Vaste spanning;30;Ja;;CS - ri. NDSM;1;Ferries;IJ-veren
+55;0101000020E61000002C30BF2E1E9913404A2AAE85B4304A40;GVCV04;2D sensor;Eigen voeding via lichtnet;30;Ja;;CS - ri. Buiksloterweg (Oost);1;Ferries;IJ-veren
+56;0101000020E61000004E9A0645F3981340A355D22FB6304A40;GVCV03;2D sensor;Vaste spanning;30;Ja;;CS - ri. Buiksloterweg (West);1;Ferries;IJ-veren
+57;0101000020E6100000807F4A95289B1340513D88539C304A40;GVCV05;2D sensor;Vaste spanning;20;Ja;;CS - ri. IJPlein;1;Ferries;IJ-veren
+74;0101000020E6100000E253A5D2F47E1340F0C16B97362E4A40;GAVM-01-Vondelstraat;mob 3D sensor;Eigen voeding via lichtnet;0;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;None;1;Park;Vondelpark
+76;0101000020E6100000B0DE4D5C33861340EA211ADD412E4A40;GAVM-02-Stadhouderskade;mob 3D sensor;Eigen voeding via lichtnet;0;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;Stadhouderskade;1;Park;Vondelpark
+78;0101000020E6100000B45E679EB77C134082FFAD64C72D4A40;GAVM-03-VanEeghenstraat;mob 3D sensor;Eigen voeding via lichtnet;0;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;Van Eeghenstraat;1;Park;Vondelpark
+80;0101000020E610000053A74DE66972134092F249DD842D4A40;GAVM-04-Emmalaan;mob 3D sensor;Eigen voeding via lichtnet;0;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;Emmalaan;1;Park;Vondelpark
+82;0101000020E6100000A3923A014D6C13403E3E213B6F2D4A40;GAVM-05-Amstelveenseweg;mob 3D sensor;Eigen voeding via lichtnet;0;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;Amstelveenseweg;1;Park;Vondelpark
+84;0101000020E6100000E5805D4D9E9213404E2A1A6B7F2D4A40;GAAM-01-AlbertCuypstraat;mob 3D sensor;Eigen voeding via lichtnet;0;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;Albert Cuypstraat;1;Shopping;Albert Cuypstraat
+87;0101000020E6100000CBA2B08BA29713402C11A8FE41304A40;GACM-04;3D sensor;;;Ja;;Damrak 1-5;1;Shopping;Winkelgebied centrum
+88;0101000020E61000001F1329CDE69113403881E9B46E2F4A40;GACM-03;3D sensor;;;Ja;;Rokin 66;1;Shopping;Winkelgebied centrum
+90;0101000020E6100000FAB836548CE31340D177B7B244294A40;GABM-01;3D sensor;;;Ja;;Ganzenpoort;1;Shopping;Zuidoost
+91;0101000020E610000019E25817B7D1134002840F255A284A40;GABM-02;3D sensor;;;Ja;;AmsterdamsePoort-RiAntondeKomplein-Oost;1;Shopping;Zuidoost
+92;0101000020E6100000BF4692205CD11340AF40F4A44C284A40;GABM-03;3D sensor;;;Ja;;AmsterdamsePoort-RiAntondeKomplein-West;1;Shopping;Zuidoost
+93;0101000020E61000008D7A884677D01340C47B0E2C47284A40;GABM-04;3D sensor;;;Ja;;AmsterdamsePoort-RiAbcouderpad-Oost;1;Shopping;Zuidoost
+94;0101000020E6100000511212691BCF13401F12BEF737284A40;GABM-05;3D sensor;;;Ja;;AmsterdamsePoort-RiAbcouderpad-West;1;Shopping;Zuidoost
+95;0101000020E61000000458E4D70F911340DAACFA5C6D2F4A40;GACM-01;3D sensor;;;Ja;;Kalverstraat Zuid t.h.v.73;1;Shopping;Winkelgebied centrum
+96;0101000020E610000023DC64541976134035F0A31AF62D4A40;GAVM-06-Kattenlaan;mob 3D sensor;;;Nee;;Kattenlaan;1;Park;Vondelpark
+97;0101000020E6100000732B84D558921340569FABADD82F4A40;GACM-02;3D sensor;;;Ja;;Nieuwendijk t.h.v.218;1;Shopping;Winkelgebied centrum
+98;0101000020E6100000B8A2DE9DC6BF134085C7C8A365304A40;GVCV06;3D sensor;;;Ja;;Azartplein;1;Ferries;IJ-veren
+99;0101000020E6100000C031152C1F8B13407B2DE8BD31324A40;GVCV07;3D sensor;;;Ja;;Pontsteiger N (ri. NDSM);1;Ferries;IJ-veren
+100;0101000020E61000009B4A500D458B134071491F042E324A40;GVCV08;3D sensor;;;Ja;;Pontsteiger Z (ri. Distelweg);1;Ferries;IJ-veren
+101;0101000020E6100000DCDEC90281911340838362D0AE2F4A40;GKS-01-Kalverstraat;2D sensor;Eigen voeding via lichtnet;200;Ja;;Kalverstraat t.h.v. 1;1;Shopping;Winkelgebied centrum
+102;0101000020E6100000C2323674B3CF1340F4160FEF39284A40;GABM-06;3D sensor;;;Ja;;AmsterdamsePoort-riAbcouderpad-Roltrappen;;Shopping;Zuidoost
