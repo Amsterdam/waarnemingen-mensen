@@ -34,6 +34,9 @@ class Sensors(models.Model):
     location_name = models.CharField(max_length=255, null=True)
     width = models.FloatField(null=True)
     gebiedstype = models.CharField(max_length=255, null=True)
+    gebied = models.CharField(max_length=255, null=True)
+    imported_at = models.DateTimeField(null=True, auto_now_add=True)
+    updated_at = models.DateTimeField(null=True, auto_now=True)
 
 
 class Servicelevel(models.Model):
