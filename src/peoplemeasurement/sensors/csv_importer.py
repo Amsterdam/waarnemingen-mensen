@@ -1,9 +1,7 @@
 import csv
-import datetime
 import logging
 
 from chardet import UniversalDetector
-from django.db.models import BooleanField, DateField, IntegerField, FloatField
 
 
 class CsvImporter:
@@ -47,10 +45,6 @@ class CsvImporter:
             return None
         return value
 
-    def to_date(self, value):
-        value = self.get_value(value)
-        return datetime.datetime.strptime(value, '%d-%m-%Y').date() if value else None
-
     def to_int(self, value):
         value = self.get_value(value)
         return int(value) if value else None
@@ -58,25 +52,6 @@ class CsvImporter:
     def to_float(self, value):
         value = self.get_value(value)
         return float(value) if value else None
-
-    def to_boolean(self, value):
-        value = self.get_value(value)
-        return value.upper() == 'TRUE' if value else False
-
-    def cast_value(self, field, value):
-        try:
-            if isinstance(field, DateField):
-                return self.to_date(value)
-            elif isinstance(field, IntegerField):
-                return self.to_int(value)
-            elif isinstance(field, FloatField):
-                return self.to_float(value)
-            elif isinstance(field, BooleanField):
-                return self.to_boolean(value)
-            return self.get_value(value)
-        except ValueError:
-            self.logger.exception(f"Failed casting field '{field}'")
-            raise
 
     def _import_csv_reader(self, csv_reader) -> int:
         """

@@ -82,39 +82,6 @@ class TestCsvImporter:
         )
 
     @pytest.mark.parametrize(
-        "date_str,expected_result",
-        [
-            ("25-05-2019", datetime.datetime(2019, 5, 25).date()),
-            ("31-12-2020", datetime.datetime(2020, 12, 31).date()),
-        ],
-    )
-    def test_to_date_valid(self, date_str, expected_result):
-        """
-        Test casting a valid date and assert that
-        the correct date representation is returned.
-        """
-        importer = CsvImporter(csv_file_path=None)
-        result = importer.to_date(date_str)
-        assert result == expected_result
-
-    @pytest.mark.parametrize(
-        "invalid_date_str",
-        [
-            "this is not a date",
-            "03/05/2019",
-            "2019-31-10",
-            "05-25-2019",
-        ],
-    )
-    def test_to_date_invalid(self, invalid_date_str):
-        """
-        Test casting an invalid data and assert that a ValueError is raised.
-        """
-        importer = CsvImporter(csv_file_path=None)
-        with pytest.raises(ValueError):
-            importer.to_date(invalid_date_str)
-
-    @pytest.mark.parametrize(
         "null_str",
         [
             "NULL",
@@ -191,90 +158,13 @@ class TestCsvImporter:
         assert result == expected_output
 
     @pytest.mark.parametrize("input_str", ["x", "123abc", "abc123", "abc"])
-    def test_to_int_invalid(self, input_str):
+    def test_to_float_invalid(self, input_str):
         """
         Test casting an invalid integer and assert that a ValueError is raised.
         """
         importer = CsvImporter(csv_file_path=None)
         with pytest.raises(ValueError):
             importer.to_float(input_str)
-
-    @pytest.mark.parametrize("bool_str", ["TRUE", "true", "True", "tRUe"])
-    def test_to_boolean_valid(self, bool_str):
-        """
-        Test casting a valid boolean and assert
-        that the correct int representation is returned.
-        """
-        importer = CsvImporter(csv_file_path=None)
-        result = importer.to_boolean(bool_str)
-        assert result is True
-
-    @pytest.mark.parametrize("bool_str", ["false", "False", "FALSE", "1", "yes", "y", ""])
-    def test_to_boolean_invalid(self, bool_str):
-        """
-        Test casting an invalid boolean and assert that a ValueError is raised.
-        """
-        importer = CsvImporter(csv_file_path=None)
-        assert not importer.to_boolean(bool_str)
-
-    @mock.patch("peoplemeasurement.sensors.csv_importer.CsvImporter.to_int")
-    def test_cast_value_int(self, mocked_to_int):
-        """
-        Test casting an IntegerField and assert that type int is returned
-        """
-        mocked_to_int.return_value = 12345
-        importer = CsvImporter(csv_file_path=None)
-        result = importer.cast_value(IntegerField(), "6")
-        mocked_to_int.assert_called_with("6")
-        assert result == 12345
-
-    @mock.patch("peoplemeasurement.sensors.csv_importer.CsvImporter.to_float")
-    def test_cast_value_float(self, mocked_to_int):
-        """
-        Test casting an IntegerField and assert that type int is returned
-        """
-        mocked_to_int.return_value = 12345.678
-        importer = CsvImporter(csv_file_path=None)
-        result = importer.cast_value(FloatField(), "1.1")
-        mocked_to_int.assert_called_with("1.1")
-        assert result == 12345.678
-
-    @mock.patch("peoplemeasurement.sensors.csv_importer.CsvImporter.to_date")
-    def test_cast_value_date(self, mocked_to_date):
-        """
-        Test casting a DateField and assert that type date is returned
-        """
-        mocked_to_date.return_value = datetime.datetime(2019, 1, 1).date()
-        importer = CsvImporter(csv_file_path=None)
-        result = importer.cast_value(DateField(), "05-06-2019")
-        mocked_to_date.assert_called_with("05-06-2019")
-        assert result == mocked_to_date.return_value
-
-    @mock.patch("peoplemeasurement.sensors.csv_importer.CsvImporter.to_boolean")
-    def test_cast_value_boolean(self, mocked_to_boolean):
-        """
-        Test casting a DateField and assert that type date is returned
-        """
-        mocked_to_boolean.return_value = True
-        importer = CsvImporter(csv_file_path=None)
-        result = importer.cast_value(BooleanField(), "true")
-        mocked_to_boolean.assert_called_with("true")
-        assert result is True
-
-    @mock.patch("peoplemeasurement.sensors.csv_importer.CsvImporter.get_value")
-    def test_cast_value(self, mocked_get_value):
-        mocked_get_value.return_value = "foobar"
-        importer = CsvImporter(csv_file_path=None)
-        result = importer.cast_value(None, "true")
-        mocked_get_value.assert_called_with("true")
-        assert result == "foobar"
-
-    @mock.patch("peoplemeasurement.sensors.csv_importer.CsvImporter.to_date")
-    def test_cast_value_exception(self, mocked_to_date):
-        mocked_to_date.side_effect = ValueError
-        importer = CsvImporter(csv_file_path=None)
-        with pytest.raises(ValueError):
-            importer.cast_value(DateField(), "value")
 
     def test_get_encoding(self):
         encoding = CsvImporter(
