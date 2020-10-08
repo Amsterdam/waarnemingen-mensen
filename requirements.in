@@ -17,5 +17,4 @@ psycopg2-binary
 pytz
 requests
 sentry-sdk
-
-
+chardet
