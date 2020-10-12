@@ -26,7 +26,7 @@ drf-amsterdam==0.4.0      # via -r ./requirements.txt
 drf-extensions==0.6.0     # via -r ./requirements.txt, drf-amsterdam
 drf-yasg==1.17.1          # via -r ./requirements.txt
 factory-boy==3.1.0        # via -r requirements_dev.in, pytest-factoryboy
-faker==4.5.0              # via factory-boy
+faker==4.9.0              # via factory-boy
 flask-basicauth==0.2.0    # via locust
 flask==1.1.2              # via flask-basicauth, locust
 gevent==20.9.0            # via geventhttpclient, locust
