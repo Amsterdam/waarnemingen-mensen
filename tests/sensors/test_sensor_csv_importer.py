@@ -21,7 +21,7 @@ class TestSensorCsvImporter:
         assert Sensors.objects.count() == 0
         test_csv = os.path.join(self.test_files_path, "cmsa_sensors_test.csv")
         SensorCsvImporter(test_csv).import_csv()
-        assert Sensors.objects.count() == 33
+        assert Sensors.objects.count() == 72
 
     @mock.patch(
         "peoplemeasurement.sensors.sensor_csv_importer"
