@@ -5,7 +5,7 @@
 #    pip-compile --output-file=requirements.txt requirements.in
 #
 certifi==2020.6.20        # via requests, sentry-sdk
-chardet==3.0.4            # via -r requirements.in, requests
+chardet==3.0.4            # via requests
 coreapi==2.3.3            # via drf-yasg
 coreschema==0.0.4         # via coreapi, drf-yasg
 defusedxml==0.6.0         # via djangorestframework-xml
@@ -20,7 +20,7 @@ djangorestframework-xml==2.0.0  # via -r requirements.in, drf-amsterdam
 djangorestframework==3.12.1  # via -r requirements.in, djangorestframework-csv, djangorestframework-gis, drf-amsterdam, drf-extensions, drf-yasg
 drf-amsterdam==0.4.0      # via -r requirements.in
 drf-extensions==0.6.0     # via drf-amsterdam
-drf-yasg==1.17.1          # via -r requirements.in
+drf-yasg==1.20.0          # via -r requirements.in
 idna==2.10                # via requests
 inflection==0.5.1         # via drf-yasg
 itypes==1.2.0             # via coreapi
@@ -34,9 +34,9 @@ pytz==2020.1              # via -r requirements.in, django
 requests==2.24.0          # via -r requirements.in, coreapi
 ruamel.yaml.clib==0.2.2   # via ruamel.yaml
 ruamel.yaml==0.16.12      # via drf-yasg
-sentry-sdk==0.18.0        # via -r requirements.in
-six==1.15.0               # via djangorestframework-csv, drf-yasg, packaging, python-dateutil
+sentry-sdk==0.19.1        # via -r requirements.in
+six==1.15.0               # via djangorestframework-csv, packaging, python-dateutil
 sqlparse==0.4.1           # via django, django-debug-toolbar
 unicodecsv==0.14.1        # via djangorestframework-csv
 uritemplate==3.0.1        # via coreapi, drf-yasg
-urllib3==1.25.10          # via requests, sentry-sdk
+urllib3==1.25.11          # via requests, sentry-sdk
