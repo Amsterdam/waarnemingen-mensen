@@ -20,7 +20,7 @@ class TestServicelevelCsvImporter:
 
     def test_import_csv_reader(self):
         assert Servicelevel.objects.count() == 0
-        test_csv = os.path.join(self.test_files_path, "peoplemeasurement_servicelevel_test.csv")
+        test_csv = os.path.join(self.test_files_path, "peoplemeasurement_servicelevels_test.csv")
         ServicelevelCsvImporter(test_csv).import_csv()
         assert Servicelevel.objects.count() == 72
 

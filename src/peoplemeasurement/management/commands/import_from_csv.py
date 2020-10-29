@@ -31,7 +31,7 @@ class Command(BaseCommand):
 
         csv_file_path = os.path.join(
             settings.BASE_DIR,
-            f"../../csv_imports/data/peoplemeasurement_{options['data_name']}.csv"
+            f"peoplemeasurement/csv_imports/data/peoplemeasurement_{options['data_name']}.csv"
         )
 
         importer = IMPORTERS[options['data_name']](csv_file_path=csv_file_path, delimiter=";")

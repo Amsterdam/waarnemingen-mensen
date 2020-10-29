@@ -74,24 +74,24 @@ id;type_parameter;type_gebied;type_tijd;level_nr;level_label;lowerlimit;upperlim
 73;Count;Park;Peak;1.00;Comfortabel;0;14.00
 74;Count;Park;Peak;2.00;Acceptabel;14.00;20.00
 75;Count;Park;Peak;3.00;Risicovol;20.00;23.00
-76;Count;Park;Peak;4.00;Onacceptabel;23.00;10.00 K
+76;Count;Park;Peak;4.00;Onacceptabel;23.00;10.00
 77;Count;Park;Average;1.00;Comfortabel;0;14.00
 78;Count;Park;Average;2.00;Acceptabel;14.00;20.00
 79;Count;Park;Average;3.00;Risicovol;20.00;26.00
-80;Count;Park;Average;4.00;Onacceptabel;26.00;10.00 K
+80;Count;Park;Average;4.00;Onacceptabel;26.00;10.00
 81;Density;Park;Peak;1.00;Comfortabel;0;0.72
 82;Density;Park;Peak;2.00;Acceptabel;0.72;1.08
 83;Density;Park;Peak;3.00;Risicovol;1.08;2.17
-84;Density;Park;Peak;4.00;Onacceptabel;2.17;10.00 K
+84;Density;Park;Peak;4.00;Onacceptabel;2.17;10.00
 85;Density;Park;Average;1.00;Comfortabel;0;0.43
 86;Density;Park;Average;2.00;Acceptabel;0.43;0.72
 87;Density;Park;Average;3.00;Risicovol;0.72;1.08
-88;Density;Park;Average;4.00;Onacceptabel;1.08;10.00 K
-89;Speed;Park;Peak;1.00;Comfortabel;10.00 K;1.00
+88;Density;Park;Average;4.00;Onacceptabel;1.08;10.00
+89;Speed;Park;Peak;1.00;Comfortabel;10.00;1.00
 90;Speed;Park;Peak;2.00;Acceptabel;1.00;0.81
 91;Speed;Park;Peak;3.00;Risicovol;0.81;0.76
 92;Speed;Park;Peak;4.00;Onacceptabel;0.76;0
-93;Speed;Park;Average;1.00;Comfortabel;10.00 K;1.00
+93;Speed;Park;Average;1.00;Comfortabel;10.00;1.00
 94;Speed;Park;Average;2.00;Acceptabel;1.00;0.81
 95;Speed;Park;Average;3.00;Risicovol;0.81;0.76
 96;Speed;Park;Average;4.00;Onacceptabel;0.76;0

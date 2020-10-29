@@ -41,7 +41,7 @@ class CsvImporter:
 
     def to_int(self, value):
         value = self.get_value(value)
-        return int(value) if value else None
+        return int(float(value)) if value else None
 
     def to_float(self, value):
         value = self.get_value(value)
