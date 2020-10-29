@@ -6,7 +6,7 @@ from django.contrib.gis.geos import Point
 from model_bakery import baker
 
 from peoplemeasurement.models import Sensors
-from peoplemeasurement.sensors.sensor_csv_importer import SensorCsvImporter
+from peoplemeasurement.csv_imports.sensor_csv_importer import SensorCsvImporter
 
 
 @pytest.mark.django_db
@@ -19,12 +19,12 @@ class TestSensorCsvImporter:
 
     def test_import_csv_reader(self):
         assert Sensors.objects.count() == 0
-        test_csv = os.path.join(self.test_files_path, "cmsa_sensors_test.csv")
+        test_csv = os.path.join(self.test_files_path, "peoplemeasurement_sensors_test.csv")
         SensorCsvImporter(test_csv).import_csv()
         assert Sensors.objects.count() == 72
 
     @mock.patch(
-        "peoplemeasurement.sensors.sensor_csv_importer"
+        "peoplemeasurement.csv_imports.sensor_csv_importer"
         ".SensorCsvImporter._truncate_sensors"
     )
     def test_import_csv_reader_truncate(self, mocked_truncate):
@@ -33,7 +33,7 @@ class TestSensorCsvImporter:
         mocked_truncate.assert_called_with()
 
     @mock.patch(
-        "peoplemeasurement.sensors.sensor_csv_importer"
+        "peoplemeasurement.csv_imports.sensor_csv_importer"
         ".SensorCsvImporter._create_sensor_for_row"
     )
     def test_import_csv_reader_error(self, mocked_create):
