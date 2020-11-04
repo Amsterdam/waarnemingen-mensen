@@ -1,5 +1,4 @@
 import logging
-import sys
 
 from datapunt_api.rest import DatapuntViewSetWritable
 from rest_framework import exceptions, status
