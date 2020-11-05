@@ -31,7 +31,7 @@ class DataIngressPosterTest(APITestCase):
 
         # Then run the parse_ingress script
         out = call_man_command('parse_ingress')
-        self.assertEqual(out.strip(), '3')
+        self.assertEqual(out.strip(), "Parsed: 3 Success: 3")
 
         # Test whether the records in the ingress queue are correctly set to parsed
         for ingress in IngressQueue.objects.all():
@@ -47,7 +47,7 @@ class DataIngressPosterTest(APITestCase):
 
         # Then run the parse_ingress script
         out = call_man_command('parse_ingress')
-        self.assertEqual(out.strip(), '0')
+        self.assertEqual(out.strip(), "Parsed: 1 Success: 0")
 
         # Test whether the record in the ingress queue is correctly set to parse_failed
         for ingress in IngressQueue.objects.all():

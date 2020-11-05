@@ -32,5 +32,5 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         n = options['records_per_batch']
         parser = TelcameraParser()
-        parsed = parser.parse_n(n)
-        self.stdout.write(str(parsed))
+        parsed_count, success_count = parser.parse_n(n)
+        self.stdout.write(f"Parsed: {parsed_count} Success: {success_count}")

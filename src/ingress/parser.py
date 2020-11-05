@@ -20,11 +20,11 @@ class IngressParser(ABC):
         """ Implement parsing of one raw message and return an instance """
         pass
 
-    # def parse_continuously(self):
-    #     while True:
-    #         parse_counter, success_counter = self.parse_n()
-    #         if parse_counter == 0:
-    #             sleep(1)
+    def parse_continuously(self, n=10):
+        while True:
+            parse_count, success_count = self.parse_n(n)
+            if parse_count == 0:
+                sleep(1)
 
     def parse_n(self, n=10):
         endpoint = Endpoint.objects.filter(url_key=self.endpoint_url_key).get()
@@ -44,7 +44,7 @@ class IngressParser(ABC):
                 ingress.parse_started = datetime.utcnow()
                 ingress.save()
 
-                # parse_counter += 1
+                parse_counter += 1
 
                 try:
                     # A try/except within an atomic transaction is not possible
@@ -79,5 +79,4 @@ class IngressParser(ABC):
                     failedingress.save()
                     ingress.delete()
 
-        return success_counter
-        # return parse_counter, success_counter
+        return parse_counter, success_counter
