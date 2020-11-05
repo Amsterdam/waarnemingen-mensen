@@ -3,7 +3,7 @@ import logging
 import pytz
 from rest_framework.test import APITestCase
 
-from ingress.models import IngressQueue
+from ingress.models import IngressQueue, Endpoint
 from tests.test_telcameras_v2 import TEST_POST
 from tests.tools_for_testing import call_man_command
 
@@ -15,7 +15,12 @@ class DataIngressPosterTest(APITestCase):
     """ Test the second iteration of the api, with the ingress queue """
 
     def setUp(self):
-        self.URL = '/ingress/telcameras_v2'
+        self.endpoint_url_key = 'telcameras_v2'
+        self.URL = '/ingress/' + self.endpoint_url_key
+
+        # Create an endpoint
+        self.endpoint_obj = Endpoint.objects.create(url_key = self.endpoint_url_key)
+
 
     def test_parse_ingress(self):
         # First add a couple ingress records

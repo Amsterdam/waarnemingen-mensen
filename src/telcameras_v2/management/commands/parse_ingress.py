@@ -8,7 +8,7 @@ from telcameras_v2.serializers import ObservationSerializer
 
 
 class TelcameraParser(IngressParser):
-    endpoint = 'telcameras_v2'
+    endpoint_url_key = 'telcameras_v2'
 
     def parse_single_message(self, ingress_raw_data):
         data = json.loads(json.loads(ingress_raw_data))['data']

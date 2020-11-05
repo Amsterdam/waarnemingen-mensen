@@ -1,13 +1,18 @@
-from django.views import View
-from ingress.models import IngressQueue
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django.views import View
+
+from ingress.models import Endpoint, IngressQueue
 
 
 class IngressView(View):
     def post(self, request, queue):
+        if len(queue) == 0:
+            return HttpResponse(status=404)
 
-        assert len(queue) > 0, "The queue name is not set."
-        result = IngressQueue.objects.create(endpoint=queue, raw_data=request.body.decode("utf-8"))
+        endpoint = get_object_or_404(Endpoint, url_key=queue)
+
+        result = IngressQueue.objects.create(endpoint=endpoint, raw_data=request.body.decode("utf-8"))
         if result:
             return HttpResponse(status=200)
         else:

@@ -2,15 +2,19 @@ from datetime import datetime
 
 from rest_framework.test import APITestCase
 
-from ingress.models import IngressQueue
+from ingress.models import IngressQueue, Endpoint
 from tests.tools_for_testing import call_man_command
 
 
 class IngressTests(APITestCase):
     def setUp(self):
-        self.URL = '/ingress/example'
+        self.endpoint_url_key = 'example'
+        self.URL = '/ingress/' + self.endpoint_url_key
         self.JSON_STR = '{"a": 1, "b": 2}'
         self.XML_STR = '<?xml version="1.0"?><catalog><book id="1"><title>Awesome Book</title></book></catalog>'
+
+        # Create an endpoint
+        self.endpoint_obj = Endpoint.objects.create(url_key = self.endpoint_url_key)
 
     def test_post_json_succeeds(self):
         count_before = IngressQueue.objects.count()
@@ -18,7 +22,7 @@ class IngressTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(IngressQueue.objects.count(), count_before + 1)
         ingress = IngressQueue.objects.order_by('-id')[0]
-        self.assertEqual(ingress.endpoint, 'example')
+        self.assertEqual(ingress.endpoint.url_key, 'example')
         self.assertEqual(ingress.raw_data, self.JSON_STR)
 
     def test_post_xml_succeeds(self):
@@ -27,7 +31,7 @@ class IngressTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(IngressQueue.objects.count(), count_before + 1)
         ingress = IngressQueue.objects.order_by('-id')[0]
-        self.assertEqual(ingress.endpoint, 'example')
+        self.assertEqual(ingress.endpoint.url_key, 'example')
         self.assertEqual(ingress.raw_data, self.XML_STR)
 
     def test_post_wrong_json_succeeds(self):
@@ -36,7 +40,7 @@ class IngressTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(IngressQueue.objects.count(), count_before + 1)
         ingress = IngressQueue.objects.order_by('-id')[0]
-        self.assertEqual(ingress.endpoint, 'example')
+        self.assertEqual(ingress.endpoint.url_key, 'example')
         self.assertEqual(ingress.raw_data, 'NOT CORRECT JSON')
 
     def test_post_with_raw_content_type_succeeds(self):
@@ -45,7 +49,7 @@ class IngressTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(IngressQueue.objects.count(), count_before + 1)
         ingress = IngressQueue.objects.order_by('-id')[0]
-        self.assertEqual(ingress.endpoint, 'example')
+        self.assertEqual(ingress.endpoint.url_key, 'example')
         self.assertEqual(ingress.raw_data, 'raw data')
 
     def test_post_with_no_content_succeeds(self):
@@ -54,8 +58,16 @@ class IngressTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(IngressQueue.objects.count(), count_before + 1)
         ingress = IngressQueue.objects.order_by('-id')[0]
-        self.assertEqual(ingress.endpoint, 'example')
+        self.assertEqual(ingress.endpoint.url_key, 'example')
         self.assertEqual(ingress.raw_data, '')
+
+    def test_post_with_no_endpoint_url_key_fails(self):
+        response = self.client.post('/ingress/', 'data', content_type='raw')
+        self.assertEqual(response.status_code, 404)
+
+    def test_post_to_non_existing_endpoint_fails(self):
+        response = self.client.post('/ingress/doesnotexist', 'data', content_type='raw')
+        self.assertEqual(response.status_code, 404)
 
     def test_clean_ingress(self):
         count_before = IngressQueue.objects.count()

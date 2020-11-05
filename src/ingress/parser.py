@@ -5,13 +5,13 @@ from datetime import datetime
 
 from django.db import transaction
 
-from ingress.models import IngressQueue
+from ingress.models import Endpoint, IngressQueue
 
 
 class IngressParser(ABC):
     @property
     @abstractmethod
-    def endpoint(self):
+    def endpoint_url_key(self):
         pass
 
     @abstractmethod
@@ -20,9 +20,11 @@ class IngressParser(ABC):
         pass
 
     def parse(self, n=10):
+        endpoint = Endpoint.objects.filter(url_key=self.endpoint_url_key).get()
+
         success_counter = 0
         with transaction.atomic():
-            ingresses = IngressQueue.objects.filter(endpoint=self.endpoint)\
+            ingresses = IngressQueue.objects.filter(endpoint=endpoint)\
                             .filter(parse_started__isnull=True)\
                             .order_by('created_at')[:n].select_for_update(skip_locked=True)
 
