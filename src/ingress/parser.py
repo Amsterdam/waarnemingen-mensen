@@ -2,6 +2,7 @@ import sys
 import traceback
 from abc import ABC, abstractmethod
 from datetime import datetime
+from time import sleep
 
 from django.db import transaction
 
@@ -19,9 +20,16 @@ class IngressParser(ABC):
         """ Implement parsing of one raw message and return an instance """
         pass
 
+    # def parse_continuously(self):
+    #     while True:
+    #         parse_counter, success_counter = self.parse_n()
+    #         if parse_counter == 0:
+    #             sleep(1)
+
     def parse_n(self, n=10):
         endpoint = Endpoint.objects.filter(url_key=self.endpoint_url_key).get()
 
+        parse_counter = 0
         success_counter = 0
         with transaction.atomic():
             ingresses = IngressQueue.objects.filter(endpoint=endpoint)\
@@ -35,6 +43,8 @@ class IngressParser(ABC):
                 # Mark it as being in the parsing stage
                 ingress.parse_started = datetime.utcnow()
                 ingress.save()
+
+                # parse_counter += 1
 
                 try:
                     # A try/except within an atomic transaction is not possible
@@ -70,3 +80,4 @@ class IngressParser(ABC):
                     ingress.delete()
 
         return success_counter
+        # return parse_counter, success_counter

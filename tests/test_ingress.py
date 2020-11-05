@@ -249,5 +249,5 @@ class TestIngressParsing(APITestCase):
         for failed_ingress in FailedIngressQueue.objects.filter(endpoint=self.endpoint_obj):
             self.assertIsNone(failed_ingress.parse_succeeded)
             self.assertIsNotNone(failed_ingress.parse_failed)
-            self.assertContains(failed_ingress.parse_fail_info, 'ZeroDivisionError: division by zero')
+            self.assertIn('ZeroDivisionError: division by zero', failed_ingress.parse_fail_info)
 
