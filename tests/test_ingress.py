@@ -110,6 +110,28 @@ class IngressTests(APITestCase):
         self.assertEqual(out.strip(), f"The endpoint '{url_key}' already exists")
         self.assertEqual(Endpoint.objects.count(), count_before + 1)
 
+    def test_remove_endpoint_command(self):
+        url_key = 'this_endpoint_should_be_removed'
+        count_before = Endpoint.objects.count()
+
+        # First add the endpoint
+        call_man_command('add_endpoint', url_key)
+        self.assertEqual(Endpoint.objects.count(), count_before + 1)
+
+        # Then remove the endpoint
+        out = call_man_command('remove_endpoint', url_key)
+        self.assertEqual(Endpoint.objects.count(), count_before)
+        self.assertEqual(out.strip(), f"Successfully removed the endpoint '{url_key}'")
+
+    def test_remove_endpoint_command_fails_if_endpoint_does_not_exist(self):
+        url_key = 'the_endpoint_to_remove'
+        count_before = Endpoint.objects.count()
+
+        # Try to remove the endpoint
+        out = call_man_command('remove_endpoint', url_key)
+        self.assertEqual(Endpoint.objects.count(), count_before)
+        self.assertEqual(out.strip(), f"The endpoint '{url_key}' doesn't exist yet. Nothing has been done.")
+
     def test_clean_ingress_command(self):
         count_before = IngressQueue.objects.count()
         self.assertEqual(count_before, 0)
