@@ -69,7 +69,48 @@ class IngressTests(APITestCase):
         response = self.client.post('/ingress/doesnotexist', 'data', content_type='raw')
         self.assertEqual(response.status_code, 404)
 
-    def test_clean_ingress(self):
+    def test_add_endpoint_command(self):
+        url_key = 'new_nice-endpoint'  # Make sure it allows for underscores and dashes
+        count_before = Endpoint.objects.count()
+
+        # Add the endpoint
+        out = call_man_command('add_endpoint', url_key)
+
+        self.assertEqual(out.strip(), f"Created endpoint with url_key '{url_key}'")
+        self.assertEqual(Endpoint.objects.count(), count_before + 1)
+        endpoint = Endpoint.objects.filter(url_key=url_key).get()
+        self.assertEqual(endpoint.url_key, url_key)
+
+    def test_add_endpoint_command_fails_with_too_long_url_key(self):
+        url_key = 'a' * 260
+        count_before = Endpoint.objects.count()
+
+        out = call_man_command('add_endpoint', url_key)
+        self.assertEqual(out.strip(), "The url_key is larger than 255 characters. Please choose a shorter url_key.")
+        self.assertEqual(Endpoint.objects.count(), count_before)
+
+    def test_add_endpoint_command_fails_with_weird_characters(self):
+        url_key = '!'  # Anything other than numbers, letters, underscores or dashes are not allowed
+        count_before = Endpoint.objects.count()
+
+        out = call_man_command('add_endpoint', url_key)
+        self.assertEqual(out.strip(), "The url_key can only contain numbers, letters, underscores and dashes.")
+        self.assertEqual(Endpoint.objects.count(), count_before)
+
+    def test_add_endpoint_command_fails_with_existing_endpoint(self):
+        url_key = 'noice_endpoint'
+        count_before = Endpoint.objects.count()
+
+        # Add the endpoint once
+        call_man_command('add_endpoint', url_key)
+        self.assertEqual(Endpoint.objects.count(), count_before + 1)
+
+        # Try to add the same endpoint again
+        out = call_man_command('add_endpoint', url_key)
+        self.assertEqual(out.strip(), f"The endpoint '{url_key}' already exists")
+        self.assertEqual(Endpoint.objects.count(), count_before + 1)
+
+    def test_clean_ingress_command(self):
         count_before = IngressQueue.objects.count()
         self.assertEqual(count_before, 0)
 
