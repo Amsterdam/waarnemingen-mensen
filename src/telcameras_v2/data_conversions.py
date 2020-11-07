@@ -1,4 +1,8 @@
 def data_to_observation(data):
+    """
+    This endpoint receives data in a format which does not match the database layout. This function
+    transforms its structure to match the database.
+    """
     observation = data[0]
     message = observation.pop('message')
     version = observation.pop('version')
