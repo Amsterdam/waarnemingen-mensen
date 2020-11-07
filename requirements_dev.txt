@@ -4,6 +4,7 @@
 #
 #    pip-compile --output-file=requirements_dev.txt requirements_dev.in
 #
+asgiref==3.3.0            # via -r ./requirements.txt, django
 attrs==20.3.0             # via pytest
 backcall==0.2.0           # via ipython
 certifi==2020.6.20        # via -r ./requirements.txt, geventhttpclient, requests, sentry-sdk
@@ -19,11 +20,11 @@ django-datetime-utc==1.0.3  # via -r ./requirements.txt
 django-debug-toolbar==3.1.1  # via -r ./requirements.txt
 django-extensions==3.0.9  # via -r ./requirements.txt
 django-filter==2.4.0      # via -r ./requirements.txt
-django==2.2.17            # via -r ./requirements.txt, django-datetime-utc, django-debug-toolbar, django-filter, djangorestframework, drf-yasg, model-bakery
+django==3.0.11            # via -r ./requirements.txt, django-datetime-utc, django-debug-toolbar, django-filter, djangorestframework, drf-yasg, model-bakery
 djangorestframework-csv==2.1.0  # via -r ./requirements.txt, drf-amsterdam
 djangorestframework-gis==0.16  # via -r ./requirements.txt
 djangorestframework-xml==2.0.0  # via -r ./requirements.txt, drf-amsterdam
-djangorestframework==3.12.1  # via -r ./requirements.txt, djangorestframework-csv, djangorestframework-gis, drf-amsterdam, drf-extensions, drf-yasg
+djangorestframework==3.12.2  # via -r ./requirements.txt, djangorestframework-csv, djangorestframework-gis, drf-amsterdam, drf-extensions, drf-yasg
 drf-amsterdam==0.4.0      # via -r ./requirements.txt
 drf-extensions==0.6.0     # via -r ./requirements.txt, drf-amsterdam
 drf-yasg==1.20.0          # via -r ./requirements.txt

@@ -2,8 +2,7 @@
 # See # https://git.datapunt.amsterdam.nl/Datapunt/python-best-practices/blob/master/dependency_management/
 
 # drf-extensions fails on 3.1: https://github.com/chibisov/drf-extensions/issues/294
-# drf-amsterdam fails on >=3.0. It uses {% load staticfiles %} which was removed in 3.0.
-Django<3.0
+Django<3.1
 django-datetime-utc
 django-filter
 django-extensions
