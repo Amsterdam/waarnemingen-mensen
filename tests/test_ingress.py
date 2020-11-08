@@ -72,6 +72,20 @@ class TestIngressEndpointManipulation(APITestCase):
         self.assertEqual(Endpoint.objects.count(), count_before)
         self.assertEqual(out.strip(), f"The endpoint '{url_key}' doesn't exist yet. Nothing has been done.")
 
+    def test_list_endpoints_with_no_existing_endpoints(self):
+        self.assertEqual(Endpoint.objects.count(), 0)
+        out = call_man_command('list_endpoints')
+        self.assertEqual(out, "Current number of endpoints: 0\n")
+
+    def test_list_endpoints_with_two_existing_endpoints(self):
+        # First add two endpoints
+        call_man_command('add_endpoint', 'first_endpoint')
+        call_man_command('add_endpoint', 'second_endpoint')
+        self.assertEqual(Endpoint.objects.count(), 2)
+
+        out = call_man_command('list_endpoints')
+        self.assertEqual(out, "Current number of endpoints: 2\nfirst_endpoint\nsecond_endpoint\n")
+
 
 class TestIngressQueue(APITestCase):
     def setUp(self):
