@@ -41,7 +41,9 @@ class CsvImporter:
 
     def to_int(self, value):
         value = self.get_value(value)
-        return int(value) if value else None
+        # We sometimes get values like `15.0`, which we want to parse to the int 15
+        # For this reason we first parse to float and then to int
+        return int(float(value)) if value else None
 
     def to_float(self, value):
         value = self.get_value(value)

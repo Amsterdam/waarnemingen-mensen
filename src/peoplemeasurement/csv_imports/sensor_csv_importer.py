@@ -3,7 +3,7 @@ import logging
 from django.db import transaction, connection
 
 from peoplemeasurement.models import Sensors
-from peoplemeasurement.sensors.csv_importer import CsvImporter
+from peoplemeasurement.csv_imports.csv_importer import CsvImporter
 
 logger = logging.getLogger(__name__)
 

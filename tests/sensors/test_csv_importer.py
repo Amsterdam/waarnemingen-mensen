@@ -4,7 +4,7 @@ from unittest.mock import mock_open
 
 import pytest
 
-from peoplemeasurement.sensors.csv_importer import CsvImporter
+from peoplemeasurement.csv_imports.csv_importer import CsvImporter
 
 
 class TestCsvImporter:
@@ -39,8 +39,8 @@ class TestCsvImporter:
             importer.import_csv()
 
     @mock.patch("builtins.open", new_callable=mock_open)
-    @mock.patch("peoplemeasurement.sensors.csv_importer.csv")
-    @mock.patch("peoplemeasurement.sensors.csv_importer.CsvImporter._import_csv_reader")
+    @mock.patch("peoplemeasurement.csv_imports.csv_importer.csv")
+    @mock.patch("peoplemeasurement.csv_imports.csv_importer.CsvImporter._import_csv_reader")
     def test_import_csv(
         self, mocked_import, mocked_csv, mocked_file
     ):
@@ -57,8 +57,8 @@ class TestCsvImporter:
         mocked_import.assert_called_with("foobar")
 
     @mock.patch("builtins.open", new_callable=mock_open)
-    @mock.patch("peoplemeasurement.sensors.csv_importer.csv")
-    @mock.patch("peoplemeasurement.sensors.csv_importer.CsvImporter._import_csv_reader")
+    @mock.patch("peoplemeasurement.csv_imports.csv_importer.csv")
+    @mock.patch("peoplemeasurement.csv_imports.csv_importer.CsvImporter._import_csv_reader")
     def test_import_csv_value_error(
         self, mocked_import, mocked_csv, mocked_file
     ):
@@ -67,7 +67,7 @@ class TestCsvImporter:
         with pytest.raises(ValueError):
             CsvImporter('filepath.csv').import_csv()
 
-    @mock.patch("peoplemeasurement.sensors.csv_importer.CsvImporter.logger")
+    @mock.patch("peoplemeasurement.csv_imports.csv_importer.CsvImporter.logger")
     def test_import_csv_file_not_found(self, mocked_logger):
         filepath = "non/existing/path/file.csv"
         importer = CsvImporter(filepath)
