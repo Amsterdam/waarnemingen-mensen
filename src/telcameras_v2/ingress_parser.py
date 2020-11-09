@@ -9,7 +9,7 @@ class TelcameraParser(IngressParser):
     endpoint_url_key = 'telcameras_v2'
 
     def parse_single_message(self, ingress_raw_data):
-        data = json.loads(json.loads(ingress_raw_data))['data']
+        data = json.loads(ingress_raw_data)['data']
         observation = data_to_observation(data)
 
         observation_serializer = ObservationSerializer(data=observation)

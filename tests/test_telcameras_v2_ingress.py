@@ -19,14 +19,13 @@ class DataIngressPosterTest(APITestCase):
         self.URL = '/ingress/' + self.endpoint_url_key
 
         # Create an endpoint
-        self.endpoint_obj = Endpoint.objects.create(url_key = self.endpoint_url_key)
-
+        self.endpoint_obj = Endpoint.objects.create(url_key=self.endpoint_url_key)
 
     def test_parse_ingress(self):
         # First add a couple ingress records
         IngressQueue.objects.all().delete()
         for i in range(3):
-            self.client.post(self.URL, TEST_POST, format='json')
+            self.client.post(self.URL, TEST_POST, content_type='application/json')
         self.assertEqual(IngressQueue.objects.count(), 3)
 
         # Then run the parse_ingress script
@@ -42,7 +41,7 @@ class DataIngressPosterTest(APITestCase):
     def test_parse_ingress_fail(self):
         # First add an ingress record which is not correct json
         IngressQueue.objects.all().delete()
-        self.client.post(self.URL, "NOT JSON", format='json')
+        self.client.post(self.URL, "NOT JSON", content_type='application/json')
         self.assertEqual(IngressQueue.objects.count(), 1)
 
         # Then run the parse_ingress script
