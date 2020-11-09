@@ -9,7 +9,8 @@ from django.db import connection
 from factory import fuzzy
 from rest_framework.test import APITestCase
 
-from peoplemeasurement.models import PeopleMeasurement
+from peoplemeasurement.models import PeopleMeasurement, Sensors
+from tests.tools_for_testing import call_man_command
 
 from .test_telcameras_v2 import \
     AUTHORIZATION_HEADER as V2_POST_AUTHORIZATION_HEADER
@@ -219,6 +220,8 @@ class PeopleMeasurementTestGetV1(APITestCase):
         self.URL = '/telcameras/v1/15minaggregate/'
         self.POST_URL_V2 = '/telcameras/v2/'
 
+        self.sensor = Sensors.objects.create(objectnummer='GAVM-01-Vondelstraat')
+
     # NOTE: The test below fails because older data from the v1 view isn't loaded. This is because the v5 view
     # apparently doesn't work correctly yet. For this endpoint that doesn't matter though, since it only serves the
     # data from the past 24 hours, which will not include any data from the v1 data anyway.
@@ -280,3 +283,31 @@ class PeopleMeasurementTestGetV1(APITestCase):
     def test_get_15min_aggregation_records_fails_with_wrong_token(self):
         response = self.client.get(self.URL, **POST_AUTHORIZATION_HEADER)
         self.assertEqual(response.status_code, 401)
+
+class PeopleMeasurementTestSetSensorIsActiveStatus(APITestCase):
+    def setUp(self):
+        self.objectnummer = 'GAVM-01-Vondelstraat'
+        self.sensor = Sensors.objects.create(objectnummer=self.objectnummer)
+
+    def test_changing_is_active_to_false_and_back_to_true(self):
+        out = call_man_command('set_sensor_is_active_status', self.objectnummer, 'false')
+        self.assertEqual(out.strip(), f"The sensor '{self.objectnummer}'.is_active was successfully changed to False.")
+        sensor = Sensors.objects.filter(objectnummer=self.objectnummer).get()
+        self.assertEqual(sensor.is_active, False)
+
+        out = call_man_command('set_sensor_is_active_status', self.objectnummer, 'true')
+        self.assertEqual(out.strip(), f"The sensor '{self.objectnummer}'.is_active was successfully changed to True.")
+        sensor = Sensors.objects.filter(objectnummer=self.objectnummer).get()
+        self.assertEqual(sensor.is_active, True)
+
+    def test_changing_non_existing_sensor_fails(self):
+        out = call_man_command('set_sensor_is_active_status', 'does not exist', 'false')
+        self.assertEqual(out.strip(), f"No sensor exists for the objectnummer 'does not exist'")
+
+    def test_changing_is_active_to_existing_status(self):
+        # The sensor is already active. Now try to set it to active again.
+        out = call_man_command('set_sensor_is_active_status', self.objectnummer, 'true')
+        self.assertEqual(
+            out.strip(),
+            f"The sensor '{self.objectnummer}'.is_active is already True. Nothing has changed."
+        )

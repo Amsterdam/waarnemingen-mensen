@@ -205,7 +205,7 @@ class MockParser(IngressParser):
     endpoint_url_key = 'parsing_example'
 
     def parse_single_message(self, ingress_raw_data):
-        MockedModel = namedtuple('MockModelInstance', 'id')
+        MockedModel = namedtuple('MockModel', 'id')
         obj = MockedModel(id=1)
         return obj
 

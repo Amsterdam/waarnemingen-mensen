@@ -8,6 +8,7 @@ from dateutil import parser
 from django.conf import settings
 from rest_framework.test import APITestCase
 
+from peoplemeasurement.models import Sensors
 from telcameras_v2.models import CountAggregate, Observation, PersonAggregate
 
 log = logging.getLogger(__name__)
@@ -127,6 +128,32 @@ class DataPosterTest(APITestCase):
 
     def setUp(self):
         self.URL = '/telcameras/v2/'
+
+        self.sensor = Sensors.objects.create(objectnummer='GAVM-01-Vondelstraat')
+
+    def test_post_fails_with_non_existing_sensor(self):
+        post_data = json.loads(TEST_POST)
+        post_data['data'][0]['sensor'] = 'does not exist'
+        response = self.client.post(self.URL, post_data, **AUTHORIZATION_HEADER, format='json')
+        self.assertEqual(response.status_code, 200)  # We get a 200, but no data is added to the DB. This is as designed
+        self.assertEqual(response.content, b'"The sensor does not exist."')
+        self.assertEqual(Observation.objects.count(), 0)
+
+    def test_post_fails_with_inactive_sensor(self):
+        # Set the sensor to inactive
+        self.sensor.is_active = False
+        self.sensor.save()
+
+        # Test the response
+        post_data = json.loads(TEST_POST)
+        response = self.client.post(self.URL, post_data, **AUTHORIZATION_HEADER, format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, b'"The sensor is inactive."')
+        self.assertEqual(Observation.objects.count(), 0)
+
+        # Set the sensor back to active again
+        self.sensor.is_active = False
+        self.sensor.save()
 
     def test_post_new_record(self):
         """ Test posting a new vanilla message """

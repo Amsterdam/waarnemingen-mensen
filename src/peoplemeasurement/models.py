@@ -36,6 +36,7 @@ class Sensors(models.Model):
     gebiedstype = models.CharField(max_length=255, null=True)
     gebied = models.CharField(max_length=255, null=True)
     imported_at = models.DateTimeField(null=True, auto_now_add=True)
+    is_active = models.BooleanField(default=True)  # To decide if the received data from this sensor should be stored
 
 
 class Servicelevel(models.Model):

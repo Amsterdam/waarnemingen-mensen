@@ -5,8 +5,9 @@ from rest_framework import exceptions, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .data_conversions import data_to_observation
-from .serializers import ObservationSerializer
+from peoplemeasurement.models import Sensors
+from telcameras_v2.serializers import ObservationSerializer
+from telcameras_v2.tools import data_to_observation, store_data_for_sensor
 
 logger = logging.getLogger(__name__)
 
@@ -20,9 +21,16 @@ class RecordViewSet(DatapuntViewSetWritable):
 
     def create(self, request, *args, **kwargs):
         try:
+            # Convert the data to a usable format
             data = request.data['data']
             observation = data_to_observation(data)
 
+            # Does the sensor exist and is it active
+            store, message = store_data_for_sensor(observation)
+            if not store:
+                return Response(message, status=status.HTTP_200_OK)
+
+            # Serialize and store the data
             observation_serializer = ObservationSerializer(data=observation)
             observation_serializer.is_valid(raise_exception=True)
             observation_serializer.save()
