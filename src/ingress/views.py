@@ -12,6 +12,8 @@ logger = logging.getLogger(__name__)
 class IngressView(View):
     def post(self, request, queue):
         endpoint = get_object_or_404(Endpoint, url_key=queue)
+        if not endpoint.is_active:
+            return HttpResponse("Endpoint is not active anymore", status=404, content_type='text/plain')
 
         raw_data = request.body.decode("utf-8")
         result = IngressQueue.objects.create(endpoint=endpoint, raw_data=raw_data)

@@ -8,7 +8,7 @@ from ingress.parser import IngressParser
 from tests.tools_for_testing import call_man_command
 
 
-class TestIngressEndpointManipulation(APITestCase):
+class TestIngressEndpointCommands(APITestCase):
     def test_add_endpoint_command(self):
         url_key = 'new_nice-endpoint'  # Make sure it allows for underscores and dashes
         count_before = Endpoint.objects.count()
@@ -20,6 +20,7 @@ class TestIngressEndpointManipulation(APITestCase):
         self.assertEqual(Endpoint.objects.count(), count_before + 1)
         endpoint = Endpoint.objects.filter(url_key=url_key).get()
         self.assertEqual(endpoint.url_key, url_key)
+        self.assertEqual(endpoint.is_active, True)
 
     def test_add_endpoint_command_fails_with_too_long_url_key(self):
         url_key = 'a' * 260
@@ -149,6 +150,21 @@ class TestIngressQueue(APITestCase):
     def test_post_to_non_existing_endpoint_fails(self):
         response = self.client.post('/ingress/doesnotexist', 'data', content_type='raw')
         self.assertEqual(response.status_code, 404)
+
+    def test_inactive_endpoint_serves_404(self):
+        # Set the endpoint to inactive
+        endpoint = Endpoint.objects.get(url_key=self.endpoint_url_key)
+        endpoint.is_active = False
+        endpoint.save()
+
+        # Call the inactive endpoint
+        response = self.client.post(self.URL, 'data', content_type='raw')
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.content.decode("utf-8"), "Endpoint is not active anymore")
+
+        # Set the endpoint back to active
+        endpoint.is_active = True
+        endpoint.save()
 
     def test_clean_ingress_command(self):
         count_before = IngressQueue.objects.count()
