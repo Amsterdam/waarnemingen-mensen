@@ -1,3 +1,10 @@
+import logging
+
+from peoplemeasurement.models import Sensors
+
+logger = logging.getLogger(__name__)
+
+
 def data_to_observation(data):
     """
     This endpoint receives data in a format which does not match the database layout. This function
@@ -38,3 +45,17 @@ def data_to_observation(data):
     observation['longitude'] = round(observation['longitude'], 13)
 
     return observation
+
+
+def store_data_for_sensor(data):
+    # Does the sensor exist and is it active
+    try:
+        sensor = Sensors.objects.filter(objectnummer=data.get('sensor', '')).get()
+    except Sensors.DoesNotExist:
+        logger.info(f"The sensor '{data['sensor']}' was not found, so the data is not stored.")
+        return False, "The sensor does not exist."
+    if not sensor.is_active:
+        logger.info(f"The sensor '{data['sensor']}' exists but is not active.")
+        return False, "The sensor is inactive."
+
+    return True, None

@@ -206,7 +206,7 @@ class MockParser(IngressParser):
     returned_id = None
 
     def parse_single_message(self, ingress_raw_data):
-        MockedModel = namedtuple('MockModelInstance', 'id')
+        MockedModel = namedtuple('MockModel', 'id')
         obj = MockedModel(id=self.returned_id)
         return obj
 
