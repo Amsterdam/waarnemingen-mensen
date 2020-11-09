@@ -2,13 +2,16 @@ import logging
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 
 from ingress.models import Endpoint, IngressQueue
 
 logger = logging.getLogger(__name__)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class IngressView(View):
     def post(self, request, queue):
         endpoint = get_object_or_404(Endpoint, url_key=queue)
@@ -20,6 +23,5 @@ class IngressView(View):
         if result:
             return HttpResponse(status=200)
         else:
-            # TODO: improve error reporting. When does this actually need to fail?
             logger.error(f"Message could not be saved: {raw_data}")
             return HttpResponse(status=500)
