@@ -4,7 +4,7 @@ from django.db import models
 class IngressQueue(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    endpoint = models.ForeignKey('Endpoint', on_delete=models.CASCADE)
+    endpoint = models.ForeignKey('Endpoint', on_delete=models.PROTECT)
     raw_data = models.TextField()  # Store raw received data to be parsed by a separate parser
     parse_started = models.DateTimeField(null=True)
     parse_succeeded = models.DateTimeField(null=True)
