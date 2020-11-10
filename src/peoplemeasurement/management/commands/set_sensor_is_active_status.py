@@ -1,24 +1,25 @@
+from distutils.util import strtobool
+
 from django.core.management.base import BaseCommand
 
 from peoplemeasurement.models import Sensors
 
 
 class Command(BaseCommand):
-    help = "Sets a sensor its is_active status to True or False."
+    help = "Activate or deactive a sensor"
 
     def add_arguments(self, parser):
         parser.add_argument(
             'objectnummer',
             help="A short string which represents the sensor. An example is 'GAWW-03'.")
-
         parser.add_argument('is_active', choices=['true', 'True', 'false', 'False'])
 
     def handle(self, *args, **options):
         objectnummer = options['objectnummer']
-        is_active = options['is_active'].lower() == 'true'
+        is_active = bool(strtobool(options['is_active']))
 
         try:
-            sensor = Sensors.objects.filter(objectnummer=objectnummer).get()
+            sensor = Sensors.objects.get(objectnummer=objectnummer)
         except Sensors.DoesNotExist:
             self.stdout.write(f"No sensor exists for the objectnummer '{objectnummer}'")
             return

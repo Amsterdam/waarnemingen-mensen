@@ -131,15 +131,15 @@ class DataPosterTest(APITestCase):
 
         self.sensor = Sensors.objects.create(objectnummer='GAVM-01-Vondelstraat')
 
-    def test_post_fails_with_non_existing_sensor(self):
+    def test_post_is_not_saved_with_non_existing_sensor(self):
         post_data = json.loads(TEST_POST)
         post_data['data'][0]['sensor'] = 'does not exist'
         response = self.client.post(self.URL, post_data, **AUTHORIZATION_HEADER, format='json')
         self.assertEqual(response.status_code, 200)  # We get a 200, but no data is added to the DB. This is as designed
-        self.assertEqual(response.content, b'"The sensor does not exist."')
+        self.assertEqual(response.content, b'"The sensor \'does not exist\' was not found, so the data is not stored."')
         self.assertEqual(Observation.objects.count(), 0)
 
-    def test_post_fails_with_inactive_sensor(self):
+    def test_post_is_not_saved_with_inactive_sensor(self):
         # Set the sensor to inactive
         self.sensor.is_active = False
         self.sensor.save()
@@ -148,7 +148,7 @@ class DataPosterTest(APITestCase):
         post_data = json.loads(TEST_POST)
         response = self.client.post(self.URL, post_data, **AUTHORIZATION_HEADER, format='json')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content, b'"The sensor is inactive."')
+        self.assertEqual(response.content, b'"The sensor \'GAVM-01-Vondelstraat\' exists but is not active."')
         self.assertEqual(Observation.objects.count(), 0)
 
         # Set the sensor back to active again

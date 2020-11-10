@@ -47,15 +47,16 @@ def data_to_observation(data):
     return observation
 
 
-def store_data_for_sensor(data):
+class SensorError(Exception):
+    pass
+
+
+def get_sensor_for_data(data):
     # Does the sensor exist and is it active
     try:
-        sensor = Sensors.objects.filter(objectnummer=data.get('sensor', '')).get()
+        sensor = Sensors.objects.get(objectnummer=data.get('sensor', ''))
     except Sensors.DoesNotExist:
-        logger.info(f"The sensor '{data['sensor']}' was not found, so the data is not stored.")
-        return False, "The sensor does not exist."
+        raise SensorError(f"The sensor '{data['sensor']}' was not found, so the data is not stored.")
     if not sensor.is_active:
-        logger.info(f"The sensor '{data['sensor']}' exists but is not active.")
-        return False, "The sensor is inactive."
-
-    return True, None
+        raise SensorError(f"The sensor '{data['sensor']}' exists but is not active.")
+    return sensor

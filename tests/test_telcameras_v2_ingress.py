@@ -10,7 +10,6 @@ from peoplemeasurement.models import Sensors
 from telcameras_v2.ingress_parser import TelcameraParser
 from telcameras_v2.models import Observation
 from tests.test_telcameras_v2 import TEST_POST
-from tests.tools_for_testing import call_man_command
 
 log = logging.getLogger(__name__)
 timezone = pytz.timezone("UTC")
@@ -40,9 +39,9 @@ class DataIngressPosterTest(APITestCase):
             self.client.post(self.URL, json.dumps(post_data), **AUTHORIZATION_HEADER, content_type='application/json')
         self.assertEqual(IngressQueue.objects.count(), 3)
 
-        # Then run the parse_ingress script
-        out = call_man_command('parse_ingress')
-        self.assertEqual(out.strip(), "Parsed: 3 Success: 3")
+        # Then run the parser
+        parser = TelcameraParser()
+        parser.parse_continuously(end_at_empty_queue=True)
 
         # Test whether the records in the ingress queue are correctly set to parsed
         self.assertEqual(IngressQueue.objects.all().count(), 3)
@@ -65,9 +64,9 @@ class DataIngressPosterTest(APITestCase):
         self.sensor.is_active = False
         self.sensor.save()
 
-        # Then run the parse_ingress script
-        out = call_man_command('parse_ingress')
-        self.assertEqual(out.strip(), "Parsed: 3 Success: 3")
+        # Then run the parser
+        parser = TelcameraParser()
+        parser.parse_continuously(end_at_empty_queue=True)
 
         # Test whether the records in the ingress queue are correctly set to parsed
         self.assertEqual(IngressQueue.objects.all().count(), 3)

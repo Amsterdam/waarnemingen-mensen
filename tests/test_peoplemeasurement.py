@@ -292,12 +292,12 @@ class PeopleMeasurementTestSetSensorIsActiveStatus(APITestCase):
     def test_changing_is_active_to_false_and_back_to_true(self):
         out = call_man_command('set_sensor_is_active_status', self.objectnummer, 'false')
         self.assertEqual(out.strip(), f"The sensor '{self.objectnummer}'.is_active was successfully changed to False.")
-        sensor = Sensors.objects.filter(objectnummer=self.objectnummer).get()
+        sensor = Sensors.objects.get(objectnummer=self.objectnummer)
         self.assertEqual(sensor.is_active, False)
 
         out = call_man_command('set_sensor_is_active_status', self.objectnummer, 'true')
         self.assertEqual(out.strip(), f"The sensor '{self.objectnummer}'.is_active was successfully changed to True.")
-        sensor = Sensors.objects.filter(objectnummer=self.objectnummer).get()
+        sensor = Sensors.objects.get(objectnummer=self.objectnummer)
         self.assertEqual(sensor.is_active, True)
 
     def test_changing_non_existing_sensor_fails(self):
