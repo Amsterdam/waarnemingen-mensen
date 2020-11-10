@@ -53,7 +53,13 @@ class IngressParser(ABC):
             ingress.delete()
 
     def parse_continuously(self, end_at_empty_queue=False):
-        endpoint = Endpoint.objects.filter(url_key=self.endpoint_url_key).get()
+        try:
+            endpoint = Endpoint.objects.filter(url_key=self.endpoint_url_key).get()
+        except Endpoint.DoesNotExist:
+            print(f"\n    No endpoint exists with the url_key '{self.endpoint_url_key}'.")
+            print("    Did you forget to create it? Run the command below to create it.")
+            print(f"\n    python manage.py add_endpoint {self.endpoint_url_key}\n")
+            return
 
         while True:
             with transaction.atomic():
