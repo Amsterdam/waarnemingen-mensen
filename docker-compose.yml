@@ -41,7 +41,7 @@ services:
     image: docker-registry.data.amsterdam.nl/datapunt/waarnemingen-mensen:${VERSION:-latest}
     command: /deploy/docker-run.sh
 
-  parser:
+  parser_telcameras_v2:
     <<: *base-app
     build:
       context: .

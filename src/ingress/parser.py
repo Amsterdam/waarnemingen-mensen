@@ -41,9 +41,8 @@ class IngressParser(ABC):
             # In case of a parser fail we move the message to a separate failed ingress table
             failedingress = FailedIngressQueue()
             for field in ingress._meta.fields:
-                if field.primary_key == True:
-                    continue  # don't want to clone the PK
-                setattr(failedingress, field.name, getattr(ingress, field.name))
+                if field.primary_key is not True:
+                    setattr(failedingress, field.name, getattr(ingress, field.name))
 
             # Mark it as failed and save some info about the problem
             failedingress.parse_failed = datetime.utcnow()
@@ -54,7 +53,7 @@ class IngressParser(ABC):
 
     def parse_continuously(self, end_at_empty_queue=False):
         try:
-            endpoint = Endpoint.objects.filter(url_key=self.endpoint_url_key).get()
+            endpoint = Endpoint.objects.get(url_key=self.endpoint_url_key)
         except Endpoint.DoesNotExist:
             print(f"\n    No endpoint exists with the url_key '{self.endpoint_url_key}'.")
             print("    Did you forget to create it? Run the command below to create it.")
