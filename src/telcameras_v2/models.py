@@ -12,8 +12,8 @@ class Observation(models.Model):
     latitude = models.DecimalField(max_digits=16, decimal_places=13)
     longitude = models.DecimalField(max_digits=16, decimal_places=13)
     interval = models.SmallIntegerField()                   # e.g. 60     # seconds that this message spans
-    timestamp_message = models.DateTimeField()
-    timestamp_start = models.DateTimeField(db_index=True)
+    timestamp_message = models.DateTimeField()              # Timestamp of the message, not of of when the data was recorded
+    timestamp_start = models.DateTimeField(db_index=True)   # Timestamp of when the data was recorded
     # message = models.IntegerField()                       # Volgnummer bericht. Is saved in the aggregates
     # message_type = models.CharField(max_length=50)        # either "count" OR "person". Is not stored, but used to determine which aggregate to use
 

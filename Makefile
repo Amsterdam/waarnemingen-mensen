@@ -56,6 +56,9 @@ dev: 						        ## Run the development app (and run extra migrations first)
 test:                               ## Execute tests
 	$(dc) run --rm test pytest /tests $(ARGS)
 
+parser_telcameras_v2:
+	$(dc) run parser
+
 pdb:                                ## Execute tests with python debugger
 	$(dc) run --rm test pytest --pdb $(ARGS)
 
