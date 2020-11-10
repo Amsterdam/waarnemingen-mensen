@@ -2,7 +2,7 @@ from collections import namedtuple
 from datetime import datetime
 
 from django.conf import settings
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, APITransactionTestCase
 
 from ingress.models import Endpoint, FailedIngressQueue, IngressQueue
 from ingress.parser import IngressParser
@@ -217,7 +217,7 @@ class MockParserWithException(IngressParser):
         1/0
 
 
-class TestIngressParsing(APITestCase):
+class TestIngressParsing(APITransactionTestCase):
     def setUp(self):
         # Create an endpoint
         self.endpoint_url_key = 'parsing_example'
@@ -235,7 +235,7 @@ class TestIngressParsing(APITestCase):
 
         # Parse records
         parser = MockParser()
-        parser.parse_n()
+        parser.parse_continuously(end_at_empty_queue=True)
 
         # Check whether they all have been marked as successful
         for ingress in IngressQueue.objects.filter(endpoint=self.endpoint_obj):
@@ -258,7 +258,7 @@ class TestIngressParsing(APITestCase):
 
         # Parse records
         parser = MockParserWithException()
-        parser.parse_n()
+        parser.parse_continuously(end_at_empty_queue=True)
 
         # Check whether they left the queue
         self.assertEqual(IngressQueue.objects.count(), 0)

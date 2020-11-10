@@ -5,6 +5,7 @@ from django.conf import settings
 from rest_framework.test import APITestCase
 
 from ingress.models import Endpoint, IngressQueue
+from telcameras_v2.ingress_parser import TelcameraParser
 from tests.test_telcameras_v2 import TEST_POST
 from tests.tools_for_testing import call_man_command
 
@@ -32,8 +33,8 @@ class DataIngressPosterTest(APITestCase):
         self.assertEqual(IngressQueue.objects.count(), 3)
 
         # Then run the parse_ingress script
-        out = call_man_command('parse_ingress')
-        self.assertEqual(out.strip(), "Parsed: 3 Success: 3")
+        parser = TelcameraParser()
+        parser.parse_continuously(end_at_empty_queue=True)
 
         # Test whether the records in the ingress queue are correctly set to parsed
         for ingress in IngressQueue.objects.all():
@@ -48,8 +49,8 @@ class DataIngressPosterTest(APITestCase):
         self.assertEqual(IngressQueue.objects.count(), 1)
 
         # Then run the parse_ingress script
-        out = call_man_command('parse_ingress')
-        self.assertEqual(out.strip(), "Parsed: 1 Success: 0")
+        parser = TelcameraParser()
+        parser.parse_continuously(end_at_empty_queue=True)
 
         # Test whether the record in the ingress queue is correctly set to parse_failed
         for ingress in IngressQueue.objects.all():
