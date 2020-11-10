@@ -203,11 +203,10 @@ class TestIngressQueue(APITestCase):
 
 class MockParser(IngressParser):
     endpoint_url_key = 'parsing_example'
-    returned_id = None
 
     def parse_single_message(self, ingress_raw_data):
         MockedModel = namedtuple('MockModelInstance', 'id')
-        obj = MockedModel(id=self.returned_id)
+        obj = MockedModel(id=1)
         return obj
 
 
@@ -236,7 +235,6 @@ class TestIngressParsing(APITestCase):
 
         # Parse records
         parser = MockParser()
-        parser.returned_id = 1  # This means the parsing succeeded
         parser.parse_n()
 
         # Check whether they all have been marked as successful
@@ -248,30 +246,6 @@ class TestIngressParsing(APITestCase):
 
         # Check whether they left the queue
         self.assertEqual(IngressQueue.objects.count(), 0)
-
-    def test_parsing_failed(self):
-        self.assertEqual(IngressQueue.objects.count(), 0)
-        self.assertEqual(FailedIngressQueue.objects.count(), 0)
-
-        # Add some records
-        for i in range(3):
-            self.client.post(self.URL, "the data", **AUTHORIZATION_HEADER, content_type='raw')
-        self.assertEqual(IngressQueue.objects.count(), 3)
-
-        # Parse records
-        parser = MockParser()
-        parser.returned_id = None  # This means the parsing failed
-        parser.parse_n()
-
-        # Check whether they left the queue
-        self.assertEqual(IngressQueue.objects.count(), 0)
-
-        # Check whether they were added to the failed queue
-        self.assertEqual(FailedIngressQueue.objects.count(), 3)
-        for failed_ingress in FailedIngressQueue.objects.filter(endpoint=self.endpoint_obj):
-            self.assertIsNone(failed_ingress.parse_succeeded)
-            self.assertIsNotNone(failed_ingress.parse_failed)
-            self.assertIsNone(failed_ingress.parse_fail_info)
 
     def test_parsing_fails_by_exception(self):
         self.assertEqual(IngressQueue.objects.count(), 0)

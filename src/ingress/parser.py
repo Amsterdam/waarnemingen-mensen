@@ -17,7 +17,7 @@ class IngressParser(ABC):
 
     @abstractmethod
     def parse_single_message(self, ingress):
-        """ Implement parsing of one raw message and return an instance """
+        """ Implement parsing of one raw message. If it fails an exception has to be raised."""
         pass
 
     def parse_continuously(self, n=10):
@@ -51,31 +51,23 @@ class IngressParser(ABC):
                     # For this reason we add another transaction within this try/except
                     # https://docs.djangoproject.com/en/3.1/topics/db/transactions/#controlling-transactions-explicitly
                     with transaction.atomic():
-                        obj = self.parse_single_message(ingress.raw_data)
-                        if obj.id:
-                            # Mark it as finished successfully
-                            ingress.parse_succeeded = datetime.utcnow()
-                            ingress.save()
-                            success_counter += 1
-                        else:
-                            # Mark it as failed
-                            ingress.parse_failed = datetime.utcnow()
-                            ingress.save()
+                        self.parse_single_message(ingress.raw_data)
+                        ingress.parse_succeeded = datetime.utcnow()
+                        ingress.save()
+                        success_counter += 1
 
                 except Exception as e:
-                    # Mark it as failed and save some info on the problem
-                    ingress.parse_failed = datetime.utcnow()
-                    stacktrace_str = ''.join(traceback.format_exception(*sys.exc_info()))
-                    ingress.parse_fail_info = stacktrace_str
-                    ingress.save()
-
-                # In case of a parser fail we move the message to a separate failed ingress table
-                if ingress.parse_failed:
+                    # In case of a parser fail we move the message to a separate failed ingress table
                     failedingress = FailedIngressQueue()
                     for field in ingress._meta.fields:
                         if field.primary_key == True:
                             continue  # don't want to clone the PK
                         setattr(failedingress, field.name, getattr(ingress, field.name))
+
+                    # Mark it as failed and save some info about the problem
+                    failedingress.parse_failed = datetime.utcnow()
+                    stacktrace_str = ''.join(traceback.format_exception(*sys.exc_info()))
+                    failedingress.parse_fail_info = stacktrace_str
                     failedingress.save()
                     ingress.delete()
 
