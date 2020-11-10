@@ -29,7 +29,7 @@ class IngressView(View):
         # Is the user authorized to view this endpoint
         # TODO: replace this with the RBAC authentication
         if 'HTTP_AUTHORIZATION' not in request.META:
-            return HttpResponse(status=401)
+            return HttpResponse("Authorization header required.", status=401)
         if request.META['HTTP_AUTHORIZATION'].replace('Token ', '') != settings.AUTHORIZATION_TOKEN:
             return HttpResponse("Invalid token.", status=403)
         request.user = User(is_authenticated=True)
@@ -39,6 +39,6 @@ class IngressView(View):
         result = IngressQueue.objects.create(endpoint=endpoint, raw_data=raw_data)
         if result:
             return HttpResponse(status=200)
-        else:
-            logger.error(f"Message could not be saved: {raw_data}")
-            return HttpResponse(status=500)
+
+        logger.error(f"Message could not be saved: {raw_data}")
+        return HttpResponse(status=500)

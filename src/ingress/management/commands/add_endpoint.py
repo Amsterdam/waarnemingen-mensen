@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from ingress.tools import add_endpoint
+from ingress.tools import NewEndpointError, add_endpoint
 
 
 class Command(BaseCommand):
@@ -13,5 +13,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         url_key = options['url_key']
-        endpoint_obj, message = add_endpoint(url_key)
-        self.stdout.write(message)
+        
+        try:
+            add_endpoint(url_key)
+            self.stdout.write(f"Created endpoint with url_key '{url_key}'")
+        except NewEndpointError as e:
+            self.stdout.write(str(e))
