@@ -62,16 +62,21 @@ class ObservationSerializer(serializers.ModelSerializer):
         counts = validated_data.pop('counts')
         persons = validated_data.pop('persons')
 
-        observation = Observation.objects.create(**validated_data)
+        observation = Observation.objects.create(
+            time=validated_data['timestamp_start'],
+            **validated_data,
+        )
 
         for count in counts:
             CountAggregate.objects.create(
+                time=observation.timestamp_start,
                 observation=observation,
                 **count
             )
 
         for person in persons:
             PersonAggregate.objects.create(
+                time=observation.timestamp_start,
                 observation=observation,
                 **person
             )

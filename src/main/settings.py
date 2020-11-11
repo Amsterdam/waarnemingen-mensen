@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "datapunt_api",
     "rest_framework",
     "rest_framework_gis",
+    "contrib.timescale",
     'health',
     'datetimeutc',
     'peoplemeasurement',
@@ -85,7 +86,7 @@ WSGI_APPLICATION = "main.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.contrib.gis.db.backends.postgis",
+        "ENGINE": "contrib.timescale.db.backend",
         "NAME": os.getenv("DATABASE_NAME", "waarnemingen_mensen"),
         "USER": os.getenv("DATABASE_USER", "waarnemingen_mensen"),
         "PASSWORD": os.getenv("DATABASE_PASSWORD", "insecure"),
