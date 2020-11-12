@@ -9,7 +9,7 @@ from django.db import connection
 from factory import fuzzy
 from rest_framework.test import APITestCase
 
-from peoplemeasurement.models import PeopleMeasurement, Sensors
+from peoplemeasurement.models import PeopleMeasurement, Sensors, Servicelevel
 from tests.tools_for_testing import call_man_command
 
 from .test_telcameras_v2 import \
@@ -284,6 +284,7 @@ class PeopleMeasurementTestGetV1(APITestCase):
         response = self.client.get(self.URL, **POST_AUTHORIZATION_HEADER)
         self.assertEqual(response.status_code, 401)
 
+
 class PeopleMeasurementTestSetSensorIsActiveStatus(APITestCase):
     def setUp(self):
         self.objectnummer = 'GAVM-01-Vondelstraat'
@@ -311,3 +312,15 @@ class PeopleMeasurementTestSetSensorIsActiveStatus(APITestCase):
             out.strip(),
             f"The sensor '{self.objectnummer}'.is_active is already True. Nothing has changed."
         )
+
+
+class PeopleMeasurementTestCSVImporters(APITestCase):
+    def test_import_sensors(self):
+        self.assertEqual(Sensors.objects.count(), 0)
+        call_man_command('import_from_csv', 'sensors')
+        self.assertEqual(Sensors.objects.count(), 72)
+
+    def test_import_servicelevels(self):
+        self.assertEqual(Servicelevel.objects.count(), 0)
+        call_man_command('import_from_csv', 'servicelevels')
+        self.assertEqual(Servicelevel.objects.count(), 104)
