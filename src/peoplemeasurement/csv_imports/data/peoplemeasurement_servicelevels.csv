@@ -95,9 +95,11 @@ id;type_parameter;type_gebied;type_tijd;level_nr;level_label;lowerlimit;upperlim
 94;Speed;Park;Average;2.00;Acceptabel;1.00;0.81
 95;Speed;Park;Average;3.00;Risicovol;0.81;0.76
 96;Speed;Park;Average;4.00;Onacceptabel;0.76;0
-97;Count;Covid Shopping;Peak;2;Acceptabel;0;0.114
-98;Count;Covid Shopping;Peak;3;Risicovol;0.114;0.143
-99;Count;Covid Shopping;Peak;4;Onacceptabel;0.143;9999
-100;Density;Covid Shopping;Peak;2;Acceptabel;0;0.114
-101;Density;Covid Shopping;Peak;3;Risicovol;0.114;0.143
-102;Density;Covid Shopping;Peak;4;Onacceptabel;0.143;9999
+97;Count;Covid Shopping;Peak;1;Acceptabel;0;0.159
+98;Count;Covid Shopping;Peak;2;Naderend risico;0.159;0.190
+99;Count;Covid Shopping;Peak;4;Risicovol;0.190;0.222
+100;Count;Covid Shopping;Peak;4;Onacceptabel;0.222;9999
+101;Density;Covid Shopping;Peak;1;Acceptabel;0;0.159
+102;Density;Covid Shopping;Peak;2;Naderend risico;0.159;0.190
+103;Density;Covid Shopping;Peak;4;Risicovol;0.190;0.222
+104;Density;Covid Shopping;Peak;4;Onacceptabel;0.222;9999
