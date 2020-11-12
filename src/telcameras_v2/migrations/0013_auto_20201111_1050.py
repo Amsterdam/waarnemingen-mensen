@@ -18,19 +18,19 @@ class Migration(migrations.Migration):
 
     # First add the time fields in the original tables
     operations = [
-        migrations.AddField(
+        migrations.AlterField(
             model_name='observation',
-            name='time',
+            name='timestamp_start',
             field=contrib.timescale.fields.TimescaleDateTimeField(default=django.utils.timezone.now, interval='1 day'),
         ),
         migrations.AddField(
             model_name='countaggregate',
-            name='time',
+            name='observation_timestamp_start',
             field=contrib.timescale.fields.TimescaleDateTimeField(default=django.utils.timezone.now, interval='1 day'),
         ),
         migrations.AddField(
             model_name='personaggregate',
-            name='time',
+            name='observation_timestamp_start',
             field=contrib.timescale.fields.TimescaleDateTimeField(default=django.utils.timezone.now, interval='1 day'),
         ),
     ]
@@ -38,17 +38,12 @@ class Migration(migrations.Migration):
     # Overwrite those fields with the value from observation.timestamp_start
     operations.append(
         migrations.RunSQL(
-            sql=f"UPDATE telcameras_v2_observation SET time = timestamp_start;"
+            sql=f"UPDATE telcameras_v2_countaggregate count_agg SET observation_timestamp_start = ob.timestamp_start FROM telcameras_v2_observation ob WHERE ob.id = count_agg.observation_id;"
         )
     )
     operations.append(
         migrations.RunSQL(
-            sql=f"UPDATE telcameras_v2_countaggregate count_agg SET time = ob.time FROM telcameras_v2_observation ob WHERE ob.id = count_agg.observation_id;"
-        )
-    )
-    operations.append(
-        migrations.RunSQL(
-            sql=f"UPDATE telcameras_v2_personaggregate person_agg SET time = ob.time FROM telcameras_v2_observation ob WHERE ob.id = person_agg.observation_id;"
+            sql=f"UPDATE telcameras_v2_personaggregate person_agg SET observation_timestamp_start = ob.timestamp_start FROM telcameras_v2_observation ob WHERE ob.id = person_agg.observation_id;"
         )
     )
 
@@ -70,9 +65,10 @@ class Migration(migrations.Migration):
         )
 
         # Convert the new tables to hypertables
+        timescale_field = 'timestamp_start' if table == 'telcameras_v2_observation' else 'observation_timestamp_start'
         operations.append(
             migrations.RunSQL(
-                sql=f"SELECT create_hypertable('{table}_hypertable', 'time', chunk_time_interval => INTERVAL '1 day');"
+                sql=f"SELECT create_hypertable('{table}_hypertable', '{timescale_field}', chunk_time_interval => INTERVAL '1 day');"
             )
         )
 

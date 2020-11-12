@@ -159,7 +159,7 @@ class DataPosterTest(APITestCase):
         self.sensor.save()
 
     @override_settings(STORE_ALL_DATA=True)  # It is by default true, but to make it explicit I also override it here
-    def test_post_is_saved_with_non_existing_senso_if_STORE_ALL_DATA_is_true(self):
+    def test_post_is_saved_with_non_existing_sensor_if_STORE_ALL_DATA_is_true(self):
         post_data = json.loads(TEST_POST)
         post_data['data'][0]['sensor'] = 'does not exist'
         response = self.client.post(self.URL, post_data, **AUTHORIZATION_HEADER, format='json')
