@@ -321,6 +321,6 @@ class PeopleMeasurementTestCSVImporters(APITestCase):
         self.assertEqual(Sensors.objects.count(), 72)
 
     def test_import_servicelevels(self):
-        self.assertEqual(Sensors.objects.count(), 0)
+        self.assertEqual(Servicelevel.objects.count(), 0)
         call_man_command('import_from_csv', 'servicelevels')
         self.assertEqual(Servicelevel.objects.count(), 102)
