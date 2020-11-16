@@ -1,10 +1,10 @@
 import sys
 import traceback
 from abc import ABC, abstractmethod
-from datetime import datetime
 from time import sleep
 
 from django.db import transaction
+from django.utils import timezone
 
 from ingress.models import Endpoint, FailedIngressQueue, IngressQueue
 
@@ -25,7 +25,7 @@ class IngressParser(ABC):
             return
 
         # Mark it as being in the parsing stage
-        ingress.parse_started = datetime.utcnow()
+        ingress.parse_started = timezone.now()
         ingress.save()
 
         try:
@@ -34,7 +34,7 @@ class IngressParser(ABC):
             # https://docs.djangoproject.com/en/3.1/topics/db/transactions/#controlling-transactions-explicitly
             with transaction.atomic():
                 self.parse_single_message(ingress.raw_data)
-                ingress.parse_succeeded = datetime.utcnow()
+                ingress.parse_succeeded = timezone.now()
                 ingress.save()
 
         except Exception:
@@ -45,7 +45,7 @@ class IngressParser(ABC):
                     setattr(failedingress, field.name, getattr(ingress, field.name))
 
             # Mark it as failed and save some info about the problem
-            failedingress.parse_failed = datetime.utcnow()
+            failedingress.parse_failed = timezone.now()
             stacktrace_str = ''.join(traceback.format_exception(*sys.exc_info()))
             failedingress.parse_fail_info = stacktrace_str
             failedingress.save()
