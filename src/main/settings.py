@@ -30,7 +30,7 @@ GET_AUTHORIZATION_TOKEN = os.environ['GET_AUTHORIZATION_TOKEN']
 STORE_ALL_DATA = os.getenv('STORE_ALL_DATA', True)
 
 ENABLED_PARSERS = {
-    'parse_ingress_telcameras_v2': False,
+    'parse_ingress_telcameras_v2': True,
 }
 
 ALLOWED_HOSTS = ['*']
