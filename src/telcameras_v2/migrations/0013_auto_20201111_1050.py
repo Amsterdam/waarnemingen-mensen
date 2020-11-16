@@ -48,7 +48,6 @@ class Migration(migrations.Migration):
     )
 
     for table in TABLES:
-        print("##### TABLE ", table)
         # Create new tables
         operations.append(
             migrations.RunSQL(
