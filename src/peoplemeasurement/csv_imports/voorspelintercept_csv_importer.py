@@ -2,16 +2,16 @@ import logging
 
 from django.db import transaction, connection
 
-from peoplemeasurement.models import Servicelevel
+from peoplemeasurement.models import VoorspelIntercept
 from peoplemeasurement.csv_imports.csv_importer import CsvImporter
 
 logger = logging.getLogger(__name__)
 
 
-class ServicelevelCsvImporter(CsvImporter):
+class VoorspelInterceptCsvImporter(CsvImporter):
     def _import_csv_reader(self, csv_reader) -> int:
         with transaction.atomic():
-            if Servicelevel.objects.count() > 0:
+            if VoorspelIntercept.objects.count() > 0:
                 self._truncate()
 
             obj_dicts = []
@@ -19,26 +19,24 @@ class ServicelevelCsvImporter(CsvImporter):
                 obj_dicts.append(self._create_obj_dict_for_row(row))
 
             if obj_dicts:
-                Servicelevel.objects.bulk_create(obj_dicts)
+                VoorspelIntercept.objects.bulk_create(obj_dicts)
 
         return len(obj_dicts)
 
     def _create_obj_dict_for_row(self, row):
+        # sensor;toepassings_kwartier_volgnummer;intercept_waarde
+        # GKS-01-Kalverstraat;1;10.2515533281642
         data = dict(
-            type_parameter=row['type_parameter'],
-            type_gebied=row['type_gebied'],
-            type_tijd=row['type_tijd'],
-            level_nr=self.to_int(row['level_nr']),
-            level_label=row['level_label'],
-            lowerlimit=self.to_float(row['lowerlimit']),
-            upperlimit=self.to_float(row['upperlimit']),
+            sensor=row['sensor'],
+            toepassings_kwartier_volgnummer=self.to_int(row['toepassings_kwartier_volgnummer']),
+            intercept_waarde=self.to_float(row['intercept_waarde']),
         )
 
-        return Servicelevel(**data)
+        return VoorspelIntercept(**data)
 
     def _truncate(self):
         # using ignore so cmsa_1h_count_view_v1 reference will
         # not cause any issues. If deleting normally we'd get an error like so:
         # cannot drop table peoplemeasurement_servicelevel because other objects depend on it
         cursor = connection.cursor()
-        cursor.execute("TRUNCATE TABLE peoplemeasurement_servicelevel;")
+        cursor.execute("TRUNCATE TABLE peoplemeasurement_voorspelintercept;")

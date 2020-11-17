@@ -47,3 +47,16 @@ class Servicelevel(models.Model):
     level_label = models.CharField(max_length=50)
     lowerlimit = models.FloatField(blank=True, null=True)
     upperlimit = models.FloatField(blank=True, null=True)
+
+
+class VoorspelCoefficient(models.Model):
+    sensor = models.CharField(max_length=255)
+    bron_kwartier_volgnummer = models.IntegerField()
+    toepassings_kwartier_volgnummer = models.IntegerField()
+    coefficient_waarde = models.FloatField()
+
+
+class VoorspelIntercept(models.Model):
+    sensor = models.CharField(max_length=255)
+    toepassings_kwartier_volgnummer = models.IntegerField()
+    intercept_waarde = models.FloatField()

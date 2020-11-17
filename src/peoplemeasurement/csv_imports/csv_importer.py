@@ -56,4 +56,3 @@ class CsvImporter:
         :return: number of imported rows
         """
         raise NotImplementedError()
-

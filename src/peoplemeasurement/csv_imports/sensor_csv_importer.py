@@ -13,18 +13,18 @@ class SensorCsvImporter(CsvImporter):
     def _import_csv_reader(self, csv_reader) -> int:
         with transaction.atomic():
             if Sensors.objects.count() > 0:
-                self._truncate_sensors()
+                self._truncate()
 
-            sensors = []
+            obj_dicts = []
             for row in csv_reader:
-                sensors.append(self._create_sensor_for_row(row))
+                obj_dicts.append(self._create_obj_dict_for_row(row))
 
-            if sensors:
-                Sensors.objects.bulk_create(sensors)
+            if obj_dicts:
+                Sensors.objects.bulk_create(obj_dicts)
 
-        return len(sensors)
+        return len(obj_dicts)
 
-    def _create_sensor_for_row(self, row):
+    def _create_obj_dict_for_row(self, row):
         data = dict(
             geom=row['geom'],
             objectnummer=row['objectnummer'],
@@ -41,7 +41,7 @@ class SensorCsvImporter(CsvImporter):
 
         return Sensors(**data)
 
-    def _truncate_sensors(self):
+    def _truncate(self):
         # using ignore so cmsa_1h_count_view_v1 reference will
         # not cause any issues. If deleting normally we'd get an error like so:
         # cannot drop table peoplemeasurement_sensors because other objects depend on it

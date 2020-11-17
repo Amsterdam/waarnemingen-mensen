@@ -25,7 +25,7 @@ class TestSensorCsvImporter:
 
     @mock.patch(
         "peoplemeasurement.csv_imports.sensor_csv_importer"
-        ".SensorCsvImporter._truncate_sensors"
+        ".SensorCsvImporter._truncate"
     )
     def test_import_csv_reader_truncate(self, mocked_truncate):
         baker.make(Sensors, _quantity=15)
@@ -34,7 +34,7 @@ class TestSensorCsvImporter:
 
     @mock.patch(
         "peoplemeasurement.csv_imports.sensor_csv_importer"
-        ".SensorCsvImporter._create_sensor_for_row"
+        ".SensorCsvImporter._create_obj_dict_for_row"
     )
     def test_import_csv_reader_error(self, mocked_create):
         mocked_create.side_effect = Exception
@@ -44,7 +44,7 @@ class TestSensorCsvImporter:
             SensorCsvImporter("")._import_csv_reader(csv_reader=[1])
             assert Sensors.objects.count() == 15
 
-    def test_create_sensor_for_row(self):
+    def test_create_obj_dict_for_row(self):
         row = dict(
             geom="0101000020E6100000749C363EEE961340CB918433AE2F4A40",
             objectnummer="GAWW-03",
@@ -59,7 +59,7 @@ class TestSensorCsvImporter:
             gebied="Wallen",
         )
 
-        sensor = SensorCsvImporter("")._create_sensor_for_row(row)
+        sensor = SensorCsvImporter("")._create_obj_dict_for_row(row)
         for key, value in row.items():
             expected_value = value
             if key == "geom":
@@ -74,10 +74,10 @@ class TestSensorCsvImporter:
                 value == expected_value
             ), f"Expected Sensor.{key} to have value '{expected_value}' but is {value}"
 
-    def test_truncate_sensors(self):
+    def test_truncate(self):
         """
         That that we delete all sensors
         """
         baker.make(Sensors, _quantity=13)
-        SensorCsvImporter("path/to/file.csv")._truncate_sensors()
+        SensorCsvImporter("path/to/file.csv")._truncate()
         assert Sensors.objects.count() == 0
