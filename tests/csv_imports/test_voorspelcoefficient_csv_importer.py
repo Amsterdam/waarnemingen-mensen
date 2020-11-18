@@ -33,7 +33,7 @@ class TestVoorspelCoefficientCsvImporter:
 
     @mock.patch(
         "peoplemeasurement.csv_imports.voorspelcoefficient_csv_importer"
-        ".VoorspelCoefficientCsvImporter._create_obj_dict_for_row"
+        ".VoorspelCoefficientCsvImporter.create_obj_dict_for_row"
     )
     def test_import_csv_reader_error(self, mocked_create):
         mocked_create.side_effect = Exception
@@ -51,7 +51,7 @@ class TestVoorspelCoefficientCsvImporter:
             coefficient_waarde="0.779513231347418",
         )
 
-        obj = VoorspelCoefficientCsvImporter("")._create_obj_dict_for_row(row)
+        obj = VoorspelCoefficientCsvImporter("").create_obj_dict_for_row(row)
         for key, value in row.items():
             expected_value = value
             if key == "bron_kwartier_volgnummer":
@@ -71,5 +71,5 @@ class TestVoorspelCoefficientCsvImporter:
         That that we delete all service levels
         """
         baker.make(VoorspelCoefficient, _quantity=13)
-        VoorspelCoefficientCsvImporter("path/to/file.csv")._truncate()
+        VoorspelCoefficientCsvImporter("path/to/file.csv", VoorspelCoefficient)._truncate()
         assert VoorspelCoefficient.objects.count() == 0

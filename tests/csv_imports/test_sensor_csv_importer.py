@@ -34,7 +34,7 @@ class TestSensorCsvImporter:
 
     @mock.patch(
         "peoplemeasurement.csv_imports.sensor_csv_importer"
-        ".SensorCsvImporter._create_obj_dict_for_row"
+        ".SensorCsvImporter.create_obj_dict_for_row"
     )
     def test_import_csv_reader_error(self, mocked_create):
         mocked_create.side_effect = Exception
@@ -59,7 +59,7 @@ class TestSensorCsvImporter:
             gebied="Wallen",
         )
 
-        sensor = SensorCsvImporter("")._create_obj_dict_for_row(row)
+        sensor = SensorCsvImporter("").create_obj_dict_for_row(row)
         for key, value in row.items():
             expected_value = value
             if key == "geom":

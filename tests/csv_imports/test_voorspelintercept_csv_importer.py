@@ -33,7 +33,7 @@ class TestVoorspelInterceptCsvImporter:
 
     @mock.patch(
         "peoplemeasurement.csv_imports.voorspelintercept_csv_importer"
-        ".VoorspelInterceptCsvImporter._create_obj_dict_for_row"
+        ".VoorspelInterceptCsvImporter.create_obj_dict_for_row"
     )
     def test_import_csv_reader_error(self, mocked_create):
         mocked_create.side_effect = Exception
@@ -50,7 +50,7 @@ class TestVoorspelInterceptCsvImporter:
             intercept_waarde="10.2515533281642",
         )
 
-        obj = VoorspelInterceptCsvImporter("")._create_obj_dict_for_row(row)
+        obj = VoorspelInterceptCsvImporter("").create_obj_dict_for_row(row)
         for key, value in row.items():
             expected_value = value
             if key == "toepassings_kwartier_volgnummer":

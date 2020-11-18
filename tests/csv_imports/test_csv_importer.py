@@ -1,12 +1,21 @@
 import os
 from unittest import mock
 from unittest.mock import mock_open
+from peoplemeasurement.models import VoorspelIntercept
 
 import pytest
 
 from peoplemeasurement.csv_imports.csv_importer import CsvImporter
 
 
+class MockCsvImporter(CsvImporter):
+    model = VoorspelIntercept
+
+    def create_obj_dict_for_row(self):
+        return {'a': 'b'}
+
+
+@pytest.mark.django_db(True)
 class TestCsvImporter:
     @classmethod
     def setup_class(cls):
@@ -15,41 +24,27 @@ class TestCsvImporter:
         )
 
     def test_init(self):
-        importer = CsvImporter("csv/file/path.csv", ",", "utf-8")
+        importer = MockCsvImporter("csv/file/path.csv", ",", "utf-8")
         assert importer.csv_file_path == "csv/file/path.csv"
         assert importer.delimiter == ","
         assert importer.encoding == "utf-8"
 
     def test_init_defaults(self):
-        importer = CsvImporter(
-            "csv/file/path2.csv",
-        )
+        importer = MockCsvImporter("csv/file/path2.csv")
         assert importer.csv_file_path == "csv/file/path2.csv"
         assert importer.delimiter == ";"
         assert importer.encoding is None
 
-    def test_abstract_method(self):
-        """
-        Test the abstract method of the CsvImporter
-        and assert a NotImplementedError is raised.
-        """
-        csv_path = os.path.join(self.test_files_path, "empty.csv")
-        with pytest.raises(NotImplementedError):
-            importer = CsvImporter(csv_path)
-            importer.import_csv()
-
     @mock.patch("builtins.open", new_callable=mock_open)
     @mock.patch("peoplemeasurement.csv_imports.csv_importer.csv")
     @mock.patch("peoplemeasurement.csv_imports.csv_importer.CsvImporter._import_csv_reader")
-    def test_import_csv(
-        self, mocked_import, mocked_csv, mocked_file
-    ):
+    def test_import_csv(self, mocked_import, mocked_csv, mocked_file):
         mocked_csv.DictReader.return_value = "foobar"
         mocked_import.return_value = 99
 
         delimiter = "::"
         filepath = "path/to/file.csv"
-        importer = CsvImporter(filepath, delimiter)
+        importer = MockCsvImporter(filepath, delimiter)
         result = importer.import_csv()
 
         assert result == 99
@@ -59,18 +54,16 @@ class TestCsvImporter:
     @mock.patch("builtins.open", new_callable=mock_open)
     @mock.patch("peoplemeasurement.csv_imports.csv_importer.csv")
     @mock.patch("peoplemeasurement.csv_imports.csv_importer.CsvImporter._import_csv_reader")
-    def test_import_csv_value_error(
-        self, mocked_import, mocked_csv, mocked_file
-    ):
+    def test_import_csv_value_error(self, mocked_import, mocked_csv, mocked_file):
         mocked_import.return_value = 0
 
         with pytest.raises(ValueError):
-            CsvImporter('filepath.csv').import_csv()
+            MockCsvImporter('filepath.csv').import_csv()
 
     @mock.patch("peoplemeasurement.csv_imports.csv_importer.CsvImporter.logger")
     def test_import_csv_file_not_found(self, mocked_logger):
         filepath = "non/existing/path/file.csv"
-        importer = CsvImporter(filepath)
+        importer = MockCsvImporter(filepath)
         result = importer.import_csv()
         assert result is None
         mocked_logger.warning.assert_called_with(
@@ -89,7 +82,7 @@ class TestCsvImporter:
         """
         Test the get value method and assert that left and right whitespace is removed.
         """
-        importer = CsvImporter(csv_file_path=None)
+        importer = MockCsvImporter(csv_file_path=None)
         result = importer.get_value(input_str)
         assert result == expected_output
 
@@ -107,7 +100,7 @@ class TestCsvImporter:
         Test casting a valid integer and assert
         that the correct int representation is returned.
         """
-        importer = CsvImporter(csv_file_path=None)
+        importer = MockCsvImporter(csv_file_path=None)
         result = importer.to_int(input_str)
         assert result == expected_output
 
@@ -116,7 +109,7 @@ class TestCsvImporter:
         """
         Test casting an invalid integer and assert that a ValueError is raised.
         """
-        importer = CsvImporter(csv_file_path=None)
+        importer = MockCsvImporter(csv_file_path=None)
         with pytest.raises(ValueError):
             importer.to_int(input_str)
 
@@ -134,7 +127,7 @@ class TestCsvImporter:
         Test casting a valid float and assert
         that the correct int representation is returned.
         """
-        importer = CsvImporter(csv_file_path=None)
+        importer = MockCsvImporter(csv_file_path=None)
         result = importer.to_float(input_str)
         assert result == expected_output
 
@@ -143,6 +136,6 @@ class TestCsvImporter:
         """
         Test casting an invalid integer and assert that a ValueError is raised.
         """
-        importer = CsvImporter(csv_file_path=None)
+        importer = MockCsvImporter(csv_file_path=None)
         with pytest.raises(ValueError):
             importer.to_float(input_str)

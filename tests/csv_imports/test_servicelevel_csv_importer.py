@@ -34,7 +34,7 @@ class TestServicelevelCsvImporter:
 
     @mock.patch(
         "peoplemeasurement.csv_imports.servicelevel_csv_importer"
-        ".ServicelevelCsvImporter._create_obj_dict_for_row"
+        ".ServicelevelCsvImporter.create_obj_dict_for_row"
     )
     def test_import_csv_reader_error(self, mocked_create):
         mocked_create.side_effect = Exception
@@ -56,7 +56,7 @@ class TestServicelevelCsvImporter:
             upperlimit="14.5",
         )
 
-        servicelevel = ServicelevelCsvImporter("")._create_obj_dict_for_row(row)
+        servicelevel = ServicelevelCsvImporter("").create_obj_dict_for_row(row)
         for key, value in row.items():
             expected_value = value
             if key == "level_nr":
