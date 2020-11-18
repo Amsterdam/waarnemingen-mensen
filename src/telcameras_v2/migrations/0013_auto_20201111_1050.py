@@ -71,6 +71,13 @@ class Migration(migrations.Migration):
             )
         )
 
+        # Import data from the existing tables to the new hypertables
+        operations.append(
+            migrations.RunSQL(
+                sql=f"INSERT INTO {table}_hypertable SELECT * FROM {table};"
+            )
+        )
+
         # Rename old table to something else
         # These old tables will be removed in a future migration
         operations.append(
