@@ -16,6 +16,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunSQL(
             sql=_view_strings['sql'],
-            reverse_sql=_view_strings['sql']
+            reverse_sql=_view_strings['reverse_sql']
         )
     ]

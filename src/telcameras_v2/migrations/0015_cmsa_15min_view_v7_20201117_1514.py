@@ -6,12 +6,10 @@ from telcameras_v2.view_definitions import get_view_strings
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('telcameras_v2', '0010_auto_20200911_1519'),
+        ('telcameras_v2', '0014_redo_views_after_timescale_migration_20201116_1155'),
     ]
 
-    # VIEW DESCRIPTION: This view only uses data from the telcameras_v2 from the time we actually have data, and
-    # then disregards data from peoplemeasurement (v1)
-    _VIEW_NAME = "cmsa_15min_view_v6"
+    _VIEW_NAME = "cmsa_15min_view_v7"
     _view_strings = get_view_strings(_VIEW_NAME)
 
     operations = [
