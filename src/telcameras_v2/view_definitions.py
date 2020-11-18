@@ -936,7 +936,7 @@ VIEW_STRINGS = {
                     JOIN v2_selectie sel2 ON pa.observation_id = sel2.id AND pa.observation_timestamp_start=sel2.timestamp_start
                     WHERE pa.speed IS NOT NULL AND (pa.geom IS NULL OR pa.geom::text = ''::text)  )
             SELECT p.sensor, p.timestamp_rounded,
-            (sum(p.speed * (tijd_array[cardinality(tijd_array)]::numeric - tijd_array[1]::numeric)) /sum(tijd_array[cardinality(tijd_array)]::numeric - tijd_array[1]::numeric)) AS speed_avg
+            CASE WHEN sum(tijd_array[cardinality(tijd_array)]::numeric - tijd_array[1]::numeric)>0 THEN (sum(p.speed * (tijd_array[cardinality(tijd_array)]::numeric - tijd_array[1]::numeric)) / sum(tijd_array[cardinality(tijd_array)]::numeric - tijd_array[1]::numeric)) ELSE 0 END  AS speed_avg
             FROM v2_observatie_persoon p
             GROUP BY p.sensor, p.timestamp_rounded)
     ,v2_countaggregate_zone_count AS     (  
