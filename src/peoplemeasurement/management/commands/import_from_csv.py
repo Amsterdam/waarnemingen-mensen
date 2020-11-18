@@ -7,12 +7,16 @@ from django.db import transaction
 from main import settings
 from peoplemeasurement.csv_imports.sensor_csv_importer import SensorCsvImporter
 from peoplemeasurement.csv_imports.servicelevel_csv_importer import ServicelevelCsvImporter
+from peoplemeasurement.csv_imports.voorspelcoefficient_csv_importer import VoorspelCoefficientCsvImporter
+from peoplemeasurement.csv_imports.voorspelintercept_csv_importer import VoorspelInterceptCsvImporter
 
 log = logging.getLogger(__name__)
 
 IMPORTERS = {
     'sensors': SensorCsvImporter,
-    'servicelevels': ServicelevelCsvImporter
+    'servicelevels': ServicelevelCsvImporter,
+    'voorspelcoefficients': VoorspelCoefficientCsvImporter,
+    'voorspelintercepts': VoorspelInterceptCsvImporter,
 }
 
 
@@ -22,7 +26,7 @@ class Command(BaseCommand):
         parser.add_argument(
             'data_name',
             default=None,
-            choices=['sensors', 'servicelevels'],
+            choices=['sensors', 'servicelevels', 'voorspelcoefficients', 'voorspelintercepts'],
             help="Import the sensors or the servicelevels from the included csv."
         )
 

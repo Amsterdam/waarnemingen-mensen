@@ -1,10 +1,25 @@
 import csv
 import logging
+from abc import ABC, abstractmethod
+from django.db import transaction, connection
 
 
-class CsvImporter:
+class CsvImporter(ABC):
 
     logger = logging.getLogger(__name__)
+
+    @property
+    @abstractmethod
+    def model(self):
+        """ The Django model to which this csv should be saved"""
+        pass
+
+    @abstractmethod
+    def create_model_instance(self, row) -> dict:
+        """
+        Convert a row to a dict resembling the model
+        """
+        pass
 
     def __init__(self, csv_file_path, delimiter=";", encoding=None):
         """
@@ -50,10 +65,22 @@ class CsvImporter:
         return float(value) if value else None
 
     def _import_csv_reader(self, csv_reader) -> int:
-        """
-        Do the actual csv import given
-        :param csv_reader: csv.DictReader
-        :return: number of imported rows
-        """
-        raise NotImplementedError()
+        with transaction.atomic():
+            if self.model.objects.count() > 0:
+                self._truncate()
 
+            model_instances = []
+            for row in csv_reader:
+                model_instances.append(self.create_model_instance(row))
+
+            if model_instances:
+                self.model.objects.bulk_create(model_instances)
+
+        return len(model_instances)
+
+    def _truncate(self):
+        # using ignore so cmsa_1h_count_view_v1 reference will
+        # not cause any issues. If deleting normally we'd get an error like so:
+        # cannot drop table xxx_table because other objects depend on it
+        cursor = connection.cursor()
+        cursor.execute(f"TRUNCATE TABLE {self.model.objects.model._meta.db_table};")

@@ -8,9 +8,10 @@ from django.conf import settings
 from django.db import connection
 from factory import fuzzy
 from rest_framework.test import APITestCase
-
-from peoplemeasurement.models import PeopleMeasurement, Sensors, Servicelevel
 from tests.tools_for_testing import call_man_command
+
+from peoplemeasurement.models import (PeopleMeasurement, Sensors, Servicelevel,
+                                      VoorspelCoefficient, VoorspelIntercept)
 
 from .test_telcameras_v2 import \
     AUTHORIZATION_HEADER as V2_POST_AUTHORIZATION_HEADER
@@ -324,3 +325,13 @@ class PeopleMeasurementTestCSVImporters(APITestCase):
         self.assertEqual(Servicelevel.objects.count(), 0)
         call_man_command('import_from_csv', 'servicelevels')
         self.assertEqual(Servicelevel.objects.count(), 104)
+
+    def test_import_voorspelcoefficients(self):
+        self.assertEqual(VoorspelCoefficient.objects.count(), 0)
+        call_man_command('import_from_csv', 'voorspelcoefficients')
+        self.assertEqual(VoorspelCoefficient.objects.count(), 448)
+
+    def test_import_voorspelintercepts(self):
+        self.assertEqual(VoorspelIntercept.objects.count(), 0)
+        call_man_command('import_from_csv', 'voorspelintercepts')
+        self.assertEqual(VoorspelIntercept.objects.count(), 56)

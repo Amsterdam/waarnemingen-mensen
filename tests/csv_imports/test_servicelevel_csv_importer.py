@@ -2,7 +2,6 @@ import os
 from unittest import mock
 
 import pytest
-from django.contrib.gis.geos import Point
 from model_bakery import baker
 
 from peoplemeasurement.models import Servicelevel
@@ -26,7 +25,7 @@ class TestServicelevelCsvImporter:
 
     @mock.patch(
         "peoplemeasurement.csv_imports.servicelevel_csv_importer"
-        ".ServicelevelCsvImporter._truncate_servicelevels"
+        ".ServicelevelCsvImporter._truncate"
     )
     def test_import_csv_reader_truncate(self, mocked_truncate):
         baker.make(Servicelevel, _quantity=15)
@@ -35,7 +34,7 @@ class TestServicelevelCsvImporter:
 
     @mock.patch(
         "peoplemeasurement.csv_imports.servicelevel_csv_importer"
-        ".ServicelevelCsvImporter._create_servicelevel_for_row"
+        ".ServicelevelCsvImporter.create_model_instance"
     )
     def test_import_csv_reader_error(self, mocked_create):
         mocked_create.side_effect = Exception
@@ -45,7 +44,7 @@ class TestServicelevelCsvImporter:
             ServicelevelCsvImporter("")._import_csv_reader(csv_reader=[1])
             assert Servicelevel.objects.count() == 15
 
-    def test_create_servicelevel_for_row(self):
+    def test_create_model_instance(self):
 
         row = dict(
             type_parameter="Count",
@@ -57,7 +56,7 @@ class TestServicelevelCsvImporter:
             upperlimit="14.5",
         )
 
-        servicelevel = ServicelevelCsvImporter("")._create_servicelevel_for_row(row)
+        servicelevel = ServicelevelCsvImporter("").create_model_instance(row)
         for key, value in row.items():
             expected_value = value
             if key == "level_nr":
@@ -72,10 +71,10 @@ class TestServicelevelCsvImporter:
                 value == expected_value
             ), f"Expected Servicelevel.{key} to have value '{expected_value}' but is {value}"
 
-    def test_truncate_servicelevels(self):
+    def test_truncate(self):
         """
         That that we delete all service levels
         """
         baker.make(Servicelevel, _quantity=13)
-        ServicelevelCsvImporter("path/to/file.csv")._truncate_servicelevels()
+        ServicelevelCsvImporter("path/to/file.csv")._truncate()
         assert Servicelevel.objects.count() == 0
