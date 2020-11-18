@@ -11,7 +11,7 @@ from peoplemeasurement.csv_imports.csv_importer import CsvImporter
 class MockCsvImporter(CsvImporter):
     model = VoorspelIntercept
 
-    def create_obj_dict_for_row(self):
+    def create_model_instance(self):
         return {'a': 'b'}
 
 

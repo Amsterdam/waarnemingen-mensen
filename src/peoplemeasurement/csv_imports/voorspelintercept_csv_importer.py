@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class VoorspelInterceptCsvImporter(CsvImporter):
     model = VoorspelIntercept
 
-    def create_obj_dict_for_row(self, row):
+    def create_model_instance(self, row):
         data = dict(
             sensor=row['sensor'],
             toepassings_kwartier_volgnummer=self.to_int(row['toepassings_kwartier_volgnummer']),

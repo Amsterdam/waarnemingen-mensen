@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class SensorCsvImporter(CsvImporter):
     model = Sensors
 
-    def create_obj_dict_for_row(self, row):
+    def create_model_instance(self, row):
         data = dict(
             geom=row['geom'],
             objectnummer=row['objectnummer'],

@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class ServicelevelCsvImporter(CsvImporter):
     model = Servicelevel
 
-    def create_obj_dict_for_row(self, row):
+    def create_model_instance(self, row):
         data = dict(
             type_parameter=row['type_parameter'],
             type_gebied=row['type_gebied'],

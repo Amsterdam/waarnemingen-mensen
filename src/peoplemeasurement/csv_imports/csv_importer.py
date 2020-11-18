@@ -15,7 +15,7 @@ class CsvImporter(ABC):
         pass
 
     @abstractmethod
-    def create_obj_dict_for_row(self, row) -> dict:
+    def create_model_instance(self, row) -> dict:
         """
         Convert a row to a dict resembling the model
         """
@@ -69,14 +69,14 @@ class CsvImporter(ABC):
             if self.model.objects.count() > 0:
                 self._truncate()
 
-            obj_dicts = []
+            model_instances = []
             for row in csv_reader:
-                obj_dicts.append(self.create_obj_dict_for_row(row))
+                model_instances.append(self.create_model_instance(row))
 
-            if obj_dicts:
-                self.model.objects.bulk_create(obj_dicts)
+            if model_instances:
+                self.model.objects.bulk_create(model_instances)
 
-        return len(obj_dicts)
+        return len(model_instances)
 
     def _truncate(self):
         # using ignore so cmsa_1h_count_view_v1 reference will

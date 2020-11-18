@@ -33,7 +33,7 @@ class TestVoorspelCoefficientCsvImporter:
 
     @mock.patch(
         "peoplemeasurement.csv_imports.voorspelcoefficient_csv_importer"
-        ".VoorspelCoefficientCsvImporter.create_obj_dict_for_row"
+        ".VoorspelCoefficientCsvImporter.create_model_instance"
     )
     def test_import_csv_reader_error(self, mocked_create):
         mocked_create.side_effect = Exception
@@ -43,7 +43,7 @@ class TestVoorspelCoefficientCsvImporter:
             VoorspelCoefficientCsvImporter("")._import_csv_reader(csv_reader=[1])
             assert VoorspelCoefficient.objects.count() == 15
 
-    def test_create_obj_dict_for_row(self):
+    def test_create_model_instance(self):
         row = dict(
             sensor="GKS-01-Kalverstraat",
             bron_kwartier_volgnummer="1",
@@ -51,7 +51,7 @@ class TestVoorspelCoefficientCsvImporter:
             coefficient_waarde="0.779513231347418",
         )
 
-        obj = VoorspelCoefficientCsvImporter("").create_obj_dict_for_row(row)
+        obj = VoorspelCoefficientCsvImporter("").create_model_instance(row)
         for key, value in row.items():
             expected_value = value
             if key == "bron_kwartier_volgnummer":
