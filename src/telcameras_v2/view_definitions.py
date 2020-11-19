@@ -945,6 +945,7 @@ VIEW_STRINGS = {
             sum(c.count_in) AS count_in,
             sum(c.count_out) AS count_out,
             sum(c.count_in+c.count_out) as total_count,
+            avg(c.count) as area_count,
             max(c.area) AS area
             FROM telcameras_v2_countaggregate c
             JOIN v2_selectie sel ON c.observation_id = sel.id AND c.observation_timestamp_start=sel.timestamp_start
@@ -956,8 +957,8 @@ VIEW_STRINGS = {
                 COALESCE(oc.count_in::integer, 0) AS count_up,
                 COALESCE(oc.count_out::integer, 0) AS count_down,
                    CASE
-                       WHEN oc.area IS NOT NULL AND oc.area <> 0::double precision AND oc.total_count IS NOT NULL AND oc.total_count > 0 
-                            THEN oc.total_count::double precision / oc.area
+                       WHEN oc.area IS NOT NULL AND oc.area <> 0::double precision AND oc.area_count IS NOT NULL AND oc.area_count > 0 
+                            THEN oc.area_count::double precision / oc.area
                       ELSE NULL::double precision
                    END AS density_avg,
                 os.speed_avg, 
