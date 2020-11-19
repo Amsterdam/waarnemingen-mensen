@@ -1047,6 +1047,263 @@ VIEW_STRINGS = {
        FROM V1_en_V2_data_15min aq
          LEFT JOIN percentiles p ON aq.sensor::text = p.sensor::text AND date_part('dow'::text, aq.timestamp_rounded) = p.dayofweek::double precision AND aq.timestamp_rounded::time without time zone = p.castedtimestamp
       ORDER BY aq.sensor, aq.timestamp_rounded;""",
+
+    'cmsa_15min_view_v7_realtime_predict': r"""
+     WITH mat_view_updated AS
+    ( --bepaal per sensor wanneer deze het laatst geupdate is in de materialized view met alle historie
+             SELECT   m.sensor,
+                      Max(m.timestamp_rounded) AS last_updated
+             FROM     cmsa_15min_view_v7_materialized m
+             WHERE    m.timestamp_rounded > Now() - interval '1 day'
+             group BY m.sensor ) ,time_serie AS
+    ( --maak time series vanaf de mat view update datum per sensor tot 1 uur na nu
+           SELECT mat_view_updated.sensor,
+                  generate_series(mat_view_updated.last_updated, now() + '01:00:00'::interval, '00:15:00'::interval) AS timestamp_rounded
+           FROM   mat_view_updated ) , v2_selectie AS
+    ( --bepaal de observaties in de selectie. Bij dubbele observaties moet de laatste worden gebruikt
+           SELECT o.id,
+                  o.sensor,
+                  o.timestamp_start,
+                  date_trunc('hour'::text, o.timestamp_start) + (date_part('minute'::text, o.timestamp_start)::INTEGER / 15)::DOUBLE PRECISION * '00:15:00'::interval AS timestamp_rounded
+           FROM   telcameras_v2_observation o
+           join   mat_view_updated u
+           ON     o.sensor = u.sensor
+           WHERE
+                  --     id IN (SELECT id FROM(SELECT id,ROW_NUMBER() OVER(PARTITION BY sensor, timestamp_start ORDER BY sensor, timestamp_start, timestamp_message DESC )
+                  --  AS row_num FROM telcameras_v2_observation ) t WHERE t.row_num = 1)
+                  --   AND
+                  o.timestamp_start > u.last_updated ) ,v2_sensor_15min_sel AS
+    ( --maak een selectietabel met alleen sensoren en timestamp_rounded kwartieren verschil met time_serie is dat deze alle sensor-kwartier combinaties bevat
+             SELECT   sensor,
+                      timestamp_rounded
+             FROM     v2_selectie
+             GROUP BY sensor,
+                      timestamp_rounded
+             ORDER BY sensor,
+                      timestamp_rounded ) , v2_observatie_snelheid AS ( WITH v2_observatie_persoon AS
+    (-- bepaal de gemiddelde snelheid voor 3D camera's op basis van hoe lang mensen in beeld waren, voor 2D is het ongewogen.
+           -- hier wordt dus het tijdstippen-deel van geom er uitgehaald en tot array gemaakt
+           SELECT sel.sensor,
+                  sel.timestamp_rounded,
+                  pa.speed,
+                  string_to_array(substr(pa.geom,position('('IN pa.geom)+1, (position(')'IN pa.geom)- position('('IN pa.geom)-1)), ' ' ) AS tijd_array
+           FROM   telcameras_v2_personaggregate pa
+           join   v2_selectie sel
+           ON     pa.observation_timestamp_start=sel.timestamp_start
+           AND    pa.observation_id = sel.id
+           WHERE  pa.observation_timestamp_start > now() - interval '1 day'
+           AND    pa.speed IS NOT NULL
+           AND    pa.geom IS NOT NULL
+           AND    pa.geom::text <> ''::text
+           UNION ALL
+           SELECT sel2.sensor,
+                  sel2.timestamp_rounded,
+                  pa.speed,
+                  ARRAY['1',
+                  '2'] AS tijd_array
+           FROM   telcameras_v2_personaggregate pa
+           join   v2_selectie sel2
+           ON     pa.observation_timestamp_start=sel2.timestamp_start
+           AND    pa.observation_id = sel2.id
+           WHERE  pa.observation_timestamp_start > now() - interval '1 day'
+           AND    pa.speed IS NOT NULL
+           AND    (
+                         pa.geom IS NULL
+                  OR     pa.geom::text = ''::text) )
+    -- nu word per sensor de som van de in 15min afgelegde afstand berekend als tijd*speed, en die wordt gedeeld door de som van de tijden in die 15 min
+    SELECT   p.sensor,
+             p.timestamp_rounded,
+             CASE
+                      WHEN SUM(tijd_array[cardinality(tijd_array)]::NUMERIC - tijd_array[1]::NUMERIC)>0 THEN (SUM(p.speed * (tijd_array[cardinality(tijd_array)]::NUMERIC - tijd_array[1]::NUMERIC)) / SUM(tijd_array[cardinality(tijd_array)]::NUMERIC - tijd_array[1]::NUMERIC))
+                      ELSE 0
+             END AS speed_avg
+    FROM     v2_observatie_persoon p
+    GROUP BY p.sensor,
+             p.timestamp_rounded ) , v2_countaggregate_zone_count AS
+    ( --lees de tellingen, en aggregeer op 15 minuten
+             -- de vraag is of hier nog een correctie in moet voor kwartieren met te weinig berichten zoals dat voor V1 gemaakt was
+             -- in elk geval zou dit misschien voor het laatste kwartier moeten, of een drempel voor dit laatste kwartier als het nog niet compleet is.
+             SELECT   sel.sensor,
+                      sel.timestamp_rounded,
+                      max(c.azimuth)              AS azimuth,
+                      SUM(c.count_in)             AS count_in,
+                      SUM(c.count_out)            AS count_out,
+                      SUM(c.count_in+c.count_out) AS total_count,
+                      avg(c.count)                AS area_count,
+                      max(c.area)                 AS area,
+                      count(*)                    AS basedonxmessages
+             FROM     telcameras_v2_countaggregate c
+             join     v2_selectie sel
+             ON       c.observation_id = sel.id
+             AND      c.observation_timestamp_start=sel.timestamp_start
+             GROUP BY sel.sensor,
+                      sel.timestamp_rounded ) , aggregatedbyquarter AS
+    (
+              SELECT    sel3.sensor,
+                        sel3.timestamp_rounded,
+                        coalesce(oc.total_count::INTEGER, 0) AS total_count,
+                        coalesce(oc.count_in::   INTEGER, 0) AS count_up,
+                        coalesce(oc.count_out::  INTEGER, 0) AS count_down,
+                        CASE
+                                  WHEN oc.area IS NOT NULL
+                                  AND       oc.area <> 0::DOUBLE PRECISION
+                                  AND       oc.area_count IS NOT NULL
+                                  AND       oc.area_count > 0 THEN oc.area_count::DOUBLE PRECISION / oc.area
+                                  ELSE NULL::DOUBLE PRECISION
+                        END AS density_avg,
+                        os.speed_avg,
+                        oc.basedonxmessages
+              FROM      v2_sensor_15min_sel sel3
+              left join v2_observatie_snelheid os
+              ON        sel3.sensor = os.sensor
+              AND       sel3.timestamp_rounded=os.timestamp_rounded
+              left join v2_countaggregate_zone_count oc
+              ON        sel3.sensor = oc.sensor
+              AND       sel3.timestamp_rounded=oc.timestamp_rounded ) , percentiles AS
+    (
+             SELECT   a.sensor, -- haal de percentielen op uit de public.cmsa_15min_view_v7 view
+                      date_part('dow'::text, a.timestamp_rounded) AS dayofweek,
+                      a.timestamp_rounded::TIME without TIME zone AS castedtimestamp,
+                      avg(a.total_count_p10)                      AS total_count_p10,
+                      avg(a.total_count_p20)                      AS total_count_p20,
+                      avg(a.total_count_p50)                      AS total_count_p50,
+                      avg(a.total_count_p80)                      AS total_count_p80,
+                      avg(a.total_count_p90)                      AS total_count_p90,
+                      avg(a.count_down_p10)                       AS count_down_p10,
+                      avg(a.count_down_p20)                       AS count_down_p20,
+                      avg(a.count_down_p50)                       AS count_down_p50,
+                      avg(a.count_down_p80)                       AS count_down_p80,
+                      avg(a.count_down_p90)                       AS count_down_p90,
+                      avg(a.count_up_p10)                         AS count_up_p10,
+                      avg(a.count_up_p20)                         AS count_up_p20,
+                      avg(a.count_up_p50)                         AS count_up_p50,
+                      avg(a.count_up_p80)                         AS count_up_p80,
+                      avg(a.count_up_p90)                         AS count_up_p90,
+                      avg(a.density_avg_p20)                      AS density_avg_p20,
+                      avg(a.density_avg_p50)                      AS density_avg_p50,
+                      avg(a.density_avg_p80)                      AS density_avg_p80,
+                      avg(a.speed_avg_p20)                        AS speed_avg_p20,
+                      avg(a.speed_avg_p50)                        AS speed_avg_p50,
+                      avg(a.speed_avg_p80)                        AS speed_avg_p80
+             FROM     cmsa_15min_view_v7_materialized a
+             WHERE    a.timestamp_rounded >=
+                      (
+                             SELECT now() - '8 day'::interval) -- beperk de scope tot alleen de laatste 8 dagen
+             GROUP BY a.sensor,
+                      (date_part('dow'::text, a.timestamp_rounded)),
+                      (a.timestamp_rounded::TIME without TIME zone) ) ,laatste_2_uur_data AS
+    ( --bepaal de laatste 8 kwartieren aan data
+           SELECT rank_filter.*
+           FROM   (
+                           SELECT   *,
+                                    rank() over ( PARTITION BY sensor ORDER BY timestamp_rounded DESC) AS bronnr
+                           FROM     aggregatedbyquarter
+                           WHERE    timestamp_rounded <= now() ) rank_filter
+           WHERE  bronnr < 9 ) ,komende_2_uur_data AS
+    ( -- de voorspelperiode wordt bepaald in time_serie en is nu 1 uur vooruit
+           SELECT rank_filter.*
+           FROM   (
+                           SELECT   *,
+                                    rank() over ( PARTITION BY sensor ORDER BY timestamp_rounded ASC) AS toepnr -- 1 is het eerste kwartier na nu
+                           FROM     time_serie
+                           WHERE    timestamp_rounded > now() ) rank_filter
+           WHERE  toepnr < 9 ) ,alle_data_met_vc AS
+    ( --pas nu per sensor de coeffiecienten en interceptwaardes toe op een cartesisch product van de laaste 2 uur en de komende kwartieren.
+              SELECT    d.sensor,
+                        d.timestamp_rounded_bron,
+                        d.total_count,
+                        d.basedonxmessages,
+                        d.bronnr,
+                        d.toepnr,
+                        vi.intercept_waarde,
+                        vc.coefficient_waarde,
+                        d.timestamp_rounded_toep
+              FROM      (
+                               SELECT b.sensor,
+                                      b.timestamp_rounded AS timestamp_rounded_bron,
+                                      b.total_count,
+                                      b.basedonxmessages,
+                                      b.bronnr,
+                                      k.toepnr,
+                                      k.timestamp_rounded AS timestamp_rounded_toep
+                               FROM   laatste_2_uur_data b
+                               join   komende_2_uur_data k
+                               ON     b.sensor=k.sensor ) d
+              left join peoplemeasurement_voorspelintercept vi
+              ON        vi.sensor=d.sensor
+              AND       vi.toepassings_kwartier_volgnummer=d.toepnr
+              left join peoplemeasurement_voorspelcoefficient vc
+              ON        vc.sensor=d.sensor
+              AND       vc.bron_kwartier_volgnummer=d.bronnr
+              AND       vc.toepassings_kwartier_volgnummer=d.toepnr
+              ORDER BY  d.sensor,
+                        toepnr,
+                        bronnr ) ,voorspel_berekening AS
+    (
+              SELECT    vc.sensor,
+                        vc.timestamp_rounded_toep,
+                        vc.toepnr,
+                        total_count_voorspeld+vi.intercept_waarde AS total_count_forecast
+              FROM      (
+                                 SELECT   sensor,
+                                          timestamp_rounded_toep,
+                                          toepnr,
+                                          SUM(total_count*coefficient_waarde) AS total_count_voorspeld
+                                 FROM     alle_data_met_vc
+                                 GROUP BY sensor,
+                                          timestamp_rounded_toep,
+                                          toepnr
+                                 ORDER BY sensor,
+                                          timestamp_rounded_toep,
+                                          toepnr) vc
+              left join peoplemeasurement_voorspelintercept vi
+              ON        vi.sensor=vc.sensor
+              AND       vi.toepassings_kwartier_volgnummer=vc.toepnr )
+    SELECT    s.sensor, -- 'hang' de data (15  minuten waarnemingen,de percentielen en de voorspelling)op aan de time series.
+              s.timestamp_rounded,
+              coalesce(aq.total_count, 0::NUMERIC) AS total_count,
+              vb.total_count_forecast,
+              coalesce(aq.count_down, 0::NUMERIC)           AS count_down,
+              coalesce(aq.count_up, 0::  NUMERIC)           AS count_up,
+              coalesce(aq.density_avg, 0::DOUBLE PRECISION) AS density_avg,
+              coalesce(aq.speed_avg, 0::       NUMERIC)            AS speed_avg,
+              coalesce(aq.basedonxmessages, 0::bigint)             AS basedonxmessages,
+              coalesce(p.total_count_p10, 0::  NUMERIC)            AS total_count_p10,
+              coalesce(p.total_count_p20, 0::  NUMERIC)            AS total_count_p20,
+              coalesce(p.total_count_p50, 0::  NUMERIC)            AS total_count_p50,
+              coalesce(p.total_count_p80, 0::  NUMERIC)            AS total_count_p80,
+              coalesce(p.total_count_p90, 0::  NUMERIC)            AS total_count_p90,
+              coalesce(p.count_down_p10, 0::   NUMERIC)            AS count_down_p10,
+              coalesce(p.count_down_p20, 0::   NUMERIC)            AS count_down_p20,
+              coalesce(p.count_down_p50, 0::   NUMERIC)            AS count_down_p50,
+              coalesce(p.count_down_p80, 0::   NUMERIC)            AS count_down_p80,
+              coalesce(p.count_down_p90, 0::   NUMERIC)            AS count_down_p90,
+              coalesce(p.count_up_p10, 0::     NUMERIC)            AS count_up_p10,
+              coalesce(p.count_up_p20, 0::     NUMERIC)            AS count_up_p20,
+              coalesce(p.count_up_p50, 0::     NUMERIC)            AS count_up_p50,
+              coalesce(p.count_up_p80, 0::     NUMERIC)            AS count_up_p80,
+              coalesce(p.count_up_p90, 0::     NUMERIC)            AS count_up_p90,
+              coalesce(p.density_avg_p20, 0::DOUBLE PRECISION)     AS density_avg_p20,
+              coalesce(p.density_avg_p50, 0::DOUBLE PRECISION)     AS density_avg_p50,
+              coalesce(p.density_avg_p80, 0::DOUBLE PRECISION)     AS density_avg_p80,
+              coalesce(p.speed_avg_p20, 0::NUMERIC)                AS speed_avg_p20,
+              coalesce(p.speed_avg_p50, 0::NUMERIC)                AS speed_avg_p50,
+              coalesce(p.speed_avg_p80, 0::NUMERIC)                AS speed_avg_p80
+    FROM      time_serie s
+    left join aggregatedbyquarter aq
+    ON        s.sensor::text = aq.sensor::text
+    AND       aq.timestamp_rounded = s.timestamp_rounded
+    left join percentiles p
+    ON        aq.sensor::text = p.sensor::text
+    AND       date_part('dow'::text, aq.timestamp_rounded) = p.dayofweek
+    AND       aq.timestamp_rounded::TIME without TIME zone = p.castedtimestamp
+    left join voorspel_berekening vb
+    ON        vb.sensor=s.sensor
+    AND       s.timestamp_rounded = vb.timestamp_rounded_toep
+    WHERE     s.sensor = 'GAWW-04'
+    ORDER BY  s.sensor,
+              s.timestamp_rounded; 
+    """,
 }
 
 
