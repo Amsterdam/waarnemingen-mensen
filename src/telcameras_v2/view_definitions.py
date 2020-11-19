@@ -1048,7 +1048,7 @@ VIEW_STRINGS = {
          LEFT JOIN percentiles p ON aq.sensor::text = p.sensor::text AND date_part('dow'::text, aq.timestamp_rounded) = p.dayofweek::double precision AND aq.timestamp_rounded::time without time zone = p.castedtimestamp
       ORDER BY aq.sensor, aq.timestamp_rounded;""",
 
-    'cmsa_15min_view_v7_realtime_predict': r"""
+    'cmsa_15min_view_v7_realtime_predict': r"""CREATE VIEW cmsa_15min_view_v7_realtime_predict AS
      WITH mat_view_updated AS
     ( --bepaal per sensor wanneer deze het laatst geupdate is in de materialized view met alle historie
              SELECT   m.sensor,
