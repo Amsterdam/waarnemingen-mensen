@@ -29,10 +29,6 @@ GET_AUTHORIZATION_TOKEN = os.environ['GET_AUTHORIZATION_TOKEN']
 # If you want to filter data by whether a sensor exists and is_active you can set this to false
 STORE_ALL_DATA = os.getenv('STORE_ALL_DATA', True)
 
-ENABLED_PARSERS = {
-    'parse_ingress_telcameras_v2': True,
-}
-
 ALLOWED_HOSTS = ['*']
 X_FRAME_OPTIONS = 'ALLOW-FROM *'
 INTERNAL_IPS = ('127.0.0.1', '0.0.0.0')

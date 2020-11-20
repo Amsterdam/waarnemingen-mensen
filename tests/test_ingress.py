@@ -272,7 +272,7 @@ class TestIngressParsing(APITransactionTestCase):
         # Create an endpoint
         self.endpoint_url_key = 'parsing_example'
         self.URL = '/ingress/' + self.endpoint_url_key
-        self.endpoint_obj = Endpoint.objects.create(url_key=self.endpoint_url_key)
+        self.endpoint_obj = Endpoint.objects.create(url_key=self.endpoint_url_key, parser_enabled=True)
 
     def test_parsing_succeeded(self):
         count_before = IngressQueue.objects.count()
@@ -319,3 +319,24 @@ class TestIngressParsing(APITransactionTestCase):
             self.assertIsNone(failed_ingress.parse_succeeded)
             self.assertIsNotNone(failed_ingress.parse_failed)
             self.assertIn('ZeroDivisionError: division by zero', failed_ingress.parse_fail_info)
+
+    def test_parsing_does_not_work_when_parsing_is_disabled(self):
+        count_before = IngressQueue.objects.count()
+        self.assertEqual(count_before, 0)
+
+        # Add some records
+        for i in range(3):
+            self.client.post(self.URL, "the data", **AUTHORIZATION_HEADER, content_type='raw')
+        self.assertEqual(IngressQueue.objects.count(), 3)
+
+        # Disable the endpoint
+        self.endpoint_obj.parser_enabled = False
+        self.endpoint_obj.save()
+
+        # Parse records
+        parser = MockParser()
+        parser.parse_continuously(end_at_empty_queue=True, end_at_disabled_parser=True)
+
+        # Check whether they have not been parsed like expected
+        for ingress in IngressQueue.objects.filter(endpoint=self.endpoint_obj):
+            self.assertIsNone(ingress.parse_started)
