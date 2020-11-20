@@ -2,6 +2,7 @@ from collections import namedtuple
 from datetime import datetime
 
 from django.conf import settings
+from django.db import connection
 from rest_framework.test import APITestCase, APITransactionTestCase
 
 from ingress.models import Endpoint, FailedIngressQueue, IngressQueue
@@ -24,6 +25,7 @@ class TestIngressEndpointCommands(APITestCase):
         endpoint = Endpoint.objects.filter(url_key=url_key).get()
         self.assertEqual(endpoint.url_key, url_key)
         self.assertEqual(endpoint.is_active, True)
+        self.assertEqual(endpoint.parser_enabled, False)
 
     def test_add_endpoint_command_fails_with_too_long_url_key(self):
         url_key = 'a' * 260
@@ -79,16 +81,64 @@ class TestIngressEndpointCommands(APITestCase):
     def test_list_endpoints_with_no_existing_endpoints(self):
         self.assertEqual(Endpoint.objects.count(), 0)
         out = call_man_command('list_endpoints')
-        self.assertEqual(out, "Current number of endpoints: 0\n")
+        self.assertEqual(out, "\nCurrent number of endpoints: 0\n\n")
 
     def test_list_endpoints_with_two_existing_endpoints(self):
+        # Make sure the table is truncated so that the id's are not influenced by other tests
+        cursor = connection.cursor()
+        cursor.execute("TRUNCATE TABLE ingress_endpoint RESTART IDENTITY CASCADE;")
+        self.assertEqual(Endpoint.objects.count(), 0)
+
         # First add two endpoints
         call_man_command('add_endpoint', 'first_endpoint')
         call_man_command('add_endpoint', 'second_endpoint')
         self.assertEqual(Endpoint.objects.count(), 2)
 
         out = call_man_command('list_endpoints')
-        self.assertEqual(out, "Current number of endpoints: 2\nfirst_endpoint\nsecond_endpoint\n")
+        expected_output = '\nCurrent number of endpoints: 2\n\n' \
+                          'id   url_key              is_active  parser_enabled\n' \
+                          '1    first_endpoint       1          0         \n' \
+                          '2    second_endpoint      1          0         \n'
+        self.assertEqual(out, expected_output)
+
+    def test_enable_and_disable_parser(self):
+        # Make sure the table is truncated so that the id's are not influenced by other tests
+        cursor = connection.cursor()
+        cursor.execute("TRUNCATE TABLE ingress_endpoint RESTART IDENTITY CASCADE;")
+        self.assertEqual(Endpoint.objects.count(), 0)
+
+        # First add two endpoints
+        call_man_command('add_endpoint', 'first_endpoint')
+        call_man_command('add_endpoint', 'second_endpoint')
+        self.assertEqual(Endpoint.objects.count(), 2)
+
+        # Try to disable the parser of one of the endpoints and make sure it fails
+        out = call_man_command('disable_parser', 'first_endpoint')
+        expected_output = "The parser for the endpoint 'first_endpoint' was already disabled. No changes were made.\n"
+        self.assertEqual(out, expected_output)
+        endpoint = Endpoint.objects.get(url_key='first_endpoint')
+        self.assertFalse(endpoint.parser_enabled)
+
+        # Enable the parser of one of the endpoints
+        out = call_man_command('enable_parser', 'first_endpoint')
+        expected_output = "Enabled the parser for the endpoint with url_key 'first_endpoint'\n"
+        self.assertEqual(out, expected_output)
+        endpoint = Endpoint.objects.get(url_key='first_endpoint')
+        self.assertTrue(endpoint.parser_enabled)
+
+        # Try to enable the parser of the previously enabled endpoint again and make sure it fails
+        out = call_man_command('enable_parser', 'first_endpoint')
+        expected_output = "The parser for the endpoint 'first_endpoint' was already enabled. No changes were made.\n"
+        self.assertEqual(out, expected_output)
+        endpoint = Endpoint.objects.get(url_key='first_endpoint')
+        self.assertTrue(endpoint.parser_enabled)
+
+        # disable the parser of one of the endpoints
+        out = call_man_command('disable_parser', 'first_endpoint')
+        expected_output = "Disabled the parser for the endpoint with url_key 'first_endpoint'\n"
+        self.assertEqual(out, expected_output)
+        endpoint = Endpoint.objects.get(url_key='first_endpoint')
+        self.assertFalse(endpoint.parser_enabled)
 
 
 class TestIngressQueue(APITestCase):

@@ -28,3 +28,4 @@ class Endpoint(models.Model):
     # For example, in the url /ingress/example, the string 'example' is the url_key
     url_key = models.CharField(max_length=255, unique=True)
     is_active = models.BooleanField(default=True)
+    parser_enabled = models.BooleanField(default=False)
