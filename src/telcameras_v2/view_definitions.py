@@ -1300,7 +1300,6 @@ VIEW_STRINGS = {
     left join voorspel_berekening vb
     ON        vb.sensor=s.sensor
     AND       s.timestamp_rounded = vb.timestamp_rounded_toep
-    WHERE     s.sensor = 'GAWW-04'
     ORDER BY  s.sensor,
               s.timestamp_rounded; 
     """,
