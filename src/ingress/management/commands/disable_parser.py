@@ -15,7 +15,7 @@ class Command(BaseCommand):
         url_key = options['url_key']
 
         endpoint = Endpoint.objects.get(url_key=url_key)
-        if endpoint.parser_enabled == False:
+        if not endpoint.parser_enabled:
             self.stdout.write(f"The parser for the endpoint '{url_key}' was already disabled. No changes were made.")
             return
 

@@ -12,7 +12,9 @@ from tests.tools_for_testing import call_man_command
 AUTHORIZATION_HEADER = {'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}
 
 
-class TestIngressEndpointCommands(APITestCase):
+class TestIngressEndpointCommands(APITransactionTestCase):
+    reset_sequences = True
+
     def test_add_endpoint_command(self):
         url_key = 'new_nice-endpoint'  # Make sure it allows for underscores and dashes
         count_before = Endpoint.objects.count()
@@ -84,11 +86,6 @@ class TestIngressEndpointCommands(APITestCase):
         self.assertEqual(out, "\nCurrent number of endpoints: 0\n\n")
 
     def test_list_endpoints_with_two_existing_endpoints(self):
-        # Make sure the table is truncated so that the id's are not influenced by other tests
-        cursor = connection.cursor()
-        cursor.execute("TRUNCATE TABLE ingress_endpoint RESTART IDENTITY CASCADE;")
-        self.assertEqual(Endpoint.objects.count(), 0)
-
         # First add two endpoints
         call_man_command('add_endpoint', 'first_endpoint')
         call_man_command('add_endpoint', 'second_endpoint')
@@ -102,11 +99,6 @@ class TestIngressEndpointCommands(APITestCase):
         self.assertEqual(out, expected_output)
 
     def test_enable_and_disable_parser(self):
-        # Make sure the table is truncated so that the id's are not influenced by other tests
-        cursor = connection.cursor()
-        cursor.execute("TRUNCATE TABLE ingress_endpoint RESTART IDENTITY CASCADE;")
-        self.assertEqual(Endpoint.objects.count(), 0)
-
         # First add two endpoints
         call_man_command('add_endpoint', 'first_endpoint')
         call_man_command('add_endpoint', 'second_endpoint')
