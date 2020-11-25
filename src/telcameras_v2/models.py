@@ -16,12 +16,13 @@ class Observation(models.Model):
     longitude = models.DecimalField(max_digits=16, decimal_places=13)
     interval = models.SmallIntegerField()                   # e.g. 60     # seconds that this message spans
     timestamp_message = models.DateTimeField()              # Timestamp of the message, not of of when the data was recorded
-    timestamp_start = models.DateTimeField(db_index=True)   # Timestamp of when the data was recorded
+    timestamp_start = TimescaleDateTimeField(interval="1 day", default=timezone.now)   # Timestamp of when the data was recorded
     # message = models.IntegerField()                       # Volgnummer bericht. Is saved in the aggregates
     # message_type = models.CharField(max_length=50)        # either "count" OR "person". Is not stored, but used to determine which aggregate to use
 
 
 class CountAggregate(models.Model):
+    observation_timestamp_start = TimescaleDateTimeField(interval="1 day", default=timezone.now)
     observation = models.ForeignKey('Observation', on_delete=models.CASCADE)
     message = models.IntegerField()                 # Volgnummer bericht, coming from root message
     version = models.CharField(max_length=50)       # e.g. "CS_count_0.0.1" versie van het bericht (zowel qua structuur als qua inhoud, dus mogelijk wijzigend met elke versiewijziging van de camerasoftware).
@@ -41,6 +42,7 @@ class CountAggregate(models.Model):
 
 
 class PersonAggregate(models.Model):
+    observation_timestamp_start = TimescaleDateTimeField(interval="1 day", default=timezone.now)
     observation = models.ForeignKey('Observation', on_delete=models.CASCADE)
     message = models.IntegerField()                 # Coming from root message. Volgnummer bericht,
     version = models.CharField(max_length=50)       # Coming from root message. E.g. "CS_count_0.0.1" versie van het bericht (zowel qua structuur als qua inhoud, dus mogelijk wijzigend met elke versiewijziging van de camerasoftware).

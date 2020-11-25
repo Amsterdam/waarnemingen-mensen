@@ -68,12 +68,14 @@ class ObservationSerializer(serializers.ModelSerializer):
 
         for count in counts:
             CountAggregate.objects.create(
+                observation_timestamp_start=observation.timestamp_start,
                 observation=observation,
                 **count
             )
 
         for person in persons:
             PersonAggregate.objects.create(
+                observation_timestamp_start=observation.timestamp_start,
                 observation=observation,
                 **person
             )
