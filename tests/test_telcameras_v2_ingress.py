@@ -26,7 +26,7 @@ class DataIngressPosterTest(APITestCase):
         self.URL = '/ingress/' + self.endpoint_url_key
 
         # Create an endpoint
-        self.endpoint_obj = Endpoint.objects.create(url_key=self.endpoint_url_key)
+        self.endpoint_obj = Endpoint.objects.create(url_key=self.endpoint_url_key, parser_enabled=True)
 
         # Create the sensor in the database
         self.sensor = Sensors.objects.create(objectnummer='GAVM-01-Vondelstraat')

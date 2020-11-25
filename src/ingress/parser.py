@@ -51,7 +51,7 @@ class IngressParser(ABC):
             failedingress.save()
             ingress.delete()
 
-    def parse_continuously(self, end_at_empty_queue=False):
+    def parse_continuously(self, end_at_empty_queue=False, end_at_disabled_parser=False):
         try:
             endpoint = Endpoint.objects.get(url_key=self.endpoint_url_key)
         except Endpoint.DoesNotExist:
@@ -61,6 +61,12 @@ class IngressParser(ABC):
             return
 
         while True:
+            endpoint = Endpoint.objects.get(url_key=self.endpoint_url_key)
+            if not endpoint.parser_enabled:
+                if end_at_disabled_parser:
+                    break  # For testing purposes
+                sleep(10)
+
             with transaction.atomic():
                 ingress_iterator = IngressQueue.objects.filter(endpoint=endpoint)\
                     .filter(parse_started__isnull=True) \
