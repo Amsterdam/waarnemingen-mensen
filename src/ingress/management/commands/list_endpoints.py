@@ -13,14 +13,16 @@ class Command(BaseCommand):
         if endpoints.count() == 0:
             return
 
-        table_spacing = "{:<4} {:<20} {:<10} {:<10}"
-        self.stdout.write(table_spacing.format('id', 'url_key', 'is_active', 'parser_enabled'))
+        table_spacing = "{:<4} {:<20} {:<10} {:<15} {:<10} {:<10}"
+        self.stdout.write(table_spacing.format('id', 'url_key', 'is_active', 'parser_enabled', 'unparsed', 'failed'))
         for endpoint in endpoints:
             self.stdout.write(
                 table_spacing.format(
                     endpoint.id,
                     endpoint.url_key,
                     endpoint.is_active,
-                    endpoint.parser_enabled
+                    endpoint.parser_enabled,
+                    endpoint.ingressqueue_set.filter(parse_started__isnull=True).count(),
+                    endpoint.failedingressqueue_set.count(),
                 )
             )

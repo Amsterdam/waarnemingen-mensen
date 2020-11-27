@@ -91,11 +91,19 @@ class TestIngressEndpointCommands(APITransactionTestCase):
         call_man_command('add_endpoint', 'second_endpoint')
         self.assertEqual(Endpoint.objects.count(), 2)
 
+        # Add an unparsed message for the first endpoint
+        first_endpoint = Endpoint.objects.get(url_key='first_endpoint')
+        IngressQueue.objects.create(endpoint=first_endpoint, raw_data='the data')
+
+        # Add a failed message for the second endpoint
+        first_endpoint = Endpoint.objects.get(url_key='second_endpoint')
+        FailedIngressQueue.objects.create(endpoint=first_endpoint, raw_data='the data')
+
         out = call_man_command('list_endpoints')
         expected_output = '\nCurrent number of endpoints: 2\n\n' \
-                          'id   url_key              is_active  parser_enabled\n' \
-                          '1    first_endpoint       1          0         \n' \
-                          '2    second_endpoint      1          0         \n'
+                          'id   url_key              is_active  parser_enabled  unparsed   failed    \n' \
+                          '1    first_endpoint       1          0               1          0         \n' \
+                          '2    second_endpoint      1          0               0          1         \n'
         self.assertEqual(out, expected_output)
 
     def test_enable_and_disable_parser(self):
