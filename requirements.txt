@@ -4,15 +4,15 @@
 #
 #    pip-compile --output-file=requirements.txt requirements.in
 #
-asgiref==3.3.0            # via django
-certifi==2020.6.20        # via requests, sentry-sdk
+asgiref==3.3.1            # via django
+certifi==2020.11.8        # via requests, sentry-sdk
 chardet==3.0.4            # via requests
 coreapi==2.3.3            # via drf-yasg
 coreschema==0.0.4         # via coreapi, drf-yasg
 defusedxml==0.6.0         # via djangorestframework-xml
 django-datetime-utc==1.0.3  # via -r requirements.in
 django-debug-toolbar==3.1.1  # via -r requirements.in
-django-extensions==3.0.9  # via -r requirements.in
+django-extensions==3.1.0  # via -r requirements.in
 django-filter==2.4.0      # via -r requirements.in
 django==3.0.11            # via -r requirements.in, django-datetime-utc, django-debug-toolbar, django-filter, djangorestframework, drf-yasg
 djangorestframework-csv==2.1.0  # via drf-amsterdam
@@ -27,17 +27,17 @@ inflection==0.5.1         # via drf-yasg
 itypes==1.2.0             # via coreapi
 jinja2==2.11.2            # via coreschema
 markupsafe==1.1.1         # via jinja2
-packaging==20.4           # via drf-yasg
+packaging==20.7           # via drf-yasg
 psycopg2-binary==2.8.6    # via -r requirements.in
 pyparsing==2.4.7          # via packaging
 python-dateutil==2.8.1    # via django-datetime-utc
 pytz==2020.4              # via -r requirements.in, django
-requests==2.24.0          # via -r requirements.in, coreapi
+requests==2.25.0          # via -r requirements.in, coreapi
 ruamel.yaml.clib==0.2.2   # via ruamel.yaml
 ruamel.yaml==0.16.12      # via drf-yasg
-sentry-sdk==0.19.2        # via -r requirements.in
-six==1.15.0               # via djangorestframework-csv, packaging, python-dateutil
+sentry-sdk==0.19.4        # via -r requirements.in
+six==1.15.0               # via djangorestframework-csv, python-dateutil
 sqlparse==0.4.1           # via django, django-debug-toolbar
 unicodecsv==0.14.1        # via djangorestframework-csv
 uritemplate==3.0.1        # via coreapi, drf-yasg
-urllib3==1.25.11          # via requests, sentry-sdk
+urllib3==1.26.2           # via requests, sentry-sdk
