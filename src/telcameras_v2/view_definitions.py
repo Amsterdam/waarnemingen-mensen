@@ -206,6 +206,7 @@ VIEW_STRINGS = {
     ;
     """,
 
+
     'cmsa_15min_view_v5': r"""CREATE VIEW cmsa_15min_view_v5 AS
     WITH rawdata AS (
         WITH v2_feed_start_date as (select sensor, min(timestamp_start) as start_of_feed from telcameras_v2_observation group by sensor),
@@ -414,6 +415,7 @@ VIEW_STRINGS = {
         aq.timestamp_rounded
     ;
     """,
+
 
     'cmsa_15min_view_v6': r"""CREATE VIEW cmsa_15min_view_v6 AS
     WITH rawdata AS (
@@ -625,6 +627,7 @@ VIEW_STRINGS = {
     ORDER BY aq.sensor, aq.timestamp_rounded
     ;
     """,
+
 
     'cmsa_15min_view_v6_realtime': r"""CREATE VIEW cmsa_15min_view_v6_realtime AS
     WITH v2_feed_start_date AS (
@@ -880,6 +883,7 @@ VIEW_STRINGS = {
     ;
     """,
 
+
     'cmsa_15min_view_v7': r"""CREATE VIEW cmsa_15min_view_v7 AS
     WITH v2_feed_start_date AS
             (SELECT o.sensor,
@@ -918,7 +922,8 @@ VIEW_STRINGS = {
             FROM telcameras_v2_observation o
             WHERE id IN (SELECT id FROM(SELECT id,ROW_NUMBER() OVER(PARTITION BY sensor, timestamp_start ORDER BY sensor, timestamp_start, timestamp_message DESC )
             AS row_num FROM telcameras_v2_observation ) t WHERE t.row_num = 1)
-            AND o.timestamp_start > now()- INTERVAL '1 YEAR')
+            AND o.timestamp_start > now() - INTERVAL '1 YEAR'
+            AND o.timestamp_start < now() - INTERVAL '18 MINUTES')
     ,v2_sensor_15min_sel as    (select sensor, timestamp_rounded, sum(aantal) as basedonxmessages from v2_selectie group by sensor, timestamp_rounded order by sensor, timestamp_rounded)
     ,v2_observatie_snelheid AS     (
             with v2_observatie_persoon AS (
@@ -985,8 +990,7 @@ VIEW_STRINGS = {
         v2_data.density_avg,
         v2_data.speed_avg,
         v2_data.basedonxmessages
-    FROM v2_data        )     
-                 
+    FROM v2_data)
     , percentiles as (
              SELECT v.sensor,
                 date_part('dow'::text, v.timestamp_rounded)::integer AS dayofweek,
@@ -1047,6 +1051,7 @@ VIEW_STRINGS = {
        FROM V1_en_V2_data_15min aq
          LEFT JOIN percentiles p ON aq.sensor::text = p.sensor::text AND date_part('dow'::text, aq.timestamp_rounded) = p.dayofweek::double precision AND aq.timestamp_rounded::time without time zone = p.castedtimestamp
       ORDER BY aq.sensor, aq.timestamp_rounded;""",
+
 
     'cmsa_15min_view_v7_realtime_predict': r"""CREATE VIEW cmsa_15min_view_v7_realtime_predict AS
      WITH mat_view_updated AS
