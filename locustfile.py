@@ -5,7 +5,6 @@ locust --host=http://127.0.0.1:8001 --headless --users 250 --hatch-rate 25 --run
 locust --host=http://127.0.0.1:8001 --headless --users 250 --hatch-rate 25 --run-time 30s
 """
 import datetime
-import os
 import time
 from uuid import uuid4
 
@@ -30,8 +29,7 @@ def create_message():
             "sensortype": "countingcamera",
             "latitude": "52.3709",
             "count": "6.0",
-            "sensor": "GKS-1-4",
-
+            "sensor": "TEST",
             "version": "1",
             "speed": "0.0",
             "timestamp": get_dt_with_tz_info(),
