@@ -151,10 +151,10 @@ class TestIngressEndpointCommands(APITransactionTestCase):
         for _ in range(3):
             FailedIngressQueue.objects.create(endpoint=first_endpoint, raw_data='the data')
             FailedIngressQueue.objects.create(endpoint=second_endpoint, raw_data='the data')
-
         self.assertEqual(IngressQueue.objects.count(), 0)
         self.assertEqual(FailedIngressQueue.objects.count(), 6)
 
+        # Move messages for endpoint one from the failed to the normal queue
         out = call_man_command('redo_failed_ingress_messages', 'first_endpoint')
         expected_output = '\n\nMoved 3 messages from the failed queue to the normal queue to be parsed again.\n\n'
         self.assertEqual(out, expected_output)
@@ -162,8 +162,8 @@ class TestIngressEndpointCommands(APITransactionTestCase):
         self.assertEqual(FailedIngressQueue.objects.count(), 3)
 
     def test_redo_failed_messages_fails_with_non_existing_endpoint(self):
-        out = call_man_command('redo_failed_ingress_messages', 'first_endpoint')
-        expected_output = "\n\nThe endpoint with url_key 'first_endpoint' does not exist. Nothing has been done.\n\n"
+        out = call_man_command('redo_failed_ingress_messages', 'non_existing_endpoint')
+        expected_output = "\n\nThe endpoint with url_key 'non_existing_endpoint' does not exist. Nothing has been done.\n\n"
         self.assertEqual(out, expected_output)
 
 
