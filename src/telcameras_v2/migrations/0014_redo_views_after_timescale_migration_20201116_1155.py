@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
         operations.append(
             migrations.RunSQL(
                 sql=view_strings['sql'],
-                reverse_sql=view_strings['sql']
+                reverse_sql=view_strings['reverse_sql']
             )
         )
         if view != 'cmsa_15min_view_v6_realtime':
