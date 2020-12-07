@@ -5,6 +5,7 @@ from ingress.tools import Endpoint
 
 class Command(BaseCommand):
     help = "Enables the parser for an endpoint (if the parsers exist)."
+
     def add_arguments(self, parser):
         parser.add_argument(
             'url_key',

@@ -7,6 +7,7 @@ from ingress.models import Endpoint
 
 class Command(BaseCommand):
     help = "Removes an existing ingress endpoint"
+
     def add_arguments(self, parser):
         parser.add_argument(
             'url_key',

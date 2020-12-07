@@ -2,7 +2,6 @@ from collections import namedtuple
 from datetime import datetime
 
 from django.conf import settings
-from django.db import connection
 from rest_framework.test import APITestCase, APITransactionTestCase
 
 from ingress.models import Endpoint, FailedIngressQueue, IngressQueue
@@ -96,8 +95,8 @@ class TestIngressEndpointCommands(APITransactionTestCase):
         IngressQueue.objects.create(endpoint=first_endpoint, raw_data='the data')
 
         # Add a failed message for the second endpoint
-        first_endpoint = Endpoint.objects.get(url_key='second_endpoint')
-        FailedIngressQueue.objects.create(endpoint=first_endpoint, raw_data='the data')
+        second_endpoint = Endpoint.objects.get(url_key='second_endpoint')
+        FailedIngressQueue.objects.create(endpoint=second_endpoint, raw_data='the data')
 
         out = call_man_command('list_endpoints')
         expected_output = '\nCurrent number of endpoints: 2\n\n' \
@@ -139,6 +138,33 @@ class TestIngressEndpointCommands(APITransactionTestCase):
         self.assertEqual(out, expected_output)
         endpoint = Endpoint.objects.get(url_key='first_endpoint')
         self.assertFalse(endpoint.parser_enabled)
+
+    def test_redo_failed_messages_moves_messages_from_failed_queue_back_to_normal_queue(self):
+        # First add an endpoint
+        call_man_command('add_endpoint', 'first_endpoint')
+        call_man_command('add_endpoint', 'second_endpoint')
+        self.assertEqual(Endpoint.objects.count(), 2)
+
+        # Add a couple failed messages for both the endpoints
+        first_endpoint = Endpoint.objects.get(url_key='first_endpoint')
+        second_endpoint = Endpoint.objects.get(url_key='second_endpoint')
+        for _ in range(3):
+            FailedIngressQueue.objects.create(endpoint=first_endpoint, raw_data='the data')
+            FailedIngressQueue.objects.create(endpoint=second_endpoint, raw_data='the data')
+        self.assertEqual(IngressQueue.objects.count(), 0)
+        self.assertEqual(FailedIngressQueue.objects.count(), 6)
+
+        # Move messages for endpoint one from the failed to the normal queue
+        out = call_man_command('redo_failed_ingress_messages', 'first_endpoint')
+        expected_output = '\n\nMoved 3 messages from the failed queue to the normal queue to be parsed again.\n\n'
+        self.assertEqual(out, expected_output)
+        self.assertEqual(IngressQueue.objects.count(), 3)
+        self.assertEqual(FailedIngressQueue.objects.count(), 3)
+
+    def test_redo_failed_messages_fails_with_non_existing_endpoint(self):
+        out = call_man_command('redo_failed_ingress_messages', 'non_existing_endpoint')
+        expected_output = "\n\nThe endpoint with url_key 'non_existing_endpoint' does not exist. Nothing has been done.\n\n"
+        self.assertEqual(out, expected_output)
 
 
 class TestIngressQueue(APITestCase):
