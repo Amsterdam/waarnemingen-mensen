@@ -66,6 +66,7 @@ class IngressParser(ABC):
                 if end_at_disabled_parser:
                     break  # For testing purposes
                 sleep(10)
+                continue
 
             with transaction.atomic():
                 ingress_iterator = IngressQueue.objects.filter(endpoint=endpoint)\
