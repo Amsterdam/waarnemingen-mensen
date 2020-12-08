@@ -48,4 +48,9 @@ class Migration(migrations.Migration):
             sql=_realtime_view_strings['sql'],
             reverse_sql=_realtime_view_strings['reverse_sql']
         ),
+        # And also make a materialized version of the predict view which we can refresh every minute
+        migrations.RunSQL(
+            sql=_realtime_view_strings['sql_materialized'],
+            reverse_sql=_realtime_view_strings['reverse_sql_materialized']
+        ),
     ]
