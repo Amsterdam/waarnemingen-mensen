@@ -17,5 +17,5 @@ class Command(BaseCommand):
 
         log.info(f"Start refreshing the {view_name}")
         with connection.cursor() as cursor:
-            cursor.execute(f"REFRESH MATERIALIZED VIEW CONCURRENTLY {view_name};")
+            cursor.execute(f"REFRESH MATERIALIZED VIEW {view_name};")
         log.info(f"Done refreshing the {view_name}")
