@@ -7,8 +7,7 @@ from contrib.timescale.fields import TimescaleDateTimeField
 class Observation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     message_id = models.IntegerField()                      # Coming from "id" in the message. It's an auto-increment per sensor / volgnummer.
-    timestamp = models.DateTimeField()
-    # timestamp = TimescaleDateTimeField(interval="1 day", default=timezone.now)   # Timestamp of when the data was recorded
+    timestamp = TimescaleDateTimeField(interval="1 day", default=timezone.now)   # Timestamp of when the data was recorded
     sensor = models.CharField(max_length=255)               # e.g. "CMSA-GAWW-17"
     sensor_type = models.CharField(max_length=255)          # type sensor (telcamera, wifi, bleutooth, 3d_camera etc)
     sensor_state = models.CharField(max_length=255)         # Coming from "status" e.g. "operational"
@@ -21,8 +20,7 @@ class Observation(models.Model):
 class GroupAggregate(models.Model):
     observation = models.ForeignKey('Observation', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
-    observation_timestamp = models.DateTimeField()
-    # observation_timestamp = TimescaleDateTimeField(interval="1 day", default=timezone.now)  # Copied from the observation
+    observation_timestamp = TimescaleDateTimeField(interval="1 day", default=timezone.now)  # Copied from the observation
     azimuth = models.SmallIntegerField()
     count = models.SmallIntegerField()
     cumulative_distance = models.FloatField()
@@ -33,8 +31,7 @@ class GroupAggregate(models.Model):
 class Person(models.Model):
     group_aggregate = models.ForeignKey('GroupAggregate', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
-    observation_timestamp = models.DateTimeField()
-    # observation_timestamp = TimescaleDateTimeField(interval="1 day", default=timezone.now)  # Copied from the observation object
+    observation_timestamp = TimescaleDateTimeField(interval="1 day", default=timezone.now)  # Copied from the observation object
     record = models.UUIDField()
     distance = models.FloatField()
     time = models.FloatField()
