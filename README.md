@@ -14,6 +14,9 @@ Start the docker database and run the download en upload scripts.
 
 Now you should be able to access http://127.0.0.1:8001/
 
+# Project architecture
+This project follows the setup used in multiple projects and is described here: https://github.com/Amsterdam/opdrachten_team_dev.  
+
 
 #### Local development ####
 
