@@ -15,6 +15,10 @@ def SLACK_MESSAGE = [
 pipeline {
     agent any
 
+    options {
+        timeout(time: 5, unit: 'HOURS')  // Long timeout because we occasionally have large materialized views
+    }
+
     environment {
         SHORT_UUID = sh( script: "uuidgen | cut -d '-' -f1", returnStdout: true).trim()
         COMPOSE_PROJECT_NAME = "${PROJECT_NAME}-${env.SHORT_UUID}"
