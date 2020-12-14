@@ -100,9 +100,9 @@ class TestIngressEndpointCommands(APITransactionTestCase):
 
         out = call_man_command('list_endpoints')
         expected_output = '\nCurrent number of endpoints: 2\n\n' \
-                          'id   url_key              is_active  parser_enabled  unparsed   failed    \n' \
-                          '1    first_endpoint       1          0               1          0         \n' \
-                          '2    second_endpoint      1          0               0          1         \n'
+                          'id   url_key                   is_active  parser_enabled  unparsed   failed     full url            \n' \
+                          '1    first_endpoint            1          0               1          0          /ingress/first_endpoint\n' \
+                          '2    second_endpoint           1          0               0          1          /ingress/second_endpoint\n'
         self.assertEqual(out, expected_output)
 
     def test_enable_and_disable_parser(self):
