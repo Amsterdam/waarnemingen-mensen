@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'datetimeutc',
     'peoplemeasurement',
     'telcameras_v2',
+    'telcameras_v3',
     'ingress',
 ]
 
