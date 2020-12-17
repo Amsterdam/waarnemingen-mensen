@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from telcameras_v2.ingress_parser import TelcameraParser
+from telcameras_v3.ingress_parser import TelcameraParser
 
 
 class Command(BaseCommand):
