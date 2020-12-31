@@ -1,10 +1,8 @@
 import logging
-from datetime import timedelta
 
 from datapunt_api.pagination import HALCursorPagination, HALPagination
 from datapunt_api.rest import DatapuntViewSetWritable
 from django.db import connection
-from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend, FilterSet
 from rest_framework import exceptions, mixins, viewsets
 from rest_framework.permissions import IsAuthenticated
@@ -13,7 +11,6 @@ from rest_framework.response import Response
 from contrib.rest_framework.authentication import SimpleGetTokenAuthentication
 from . import serializers
 from .models import PeopleMeasurement
-from .queries import get_today_15min_aggregation_sql
 
 logger = logging.getLogger(__name__)
 
@@ -91,9 +88,7 @@ class Today15minAggregationViewSet(mixins.ListModelMixin, viewsets.GenericViewSe
 
     def list(self, request, *args, **kwargs):
         with connection.cursor() as cursor:
-            startdate = (timezone.now() - timedelta(days=1)).astimezone().isoformat()
-            raw_sql = get_today_15min_aggregation_sql(datestr=startdate)
-            cursor.execute(raw_sql)
+            cursor.execute("SELECT * FROM cmsa_15min_view_v7_realtime_predict;")
             queryset = self.dictfetchall(cursor)
         serializer = serializers.Today15minAggregationSerializer(queryset, many=True)
         return Response(serializer.data)
