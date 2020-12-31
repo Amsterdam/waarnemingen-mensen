@@ -261,9 +261,6 @@ class PeopleMeasurementTestGetV1(APITestCase):
             timestamp_str = datetime.now().replace(hour=i, minute=0, second=0).astimezone().replace(
                 microsecond=0).isoformat()
 
-            # Insert some v1 records for each hour
-            create_new_v1_object(timestamp_str=timestamp_str)
-
             # Insert some v2 records for each hour
             self.client.post(
                 self.POST_URL_V2,
@@ -272,10 +269,12 @@ class PeopleMeasurementTestGetV1(APITestCase):
                 format='json'
             )
 
+        # Refresh cmsa_15min_view_v7_materialized because the query in the endpoint depends on it
+        call_man_command('refresh_materialized_view', 'cmsa_15min_view_v7_materialized')
+
         # test whether the endpoint responds correctly
         response = self.client.get(self.URL, **GET_AUTHORIZATION_HEADER)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 24)
 
     def test_get_15min_aggregation_records_fails_without_token(self):
         response = self.client.get(self.URL)
