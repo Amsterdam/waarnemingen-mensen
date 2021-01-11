@@ -6,7 +6,7 @@
 #
 asgiref==3.3.1            # via django
 certifi==2020.12.5        # via requests, sentry-sdk
-chardet==3.0.4            # via requests
+chardet==4.0.0            # via requests
 coreapi==2.3.3            # via drf-yasg
 coreschema==0.0.4         # via coreapi, drf-yasg
 defusedxml==0.6.0         # via djangorestframework-xml
@@ -31,8 +31,8 @@ packaging==20.8           # via drf-yasg
 psycopg2-binary==2.8.6    # via -r requirements.in
 pyparsing==2.4.7          # via packaging
 python-dateutil==2.8.1    # via django-datetime-utc
-pytz==2020.4              # via -r requirements.in, django
-requests==2.25.0          # via -r requirements.in, coreapi
+pytz==2020.5              # via -r requirements.in, django
+requests==2.25.1          # via -r requirements.in, coreapi
 ruamel.yaml.clib==0.2.2   # via ruamel.yaml
 ruamel.yaml==0.16.12      # via drf-yasg
 sentry-sdk==0.19.5        # via -r requirements.in
