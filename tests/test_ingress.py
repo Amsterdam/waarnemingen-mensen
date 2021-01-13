@@ -2,11 +2,12 @@ from collections import namedtuple
 from datetime import datetime
 
 from django.conf import settings
+from django.utils import timezone
 from rest_framework.test import APITestCase, APITransactionTestCase
+from tests.tools_for_testing import call_man_command
 
 from ingress.models import Endpoint, FailedIngressQueue, IngressQueue
 from ingress.parser import IngressParser
-from tests.tools_for_testing import call_man_command
 
 AUTHORIZATION_HEADER = {'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}
 
@@ -140,7 +141,7 @@ class TestIngressEndpointCommands(APITransactionTestCase):
         self.assertFalse(endpoint.parser_enabled)
 
     def test_redo_failed_messages_moves_messages_from_failed_queue_back_to_normal_queue(self):
-        # First add an endpoint
+        # First add two endpoints
         call_man_command('add_endpoint', 'first_endpoint')
         call_man_command('add_endpoint', 'second_endpoint')
         self.assertEqual(Endpoint.objects.count(), 2)
@@ -164,6 +165,54 @@ class TestIngressEndpointCommands(APITransactionTestCase):
     def test_redo_failed_messages_fails_with_non_existing_endpoint(self):
         out = call_man_command('redo_failed_ingress_messages', 'non_existing_endpoint')
         expected_output = "\n\nThe endpoint with url_key 'non_existing_endpoint' does not exist. Nothing has been done.\n\n"
+        self.assertEqual(out, expected_output)
+
+    def test_show_failed_message(self):
+        # First add two endpoints
+        call_man_command('add_endpoint', 'first_endpoint')
+        call_man_command('add_endpoint', 'second_endpoint')
+        self.assertEqual(Endpoint.objects.count(), 2)
+
+        # Add a couple failed messages for both the endpoints
+        first_endpoint = Endpoint.objects.get(url_key='first_endpoint')
+        second_endpoint = Endpoint.objects.get(url_key='second_endpoint')
+        for _ in range(3):
+            one = FailedIngressQueue.objects.create(
+                endpoint=first_endpoint,
+                parse_started='2020-01-12 12:12:12',
+                raw_data='the data in first endpoint')
+            one.created_at = '2020-01-12 12:12:12'  # Overwrite the default created_at to make it testable
+            one.save()
+            two = FailedIngressQueue.objects.create(
+                endpoint=second_endpoint,
+                parse_started='2020-01-12 12:12:12',
+                raw_data='the data in second endpoint'
+            )
+            two.created_at = '2020-01-12 12:12:12'  # Overwrite the default created_at to make it testable
+            two.save()
+        self.assertEqual(IngressQueue.objects.count(), 0)
+        self.assertEqual(FailedIngressQueue.objects.count(), 6)
+
+        # First select one failed message without selecting an endpoint
+        out = call_man_command('show_failed_message')
+        expected_output = '\n\nendpoint             first_endpoint                                    \n' \
+                          'created_at           2020-01-12 11:12:12+00:00                         \n' \
+                          'parse_started        2020-01-12 11:12:12+00:00                         \n' \
+                          'parse_succeeded      None                                              \n' \
+                          'parse_failed         None                                              \n' \
+                          'parse_fail_info      None                                              \n' \
+                          'raw_data             the data in first endpoint                        \n'
+        self.assertEqual(out, expected_output)
+
+        # Then select one failed message from the second endpoint
+        out = call_man_command('show_failed_message', 'second_endpoint')
+        expected_output = '\n\nendpoint             second_endpoint                                   \n' \
+                          'created_at           2020-01-12 11:12:12+00:00                         \n' \
+                          'parse_started        2020-01-12 11:12:12+00:00                         \n' \
+                          'parse_succeeded      None                                              \n' \
+                          'parse_failed         None                                              \n' \
+                          'parse_fail_info      None                                              \n' \
+                          'raw_data             the data in second endpoint                       \n'
         self.assertEqual(out, expected_output)
 
 
