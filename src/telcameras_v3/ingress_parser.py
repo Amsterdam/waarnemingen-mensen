@@ -20,7 +20,7 @@ class TelcameraParser(IngressParser):
         observation['groupaggregates'] = observation.pop('direction')
         for groupaggregate in observation['groupaggregates']:
             groupaggregate['observation_timestamp'] = observation['timestamp']
-            groupaggregate['persons'] = groupaggregate.pop('signals')
+            groupaggregate['persons'] = groupaggregate.pop('signals', [])
             for person in groupaggregate['persons']:
                 person['person_observation_timestamp'] = person.pop('observation_timestamp')
                 person['observation_timestamp'] = observation['timestamp']
