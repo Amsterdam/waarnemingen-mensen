@@ -69,10 +69,13 @@ class IngressParser(ABC):
                 continue
 
             with transaction.atomic():
+                # This locks 10 records and iterates over them. Parallel workers simply lock the next 10 records
+                # Quote from https://www.postgresql.org/docs/11/sql-select.html :
+                # "If a LIMIT is used, locking stops once enough rows have been returned to satisfy the limit"
                 ingress_iterator = IngressQueue.objects.filter(endpoint=endpoint)\
                     .filter(parse_started__isnull=True) \
                     .order_by('created_at') \
-                    .select_for_update(skip_locked=True)\
+                    .select_for_update(skip_locked=True)[:10] \
                     .iterator()
 
                 for ingress in ingress_iterator:

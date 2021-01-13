@@ -1,12 +1,14 @@
 from collections import namedtuple
-from datetime import datetime
+from datetime import date, datetime, timedelta
 
 from django.conf import settings
+from model_bakery import baker
+from model_bakery.recipe import Recipe, seq
 from rest_framework.test import APITestCase, APITransactionTestCase
+from tests.tools_for_testing import call_man_command
 
 from ingress.models import Endpoint, FailedIngressQueue, IngressQueue
 from ingress.parser import IngressParser
-from tests.tools_for_testing import call_man_command
 
 AUTHORIZATION_HEADER = {'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}
 
@@ -140,7 +142,7 @@ class TestIngressEndpointCommands(APITransactionTestCase):
         self.assertFalse(endpoint.parser_enabled)
 
     def test_redo_failed_messages_moves_messages_from_failed_queue_back_to_normal_queue(self):
-        # First add an endpoint
+        # First add two endpoints
         call_man_command('add_endpoint', 'first_endpoint')
         call_man_command('add_endpoint', 'second_endpoint')
         self.assertEqual(Endpoint.objects.count(), 2)
@@ -164,6 +166,38 @@ class TestIngressEndpointCommands(APITransactionTestCase):
     def test_redo_failed_messages_fails_with_non_existing_endpoint(self):
         out = call_man_command('redo_failed_ingress_messages', 'non_existing_endpoint')
         expected_output = "\n\nThe endpoint with url_key 'non_existing_endpoint' does not exist. Nothing has been done.\n\n"
+        self.assertEqual(out, expected_output)
+
+    def test_show_failed_message(self):
+        # Add two endpoints
+        endpoint1 = baker.make(Endpoint, url_key='first_endpoint', is_active=True)
+        endpoint2 = baker.make(Endpoint, url_key='second_endpoint', is_active=True)
+
+        # Add a couple failed messages for both the endpoints
+        failed_ingress_queue_recipe = Recipe(FailedIngressQueue)
+        ingresses_endpoint_1 = failed_ingress_queue_recipe.make(endpoint=endpoint1, raw_data='data in endpoint 1', _quantity=3)
+        ingresses_endpoint_2 = failed_ingress_queue_recipe.make(endpoint=endpoint2, raw_data='data in endpoint 2', _quantity=3)
+
+        # First select one failed message without selecting an endpoint
+        out = call_man_command('show_failed_message')
+        expected_output = '\n\nendpoint             first_endpoint                                    \n' \
+                          f'created_at           {ingresses_endpoint_1[0].created_at}                  \n' \
+                          'parse_started        None                                              \n' \
+                          'parse_succeeded      None                                              \n' \
+                          'parse_failed         None                                              \n' \
+                          'parse_fail_info      None                                              \n' \
+                          'raw_data             data in endpoint 1                                \n'
+        self.assertEqual(out, expected_output)
+
+        # Then select one failed message from the second endpoint
+        out = call_man_command('show_failed_message', 'second_endpoint')
+        expected_output = '\n\nendpoint             second_endpoint                                   \n' \
+                          f'created_at           {ingresses_endpoint_2[0].created_at}                  \n' \
+                          'parse_started        None                                              \n' \
+                          'parse_succeeded      None                                              \n' \
+                          'parse_failed         None                                              \n' \
+                          'parse_fail_info      None                                              \n' \
+                          'raw_data             data in endpoint 2                                \n'
         self.assertEqual(out, expected_output)
 
 

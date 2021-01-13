@@ -30,6 +30,13 @@ TEST_POST = """
     "density": 0,
     "direction": [
         {
+            "azimuth": 300,
+            "count": 0,
+            "cumulative_distance": 0.0,
+            "cumulative_time": 0.0,
+            "median_speed": 0.0
+        },
+        {
             "azimuth": 226,
             "count": 1,
             "cumulative_distance": 13.5149,
@@ -125,7 +132,7 @@ class DataIngressPosterTest(APITestCase):
 
         # Test whether the records were added to the database
         self.assertEqual(Observation.objects.all().count(), 3)
-        self.assertEqual(GroupAggregate.objects.all().count(), 6)
+        self.assertEqual(GroupAggregate.objects.all().count(), 9)
         self.assertEqual(Person.objects.all().count(), 15)
 
     def test_parse_ingress_fail_with_wrong_input(self):
@@ -167,7 +174,7 @@ class DataIngressPosterTest(APITestCase):
 
         # Test whether the records were added to the database
         self.assertEqual(Observation.objects.all().count(), 3)
-        self.assertEqual(GroupAggregate.objects.all().count(), 6)
+        self.assertEqual(GroupAggregate.objects.all().count(), 9)
         self.assertEqual(Person.objects.all().count(), 15)
 
     @override_settings(STORE_ALL_DATA=True)
@@ -195,7 +202,7 @@ class DataIngressPosterTest(APITestCase):
 
         # Test whether the records were added to the database
         self.assertEqual(Observation.objects.all().count(), 3)
-        self.assertEqual(GroupAggregate.objects.all().count(), 6)
+        self.assertEqual(GroupAggregate.objects.all().count(), 9)
         self.assertEqual(Person.objects.all().count(), 15)
 
         # Set the sensor back to active again
@@ -224,7 +231,7 @@ class DataIngressPosterTest(APITestCase):
 
         # Test whether the records were indeed not added to the database
         self.assertEqual(Observation.objects.all().count(), 3)
-        self.assertEqual(GroupAggregate.objects.all().count(), 6)
+        self.assertEqual(GroupAggregate.objects.all().count(), 9)
         self.assertEqual(Person.objects.all().count(), 15)
 
     @override_settings(STORE_ALL_DATA=False)
