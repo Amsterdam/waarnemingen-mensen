@@ -47,6 +47,7 @@ class Command(BaseCommand):
                        'raw_data',
                        )
 
-        self.stdout.write("\n\n" + table_spacing.format('endpoint', failed_ingresses[0].endpoint.url_key))
+        failed_ingress = failed_ingresses.first()
+        self.stdout.write("\n\n" + table_spacing.format('endpoint', failed_ingress.endpoint.url_key))
         for attr in queue_attrs:
-            self.stdout.write(table_spacing.format(attr, str(getattr(failed_ingresses[0], attr)) or 'None'))
+            self.stdout.write(table_spacing.format(attr, str(getattr(failed_ingress, attr)) or 'None'))

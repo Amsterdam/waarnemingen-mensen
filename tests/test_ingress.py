@@ -1,8 +1,9 @@
 from collections import namedtuple
-from datetime import datetime
+from datetime import date, datetime, timedelta
 
 from django.conf import settings
-from django.utils import timezone
+from model_bakery import baker
+from model_bakery.recipe import Recipe, seq
 from rest_framework.test import APITestCase, APITransactionTestCase
 from tests.tools_for_testing import call_man_command
 
@@ -168,51 +169,35 @@ class TestIngressEndpointCommands(APITransactionTestCase):
         self.assertEqual(out, expected_output)
 
     def test_show_failed_message(self):
-        # First add two endpoints
-        call_man_command('add_endpoint', 'first_endpoint')
-        call_man_command('add_endpoint', 'second_endpoint')
-        self.assertEqual(Endpoint.objects.count(), 2)
+        # Add two endpoints
+        endpoint1 = baker.make(Endpoint, url_key='first_endpoint', is_active=True)
+        endpoint2 = baker.make(Endpoint, url_key='second_endpoint', is_active=True)
 
         # Add a couple failed messages for both the endpoints
-        first_endpoint = Endpoint.objects.get(url_key='first_endpoint')
-        second_endpoint = Endpoint.objects.get(url_key='second_endpoint')
-        for _ in range(3):
-            one = FailedIngressQueue.objects.create(
-                endpoint=first_endpoint,
-                parse_started='2020-01-12 12:12:12',
-                raw_data='the data in first endpoint')
-            one.created_at = '2020-01-12 12:12:12'  # Overwrite the default created_at to make it testable
-            one.save()
-            two = FailedIngressQueue.objects.create(
-                endpoint=second_endpoint,
-                parse_started='2020-01-12 12:12:12',
-                raw_data='the data in second endpoint'
-            )
-            two.created_at = '2020-01-12 12:12:12'  # Overwrite the default created_at to make it testable
-            two.save()
-        self.assertEqual(IngressQueue.objects.count(), 0)
-        self.assertEqual(FailedIngressQueue.objects.count(), 6)
+        failed_ingress_queue_recipe = Recipe(FailedIngressQueue)
+        ingresses_endpoint_1 = failed_ingress_queue_recipe.make(endpoint=endpoint1, raw_data='data in endpoint 1', _quantity=3)
+        ingresses_endpoint_2 = failed_ingress_queue_recipe.make(endpoint=endpoint2, raw_data='data in endpoint 2', _quantity=3)
 
         # First select one failed message without selecting an endpoint
         out = call_man_command('show_failed_message')
         expected_output = '\n\nendpoint             first_endpoint                                    \n' \
-                          'created_at           2020-01-12 11:12:12+00:00                         \n' \
-                          'parse_started        2020-01-12 11:12:12+00:00                         \n' \
+                          f'created_at           {ingresses_endpoint_1[0].created_at}                  \n' \
+                          'parse_started        None                                              \n' \
                           'parse_succeeded      None                                              \n' \
                           'parse_failed         None                                              \n' \
                           'parse_fail_info      None                                              \n' \
-                          'raw_data             the data in first endpoint                        \n'
+                          'raw_data             data in endpoint 1                                \n'
         self.assertEqual(out, expected_output)
 
         # Then select one failed message from the second endpoint
         out = call_man_command('show_failed_message', 'second_endpoint')
         expected_output = '\n\nendpoint             second_endpoint                                   \n' \
-                          'created_at           2020-01-12 11:12:12+00:00                         \n' \
-                          'parse_started        2020-01-12 11:12:12+00:00                         \n' \
+                          f'created_at           {ingresses_endpoint_2[0].created_at}                  \n' \
+                          'parse_started        None                                              \n' \
                           'parse_succeeded      None                                              \n' \
                           'parse_failed         None                                              \n' \
                           'parse_fail_info      None                                              \n' \
-                          'raw_data             the data in second endpoint                       \n'
+                          'raw_data             data in endpoint 2                                \n'
         self.assertEqual(out, expected_output)
 
 
