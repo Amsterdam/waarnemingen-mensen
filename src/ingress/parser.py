@@ -51,7 +51,7 @@ class IngressParser(ABC):
             failedingress.save()
             ingress.delete()
 
-    def parse_continuously(self, end_at_empty_queue=False, end_at_disabled_parser=False):
+    def parse_continuously(self, end_at_empty_queue=False, end_at_disabled_parser=False, batch_size=100):
         try:
             endpoint = Endpoint.objects.get(url_key=self.endpoint_url_key)
         except Endpoint.DoesNotExist:
@@ -61,7 +61,7 @@ class IngressParser(ABC):
             return
 
         while True:
-            endpoint = Endpoint.objects.get(url_key=self.endpoint_url_key)
+            endpoint.refresh_from_db()
             if not endpoint.parser_enabled:
                 if end_at_disabled_parser:
                     break  # For testing purposes
@@ -69,20 +69,21 @@ class IngressParser(ABC):
                 continue
 
             with transaction.atomic():
-                # This locks 10 records and iterates over them. Parallel workers simply lock the next N records
+                # This locks N records and iterates over them. Parallel workers simply lock the next N records
                 # Quote from https://www.postgresql.org/docs/11/sql-select.html :
                 # "If a LIMIT is used, locking stops once enough rows have been returned to satisfy the limit"
                 ingress_iterator = IngressQueue.objects.filter(endpoint=endpoint)\
                     .filter(parse_started__isnull=True) \
                     .order_by('created_at') \
-                    .select_for_update(skip_locked=True)[:10000] \
+                    .select_for_update(skip_locked=True)[:batch_size] \
                     .iterator()
 
+                i = 0
                 for ingress in ingress_iterator:
                     self.handle_single_ingress_record(ingress)
+                    i += 1
 
-            if end_at_empty_queue:
-                break  # For testing purposes
-
-            # We've arrived at the end of the queue. We'll pause for a second and then try again
-            sleep(1)
+                if i < batch_size:
+                    if end_at_empty_queue:
+                        break  # For testing purposes
+                    sleep(1)
