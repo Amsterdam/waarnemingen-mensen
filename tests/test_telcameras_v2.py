@@ -155,7 +155,7 @@ class DataPosterTest(APITestCase):
         self.assertEqual(Observation.objects.count(), 0)
 
         # Set the sensor back to active again
-        self.sensor.is_active = False
+        self.sensor.is_active = True
         self.sensor.save()
 
     @override_settings(STORE_ALL_DATA_TELCAMERAS_V2=True)  # It is by default true, but to make it explicit I also override it here
@@ -179,7 +179,7 @@ class DataPosterTest(APITestCase):
         self.assertEqual(Observation.objects.count(), 1)
 
         # Set the sensor back to active again
-        self.sensor.is_active = False
+        self.sensor.is_active = True
         self.sensor.save()
 
     def test_post_new_record(self):

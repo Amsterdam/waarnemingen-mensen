@@ -206,7 +206,7 @@ class DataIngressPosterTest(APITestCase):
         self.assertEqual(Person.objects.all().count(), 15)
 
         # Set the sensor back to active again
-        self.sensor.is_active = False
+        self.sensor.is_active = True
         self.sensor.save()
 
     @override_settings(STORE_ALL_DATA_TELCAMERAS_V3=False)
@@ -288,5 +288,5 @@ class DataIngressPosterTest(APITestCase):
         self.assertEqual(Person.objects.all().count(), 0)
 
         # Set the sensor back to active again
-        self.sensor.is_active = False
+        self.sensor.is_active = True
         self.sensor.save()

@@ -82,7 +82,7 @@ class DataIngressPosterTest(APITestCase):
         self.assertEqual(Observation.objects.all().count(), 3)
 
         # Set the sensor back to active again
-        self.sensor.is_active = False
+        self.sensor.is_active = True
         self.sensor.save()
 
     @override_settings(STORE_ALL_DATA_TELCAMERAS_V2=False)
@@ -136,7 +136,7 @@ class DataIngressPosterTest(APITestCase):
         self.assertEqual(Observation.objects.all().count(), 0)
 
         # Set the sensor back to active again
-        self.sensor.is_active = False
+        self.sensor.is_active = True
         self.sensor.save()
 
     def test_parse_ingress(self):
