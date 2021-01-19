@@ -27,7 +27,8 @@ AUTHORIZATION_TOKEN = os.environ['AUTHORIZATION_TOKEN']
 GET_AUTHORIZATION_TOKEN = os.environ['GET_AUTHORIZATION_TOKEN']
 
 # If you want to filter data by whether a sensor exists and is_active you can set this to false
-STORE_ALL_DATA = os.getenv('STORE_ALL_DATA', True)
+STORE_ALL_DATA_TELCAMERAS_V2 = os.getenv('STORE_ALL_DATA_TELCAMERAS_V2', True)
+STORE_ALL_DATA_TELCAMERAS_V3 = os.getenv('STORE_ALL_DATA_TELCAMERAS_V3', True)
 
 ALLOWED_HOSTS = ['*']
 X_FRAME_OPTIONS = 'ALLOW-FROM *'
@@ -57,9 +58,9 @@ INSTALLED_APPS = [
     'health',
     'datetimeutc',
     'peoplemeasurement',
+    'ingress',
     'telcameras_v2',
     'telcameras_v3',
-    'ingress',
 ]
 
 TEMPLATES = [

@@ -26,7 +26,7 @@ class RecordViewSet(DatapuntViewSetWritable):
             data = request.data['data']
             observation = data_to_observation(data)
 
-            if not settings.STORE_ALL_DATA:
+            if not settings.STORE_ALL_DATA_TELCAMERAS_V2:
                 # Does the sensor exist and is it active
                 try:
                     # We're not actually doing anything with the sensor, but by getting it we just make
