@@ -1,5 +1,7 @@
 from rest_framework import serializers
 
+from telcameras_v2.tools import scramble_counts
+
 from .models import CountAggregate, Observation, PersonAggregate
 
 
@@ -67,11 +69,16 @@ class ObservationSerializer(serializers.ModelSerializer):
         )
 
         for count in counts:
-            CountAggregate.objects.create(
+            count_aggregate = CountAggregate.objects.create(
                 observation_timestamp_start=observation.timestamp_start,
                 observation=observation,
                 **count
             )
+
+            # For privacy reasons we also copy the count_in and count_out to two new fields which
+            # are slightly scrambled. These shall be used in certain views and endpoints.
+            count_aggregate = scramble_counts(count_aggregate)
+            count_aggregate.save()
 
         for person in persons:
             PersonAggregate.objects.create(
