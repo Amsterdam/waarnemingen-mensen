@@ -407,7 +407,6 @@ class DataPosterTest(APITestCase):
 
 class ToolsTest(TestCase):
     def test_scramble_counts_vanilla(self):
-        # Create a basic record
         count_agg = baker.make(CountAggregate)
         count_agg.count_in = 1
         count_agg.count_out = 1
@@ -420,7 +419,6 @@ class ToolsTest(TestCase):
         self.assertIn(count_agg.count_out_scrambled, (0, 1, 2))
 
     def test_scramble_counts_with_counts_none(self):
-        # Create a basic record
         count_agg = baker.make(CountAggregate)
         count_agg.count_in = None
         count_agg.count_out = None
@@ -433,7 +431,6 @@ class ToolsTest(TestCase):
         self.assertIsNone(count_agg.count_out_scrambled)
 
     def test_scramble_counts_doesnt_overwrite(self):
-        # Create a basic record
         count_agg = baker.make(CountAggregate)
         count_agg.count_in = 1
         count_agg.count_out = 1
@@ -446,7 +443,6 @@ class ToolsTest(TestCase):
         self.assertEquals(count_agg.count_out_scrambled, 1)
 
     def test_scramble_counts_with_counts_zero(self):
-        # Create a basic record
         count_agg = baker.make(CountAggregate)
         count_agg.count_in = 0
         count_agg.count_out = 0
