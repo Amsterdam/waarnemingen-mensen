@@ -3,13 +3,15 @@ import logging
 
 import pytz
 from django.conf import settings
-from django.test import override_settings
+from django.test import TestCase, override_settings
+from model_bakery import baker
 from rest_framework.test import APITestCase
 
 from ingress.models import Endpoint, IngressQueue
 from peoplemeasurement.models import Sensors
 from telcameras_v3.ingress_parser import TelcameraParser
 from telcameras_v3.models import GroupAggregate, Observation, Person
+from telcameras_v3.tools import scramble_count
 
 log = logging.getLogger(__name__)
 timezone = pytz.timezone("UTC")
@@ -291,3 +293,41 @@ class DataIngressPosterTest(APITestCase):
         # Set the sensor back to active again
         self.sensor.is_active = False
         self.sensor.save()
+
+
+class ToolsTest(TestCase):
+    def test_scramble_count_vanilla(self):
+        count_agg = baker.make(GroupAggregate)
+        count_agg.count = 1
+        count_agg.count_scrambled = None
+
+        count_agg = scramble_count(count_agg)
+
+        self.assertIn(count_agg.count_scrambled, (0, 1, 2))
+
+    def test_scramble_count_with_counts_none(self):
+        count_agg = baker.make(GroupAggregate)
+        count_agg.count = None
+        count_agg.count_scrambled = None
+
+        count_agg = scramble_count(count_agg)
+
+        self.assertIsNone(count_agg.count_scrambled)
+
+    def test_scramble_count_doesnt_overwrite(self):
+        count_agg = baker.make(GroupAggregate)
+        count_agg.count = 1
+        count_agg.count_scrambled = 1
+
+        count_agg = scramble_count(count_agg)
+
+        self.assertEquals(count_agg.count_scrambled, 1)
+
+    def test_scramble_count_with_counts_zero(self):
+        count_agg = baker.make(GroupAggregate)
+        count_agg.count = 0
+        count_agg.count_scrambled = None
+
+        count_agg = scramble_count(count_agg)
+
+        self.assertIn(count_agg.count_scrambled, (0, 1))

@@ -23,6 +23,7 @@ class GroupAggregate(models.Model):
     observation_timestamp = TimescaleDateTimeField(interval="1 day", default=timezone.now)  # Copied from the observation
     azimuth = models.SmallIntegerField()
     count = models.SmallIntegerField()
+    count_scrambled = models.SmallIntegerField(null=True)  # This is meant to use a slightly scrambled version of the count with a +1 or -1 for privacy reasons
     cumulative_distance = models.FloatField()
     cumulative_time = models.FloatField()
     median_speed = models.FloatField()
