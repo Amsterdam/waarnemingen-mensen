@@ -34,6 +34,8 @@ class CountAggregate(models.Model):
     azimuth = models.PositiveSmallIntegerField(null=True)
     count_in = models.SmallIntegerField(null=True)
     count_out = models.SmallIntegerField(null=True)
+    count_in_scrambled = models.SmallIntegerField(null=True)        # This is meant to use a slightly scrambled version of the count_in with a +1 or -1 for privacy reasons
+    count_out_scrambled = models.SmallIntegerField(null=True)       # This is meant to use a slightly scrambled version of the count_out with a +1 or -1 for privacy reasons
 
     # for a type "zone"
     area = models.FloatField(null=True)
