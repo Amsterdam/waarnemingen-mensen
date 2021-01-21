@@ -61,7 +61,7 @@ class ObservationSerializer(serializers.ModelSerializer):
 
         for group_aggregate_src in group_aggregates:
             persons = group_aggregate_src.pop('persons')
-            group_aggregate_obj = GroupAggregate.objects.create(
+            group_aggregate_obj = GroupAggregate(
                 observation=observation_obj,
                 **group_aggregate_src
             )
