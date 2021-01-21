@@ -10,8 +10,10 @@ def scramble_group_aggregate(group_aggregate):
 
     # Since this is not meant to be cryptographically secure we simply use the random module
     if group_aggregate.count is not None and group_aggregate.count_scrambled is None:
+        if group_aggregate.count == 0:
+            group_aggregate.count_scrambled = group_aggregate.count + randint(0, 1)
+            return group_aggregate
+
         group_aggregate.count_scrambled = group_aggregate.count + randint(-1, 1)
-        if group_aggregate.count_scrambled < 0:
-            group_aggregate.count_scrambled = 0
 
     return group_aggregate
