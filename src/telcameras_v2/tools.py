@@ -72,12 +72,12 @@ def scramble_count_aggregate(count_aggregate):
 
     # Since this is not meant to be cryptographically secure we simply use the random module
     if count_aggregate.count_in is not None and count_aggregate.count_in_scrambled is None:
-        if count_aggregate.count_in_scrambled == 0:
+        if count_aggregate.count_in == 0:
             count_aggregate.count_in_scrambled = count_aggregate.count_in + randint(0, 1)
         else:
             count_aggregate.count_in_scrambled = count_aggregate.count_in + randint(-1, 1)
     if count_aggregate.count_out is not None and count_aggregate.count_out_scrambled is None:
-        if count_aggregate.count_out_scrambled < 0:
+        if count_aggregate.count_out < 0:
             count_aggregate.count_out_scrambled = count_aggregate.count_out + randint(0, 1)
         else:
             count_aggregate.count_out_scrambled = count_aggregate.count_out + randint(-1, 1)

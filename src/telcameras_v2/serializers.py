@@ -69,7 +69,7 @@ class ObservationSerializer(serializers.ModelSerializer):
         )
 
         for count in counts:
-            count_aggregate = CountAggregate.objects.create(
+            count_aggregate = CountAggregate(
                 observation_timestamp_start=observation.timestamp_start,
                 observation=observation,
                 **count
