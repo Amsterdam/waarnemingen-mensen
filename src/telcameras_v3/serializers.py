@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from telcameras_v3.models import GroupAggregate, Observation, Person
-from telcameras_v3.tools import scramble_count
+from telcameras_v3.tools import scramble_group_aggregate
 
 
 class PersonSerializer(serializers.ModelSerializer):
@@ -68,7 +68,7 @@ class ObservationSerializer(serializers.ModelSerializer):
 
             # For privacy reasons we also copy the count to a new field which is slightly
             # scrambled. This shall be used in certain views and endpoints.
-            count_aggregate = scramble_count(group_aggregate_obj)
+            count_aggregate = scramble_group_aggregate(group_aggregate_obj)
             count_aggregate.save()
 
             for person_src in persons:

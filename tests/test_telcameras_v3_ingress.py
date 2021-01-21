@@ -11,7 +11,7 @@ from ingress.models import Endpoint, IngressQueue
 from peoplemeasurement.models import Sensors
 from telcameras_v3.ingress_parser import TelcameraParser
 from telcameras_v3.models import GroupAggregate, Observation, Person
-from telcameras_v3.tools import scramble_count
+from telcameras_v3.tools import scramble_group_aggregate
 
 log = logging.getLogger(__name__)
 timezone = pytz.timezone("UTC")
@@ -300,7 +300,7 @@ class ToolsTest(TestCase):
         count_agg.count = 1
         count_agg.count_scrambled = None
 
-        count_agg = scramble_count(count_agg)
+        count_agg = scramble_group_aggregate(count_agg)
 
         self.assertIn(count_agg.count_scrambled, (0, 1, 2))
 
@@ -309,7 +309,7 @@ class ToolsTest(TestCase):
         count_agg.count = None
         count_agg.count_scrambled = None
 
-        count_agg = scramble_count(count_agg)
+        count_agg = scramble_group_aggregate(count_agg)
 
         self.assertIsNone(count_agg.count_scrambled)
 
@@ -318,7 +318,7 @@ class ToolsTest(TestCase):
         count_agg.count = 1
         count_agg.count_scrambled = 1
 
-        count_agg = scramble_count(count_agg)
+        count_agg = scramble_group_aggregate(count_agg)
 
         self.assertEquals(count_agg.count_scrambled, 1)
 
@@ -327,6 +327,6 @@ class ToolsTest(TestCase):
         count_agg.count = 0
         count_agg.count_scrambled = None
 
-        count_agg = scramble_count(count_agg)
+        count_agg = scramble_group_aggregate(count_agg)
 
         self.assertIn(count_agg.count_scrambled, (0, 1))
