@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 
 from telcameras_v3.models import GroupAggregate
-from telcameras_v3.tools import scramble_count
+from telcameras_v3.tools import scramble_group_aggregate
 
 
 class Command(BaseCommand):
@@ -9,5 +9,5 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for record in GroupAggregate.objects.filter(count__isnull=False, count_scrambled__isnull=True):
-            record = scramble_count(record)
+            record = scramble_group_aggregate(record)
             record.save()

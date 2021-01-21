@@ -12,7 +12,7 @@ from rest_framework.test import APITestCase
 
 from peoplemeasurement.models import Sensors
 from telcameras_v2.models import CountAggregate, Observation, PersonAggregate
-from telcameras_v2.tools import scramble_counts
+from telcameras_v2.tools import scramble_count_aggregate
 
 log = logging.getLogger(__name__)
 timezone = pytz.timezone("UTC")
@@ -334,7 +334,7 @@ class ToolsTest(TestCase):
         count_agg.count_in_scrambled = None
         count_agg.count_out_scrambled = None
 
-        count_agg = scramble_counts(count_agg)
+        count_agg = scramble_count_aggregate(count_agg)
 
         self.assertIn(count_agg.count_in_scrambled, (0, 1, 2))
         self.assertIn(count_agg.count_out_scrambled, (0, 1, 2))
@@ -346,7 +346,7 @@ class ToolsTest(TestCase):
         count_agg.count_in_scrambled = None
         count_agg.count_out_scrambled = None
 
-        count_agg = scramble_counts(count_agg)
+        count_agg = scramble_count_aggregate(count_agg)
 
         self.assertIsNone(count_agg.count_in_scrambled)
         self.assertIsNone(count_agg.count_out_scrambled)
@@ -358,7 +358,7 @@ class ToolsTest(TestCase):
         count_agg.count_in_scrambled = 1
         count_agg.count_out_scrambled = 1
 
-        count_agg = scramble_counts(count_agg)
+        count_agg = scramble_count_aggregate(count_agg)
 
         self.assertEquals(count_agg.count_in_scrambled, 1)
         self.assertEquals(count_agg.count_out_scrambled, 1)
@@ -370,7 +370,7 @@ class ToolsTest(TestCase):
         count_agg.count_in_scrambled = None
         count_agg.count_out_scrambled = None
 
-        count_agg = scramble_counts(count_agg)
+        count_agg = scramble_count_aggregate(count_agg)
 
         self.assertIn(count_agg.count_in_scrambled, (0, 1))
         self.assertIn(count_agg.count_out_scrambled, (0, 1))
