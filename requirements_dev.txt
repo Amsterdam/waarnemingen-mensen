@@ -22,19 +22,19 @@ django-extensions==3.1.0  # via -r ./requirements.txt
 django-filter==2.4.0      # via -r ./requirements.txt
 django==3.0.11            # via -r ./requirements.txt, django-datetime-utc, django-debug-toolbar, django-filter, djangorestframework, drf-yasg, model-bakery
 djangorestframework-csv==2.1.0  # via -r ./requirements.txt, drf-amsterdam
-djangorestframework-gis==0.16  # via -r ./requirements.txt
+djangorestframework-gis==0.17  # via -r ./requirements.txt
 djangorestframework-xml==2.0.0  # via -r ./requirements.txt, drf-amsterdam
 djangorestframework==3.12.2  # via -r ./requirements.txt, djangorestframework-csv, djangorestframework-gis, drf-amsterdam, drf-extensions, drf-yasg
 drf-amsterdam==0.4.0      # via -r ./requirements.txt
 drf-extensions==0.6.0     # via -r ./requirements.txt, drf-amsterdam
 drf-yasg==1.20.0          # via -r ./requirements.txt
 factory-boy==3.2.0        # via -r requirements_dev.in, pytest-factoryboy
-faker==5.4.0              # via factory-boy
+faker==5.6.5              # via factory-boy
 flask-basicauth==0.2.0    # via locust
 flask==1.1.2              # via flask-basicauth, locust
-gevent==20.12.1           # via geventhttpclient, locust
+gevent==21.1.2            # via geventhttpclient, locust
 geventhttpclient==1.4.4   # via locust
-greenlet==0.4.17          # via gevent
+greenlet==1.0.0           # via gevent
 idna==2.10                # via -r ./requirements.txt, requests
 inflection==0.5.1         # via -r ./requirements.txt, drf-yasg, pytest-factoryboy
 iniconfig==1.1.1          # via pytest
@@ -54,20 +54,20 @@ pexpect==4.8.0            # via ipython
 pickleshare==0.7.5        # via ipython
 pip-tools==5.5.0          # via -r requirements_dev.in
 pluggy==0.13.1            # via pytest
-prompt-toolkit==3.0.10    # via ipython
+prompt-toolkit==3.0.14    # via ipython
 psutil==5.8.0             # via locust
 psycopg2-binary==2.8.6    # via -r ./requirements.txt
 ptyprocess==0.7.0         # via pexpect
 py==1.10.0                # via pytest
-pygments==2.7.3           # via ipython
+pygments==2.7.4           # via ipython
 pyparsing==2.4.7          # via -r ./requirements.txt, packaging
-pytest-cov==2.10.1        # via -r requirements_dev.in
+pytest-cov==2.11.1        # via -r requirements_dev.in
 pytest-django==4.1.0      # via -r requirements_dev.in
 pytest-factoryboy==2.1.0  # via -r requirements_dev.in
 pytest==6.2.1             # via -r requirements_dev.in, pytest-cov, pytest-django, pytest-factoryboy
 python-dateutil==2.8.1    # via -r ./requirements.txt, django-datetime-utc, faker
 pytz==2020.5              # via -r ./requirements.txt, django
-pyzmq==20.0.0             # via locust
+pyzmq==21.0.1             # via locust
 requests==2.25.1          # via -r ./requirements.txt, coreapi, locust
 ruamel.yaml.clib==0.2.2   # via -r ./requirements.txt, ruamel.yaml
 ruamel.yaml==0.16.12      # via -r ./requirements.txt, drf-yasg
