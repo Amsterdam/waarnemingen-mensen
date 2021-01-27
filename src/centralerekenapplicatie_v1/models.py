@@ -1,27 +1,36 @@
 from django.db import models
-from django.utils import timezone
 
 from contrib.timescale.fields import TimescaleDateTimeField
 
 
-class CraModel(models.Model):  # TODO: We need another name for this model
+class CRAMetric(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
-    message_id = models.TextField()                     # Coming from "id" in the message.
-    type = models.CharField(max_length=255)             # Either areaMetrics or lineMetrics
+    message_id = models.TextField()  # Coming from "id" in the message.
+    type = models.CharField(max_length=255)  # Either areaMetrics or lineMetrics
     sensor = models.CharField(max_length=255)  # e.g. "CMSA-GAWW-17"
     timestamp = models.DateTimeField()  # TODO Convert to timescale field
-    original_id = models.IntegerField()
+    # timestamp = TimescaleDateTimeField(interval="1 day")
+    original_id = models.CharField(max_length=255)
     admin_id = models.IntegerField()
 
-    # Fields that are only present in messages of type areaMetrics
-    area = models.FloatField(null=True)
-    density = models.FloatField(null=True)
-    total_distance = models.FloatField(null=True)
-    total_time = models.FloatField(null=True)
+    class Meta:
+        abstract = True
+
+
+class AreaMetric(CRAMetric):
+    area = models.FloatField()
+    count = models.IntegerField()
+    density = models.FloatField()
+    total_distance = models.FloatField()
+    total_time = models.FloatField()
     speed = models.FloatField(null=True)
 
 
-class CraCount(models.Model):
-    cra_model = models.ForeignKey('CraModel', on_delete=models.CASCADE)
-    azimuth = models.FloatField(null=True)
+class LineMetric(CRAMetric):
+    pass
+
+
+class LineMetricCount(models.Model):
+    line_metric = models.ForeignKey(LineMetric, on_delete=models.CASCADE)
+    azimuth = models.FloatField()
     count = models.IntegerField()

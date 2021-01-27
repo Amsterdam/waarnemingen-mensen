@@ -13,6 +13,7 @@ services:
   database:
     ports:
       - "5415:5432"		# allows to run database on different port on host
+
   app:
     ports:
       - "8080:8000"		# allows to run app on different port on host
