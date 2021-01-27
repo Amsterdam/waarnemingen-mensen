@@ -8,8 +8,7 @@ class CRAMetric(models.Model):
     message_id = models.TextField()  # Coming from "id" in the message.
     type = models.CharField(max_length=255)  # Either areaMetrics or lineMetrics
     sensor = models.CharField(max_length=255)  # e.g. "CMSA-GAWW-17"
-    timestamp = models.DateTimeField()  # TODO Convert to timescale field
-    # timestamp = TimescaleDateTimeField(interval="1 day")
+    timestamp = TimescaleDateTimeField(interval="1 day")  # Timestamp of when the data was recorded in the camera
     original_id = models.CharField(max_length=255)
     admin_id = models.IntegerField()
 
@@ -32,5 +31,6 @@ class LineMetric(CRAMetric):
 
 class LineMetricCount(models.Model):
     line_metric = models.ForeignKey(LineMetric, on_delete=models.CASCADE)
+    line_metric_timestamp = TimescaleDateTimeField(interval="1 day")
     azimuth = models.FloatField()
     count = models.IntegerField()

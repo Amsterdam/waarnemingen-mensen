@@ -46,6 +46,8 @@ class MetricParser(IngressParser):
             serializer.is_valid(raise_exception=True)
 
         elif record['type'] == 'lineMetrics':
+            for count in record['counts']:
+                count['line_metric_timestamp'] = record['timestamp']
             serializer = LineMetricSerializer(data=record)
             serializer.is_valid(raise_exception=True)
 

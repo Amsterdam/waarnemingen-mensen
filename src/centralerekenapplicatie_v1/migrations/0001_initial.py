@@ -54,6 +54,7 @@ class Migration(migrations.Migration):
             name='LineMetricCount',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('line_metric_timestamp', models.DateTimeField()),
                 ('azimuth', models.FloatField()),
                 ('count', models.IntegerField()),
                 ('line_metric', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='centralerekenapplicatie_v1.LineMetric')),

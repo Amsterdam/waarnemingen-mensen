@@ -7,7 +7,7 @@ from centralerekenapplicatie_v1.models import (AreaMetric, LineMetric,
 class LineMetricCountSerializer(serializers.ModelSerializer):
     class Meta:
         model = LineMetricCount
-        fields = ['azimuth', 'count']
+        fields = ['line_metric_timestamp', 'azimuth', 'count']
 
 
 class LineMetricSerializer(serializers.ModelSerializer):
