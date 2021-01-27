@@ -6,7 +6,6 @@ from contrib.timescale.fields import TimescaleDateTimeField
 class CRAMetric(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     message_id = models.TextField()  # Coming from "id" in the message.
-    type = models.CharField(max_length=255)  # Either areaMetrics or lineMetrics
     sensor = models.CharField(max_length=255)  # e.g. "CMSA-GAWW-17"
     timestamp = TimescaleDateTimeField(interval="1 day")  # Timestamp of when the data was recorded in the camera
     original_id = models.CharField(max_length=255)

@@ -17,7 +17,6 @@ class LineMetricSerializer(serializers.ModelSerializer):
         model = LineMetric
         fields = [
             'message_id',
-            'type',
             'sensor',
             'timestamp',
             'original_id',
@@ -46,7 +45,6 @@ class AreaMetricSerializer(serializers.ModelSerializer):
         model = AreaMetric
         fields = [
             'message_id',
-            'type',
             'sensor',
             'timestamp',
             'original_id',
