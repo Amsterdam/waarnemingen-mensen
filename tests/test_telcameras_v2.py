@@ -132,7 +132,7 @@ class DataPosterTest(APITestCase):
 
         self.sensor = Sensors.objects.create(objectnummer='GAVM-01-Vondelstraat')
 
-    @override_settings(STORE_ALL_DATA=False)
+    @override_settings(STORE_ALL_DATA_TELCAMERAS_V2=False)
     def test_post_is_not_saved_with_non_existing_sensor(self):
         post_data = json.loads(TEST_POST)
         post_data['data'][0]['sensor'] = 'does not exist'
@@ -141,7 +141,7 @@ class DataPosterTest(APITestCase):
         self.assertEqual(response.content, b'"The sensor \'does not exist\' was not found, so the data is not stored."')
         self.assertEqual(Observation.objects.count(), 0)
 
-    @override_settings(STORE_ALL_DATA=False)
+    @override_settings(STORE_ALL_DATA_TELCAMERAS_V2=False)
     def test_post_is_not_saved_with_inactive_sensor(self):
         # Set the sensor to inactive
         self.sensor.is_active = False
@@ -155,10 +155,10 @@ class DataPosterTest(APITestCase):
         self.assertEqual(Observation.objects.count(), 0)
 
         # Set the sensor back to active again
-        self.sensor.is_active = False
+        self.sensor.is_active = True
         self.sensor.save()
 
-    @override_settings(STORE_ALL_DATA=True)  # It is by default true, but to make it explicit I also override it here
+    @override_settings(STORE_ALL_DATA_TELCAMERAS_V2=True)  # It is by default true, but to make it explicit I also override it here
     def test_post_is_saved_with_non_existing_sensor_if_STORE_ALL_DATA_is_true(self):
         post_data = json.loads(TEST_POST)
         post_data['data'][0]['sensor'] = 'does not exist'
@@ -166,7 +166,7 @@ class DataPosterTest(APITestCase):
         self.assertEqual(response.status_code, 201)  # We get a 200, but no data is added to the DB. This is as designed
         self.assertEqual(Observation.objects.count(), 1)
 
-    @override_settings(STORE_ALL_DATA=True)  # It is by default true, but to make it explicit I also override it here
+    @override_settings(STORE_ALL_DATA_TELCAMERAS_V2=True)  # It is by default true, but to make it explicit I also override it here
     def test_post_is_not_saved_with_inactive_sensor_if_STORE_ALL_DATA_is_true(self):
         # Set the sensor to inactive
         self.sensor.is_active = False
@@ -179,7 +179,7 @@ class DataPosterTest(APITestCase):
         self.assertEqual(Observation.objects.count(), 1)
 
         # Set the sensor back to active again
-        self.sensor.is_active = False
+        self.sensor.is_active = True
         self.sensor.save()
 
     def test_post_new_record(self):

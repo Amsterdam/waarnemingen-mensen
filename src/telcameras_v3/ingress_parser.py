@@ -25,7 +25,7 @@ class TelcameraParser(IngressParser):
                 person['person_observation_timestamp'] = person.pop('observation_timestamp')
                 person['observation_timestamp'] = observation['timestamp']
 
-        if not settings.STORE_ALL_DATA:
+        if not settings.STORE_ALL_DATA_TELCAMERAS_V3:
             # Does the sensor exist and is it active
             try:
                 # We're not actually doing anything with the sensor, but by getting it we just make
