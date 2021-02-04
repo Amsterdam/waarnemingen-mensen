@@ -9,65 +9,71 @@ gid;geom;objectnummer;soort;voeding;rotatie;actief;privacyverklaring;location_na
 13;0101000020E6100000C4510317759713408E93C2BCC72F4A40;GAWW-04;2D sensor;Eigen voeding via lichtnet;30;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;Oudezijds Voorburgwal t.h.v. 107;4.38;Red_light;Wallen
 14;0101000020E61000007C40457AF699134086AB0320EE2F4A40;GAWW-07;2D sensor;Eigen voeding via lichtnet;110;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;Stormsteeg t.h.v. 3;3.63;Red_light;Wallen
 16;;GAWW-09;WiFi sensor;Eigen voeding via lichtnet;0;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaringen-e/crowdmanagement/;;1;;
-17;;GAKW-01;WiFi sensor;Eigen voeding via lichtnet;0;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaringen-e/crowdmanagement/;Kalverstraat;8;;
+17;;GAKW-01;WiFi sensor;Eigen voeding via lichtnet;0;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaringen-e/crowdmanagement/;Kalverstraat;1;;
 19;;GAKW-03;WiFi sensor;Eigen voeding via lichtnet;0;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaringen-e/crowdmanagement/;;1;;
-21;;GAKW-04;3D sensor;Eigen voeding via lichtnet;0;Nee;;;1;;
-23;0101000020E6100000BF9D44847F911340E2E7BF07AF2F4A40;Kalverstraat;2D sensor;Eigen voeding via lichtnet;200;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;Kalverstraat t.h.v. 1;1;Shopping;Winkelgebied centrum
-24;;GAKW-02;Telcamera;Eigen voeding via lichtnet;175;Nee;;Kalverstraat t.h.v. 66-72;1;;
+21;;GAKW-04;WiFi sensor;Eigen voeding via lichtnet;0;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;;1;;
+23;0101000020E6100000DCDEC90281911340838362D0AE2F4A40;Kalverstraat;2D sensor;Eigen voeding via lichtnet;200;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;Kalverstraat t.h.v. 1;8;Shopping;Winkelgebied centrum
+24;;GAKW-02;2D sensor;Eigen voeding via lichtnet;175;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;Kalverstraat t.h.v. 66-72;1;;
 25;;GABW-03;WiFi sensor;Vaste spanning;0;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;Busplatform CS - Halte D;1;;
 26;;GABW-04;WiFi sensor;Vaste spanning;0;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;Busplatform CS - Halte H;1;;
 27;;GABW-06;WiFi sensor;Vaste spanning;0;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;Busplatform CS - West (Trapopgang midden);1;;
 28;;GABW-02;WiFi sensor;Eigen voeding via lichtnet;0;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;Busplatform CS - Halte B;1;;
 29;;GABW-01;WiFi sensor;Vaste spanning;0;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;Busplatform CS - Halte K;1;;
-30;;GAAB-07;Telcamera;Eigen voeding via lichtnet;160;Nee;;Bijlmer ArenA;1;;
+30;;GAAB-07;Telcamera;Eigen voeding via lichtnet;160;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaringen-e/crowdmanagement/;Bijlmer ArenA;1;;
 31;;GABW-05;WiFi sensor;Vaste spanning;0;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;Busplatform CS - Oost (Trapopgang Oost);1;;
-33;;GAAB-01-01;Telcamera;Eigen voeding via lichtnet;100;Nee;;Bijlmer ArenA;1;;
-34;;GAAB-01-02;Telcamera;Eigen voeding via lichtnet;100;Nee;;Bijlmer ArenA;1;;
+33;;GAAB-01-01;Telcamera;Eigen voeding via lichtnet;100;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaringen-e/crowdmanagement/;Bijlmer ArenA;1;;
+34;;GAAB-01-02;Telcamera;Eigen voeding via lichtnet;100;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaringen-e/crowdmanagement/;Bijlmer ArenA;1;;
 37;;GAAB-10;WiFi sensor;Eigen voeding via lichtnet;0;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaringen-e/crowdmanagement/;Bijlmer ArenA;1;;
 38;;GAAB-11;WiFi sensor;Eigen voeding via lichtnet;0;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaringen-e/crowdmanagement/;Bijlmer ArenA;1;;
-39;;GAAB-13;Telcamera;Eigen voeding via lichtnet;150;Nee;;Bijlmer ArenA;1;;
-41;;GAAB-08;Telcamera;Eigen voeding via lichtnet;185;Nee;;Bijlmer ArenA;1;;
+39;;GAAB-13;Telcamera;Eigen voeding via lichtnet;150;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaringen-e/crowdmanagement/;Bijlmer ArenA;1;;
+41;;GAAB-08;Telcamera;Eigen voeding via lichtnet;185;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaringen-e/crowdmanagement/;Bijlmer ArenA;1;;
 43;;GAAB-02;WiFi sensor;Eigen voeding via lichtnet;0;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaringen-e/crowdmanagement/;Bijlmer ArenA;1;;
-44;;GAAB-03;Telcamera;Eigen voeding via lichtnet;170;Nee;;Bijlmer ArenA;1;;
+44;;GAAB-03;Telcamera;Eigen voeding via lichtnet;170;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaringen-e/crowdmanagement/;Bijlmer ArenA;1;;
 46;;GAAB-09;WiFi sensor;Eigen voeding via lichtnet;0;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaringen-e/crowdmanagement/;Bijlmer ArenA;1;;
-47;;GAAB-04;Telcamera;Eigen voeding via lichtnet;225;Nee;;Bijlmer ArenA;1;;
-49;;GAAB-05;Telcamera;Eigen voeding via lichtnet;350;Nee;;Bijlmer ArenA;1;;
-51;;GAAB-06;Telcamera;Eigen voeding via lichtnet;340;Nee;;Bijlmer ArenA;1;;
+47;;GAAB-04;Telcamera;Eigen voeding via lichtnet;225;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaringen-e/crowdmanagement/;Bijlmer ArenA;1;;
+49;;GAAB-05;Telcamera;Eigen voeding via lichtnet;350;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaringen-e/crowdmanagement/;Bijlmer ArenA;1;;
+51;;GAAB-06;Telcamera;Eigen voeding via lichtnet;340;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaringen-e/crowdmanagement/;Bijlmer ArenA;1;;
 53;0101000020E61000008A01124DA09813409BFCBBE3B9304A40;GVCV-01;2D sensor;Vaste spanning;30;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;CS - ri. NDSM;1;Ferries;IJ-veren
-54;;GVCV-02;Telcamera;Vaste spanning;30;Nee;;;1;Ferries;
+54;;GVCV-02;2D sensor;Vaste spanning;30;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;;1;Ferries;
 55;0101000020E61000002C30BF2E1E9913404A2AAE85B4304A40;GVCV-04;2D sensor;Eigen voeding via lichtnet;30;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;CS - ri. Buiksloterweg (Oost);1;Ferries;IJ-veren
 56;0101000020E61000004E9A0645F3981340A355D22FB6304A40;GVCV-03;2D sensor;Vaste spanning;30;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;CS - ri. Buiksloterweg (West);1;Ferries;IJ-veren
 57;0101000020E6100000807F4A95289B1340513D88539C304A40;GVCV-05;2D sensor;Vaste spanning;20;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;CS - ri. IJPlein;1;Ferries;IJ-veren
 58;;GAKW-05;WiFi sensor;Eigen voeding via lichtnet;0;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaringen-e/crowdmanagement/;Rokin 119;1;;
 59;;GAKS-06;WiFi sensor;Eigen voeding via lichtnet;0;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaringen-e/crowdmanagement/;Kalverstraat - OUD;1;;
-65;;GAWW-12;Telcamera;Vaste spanning;115;Nee;;Oudekennissteeg;1;Red_light;
-66;;GAWW-13;Telcamera;Vaste spanning;280;Nee;;Oudezijds Achterburgwal t.h.v. 114;1;;
-67;;GAWW-14;Telcamera;Vaste spanning;50;Nee;;Oudezijds Voorburgwal t.h.v. 91;1;Red_light;
-68;;GAWW-15;Telcamera;Vaste spanning;60;Nee;;Oudezijds Achterburgwal t.h.v. 86;1;Red_light;
-69;;GAWW-16;Telcamera;Vaste spanning;10;Nee;;Oudezijds Achterburgwal t.h.v. 91;1;Red_light;
-70;;GAWW-17;Telcamera;Vaste spanning;50;Nee;;Oudezijds Voorburgwal t.h.v. 206;1;Red_light;
-71;;GAWW-18;Telcamera;Vaste spanning;200;Nee;;Kalverstraat t.h.v. 1;1;;
-72;;GAWW-19;Telcamera;Vaste spanning;140;Nee;;Molensteeg;1;Red_light;
-73;;GAWW-11;Telcamera;Vaste spanning;115;Nee;;Korte Niezel;1;;
-74;0101000020E6100000E253A5D2F47E1340F0C16B97362E4A40;GAVM-01-Vondelstraat;mob 3D sensor;Eigen voeding via lichtnet;0;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;None;;Park;Vondelpark
-76;0101000020E6100000B0DE4D5C33861340EA211ADD412E4A40;GAVM-02-Stadhouderskade;mob 3D sensor;Eigen voeding via lichtnet;0;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;Stadhouderskade;12;Park;Vondelpark
-78;0101000020E6100000B45E679EB77C134082FFAD64C72D4A40;GAVM-03-VanEeghenstraat;mob 3D sensor;Eigen voeding via lichtnet;0;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;Van Eeghenstraat;;Park;Vondelpark
-80;0101000020E610000053A74DE66972134092F249DD842D4A40;GAVM-04-Emmalaan;mob 3D sensor;Eigen voeding via lichtnet;0;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;Emmalaan;;Park;Vondelpark
-82;0101000020E6100000A3923A014D6C13403E3E213B6F2D4A40;GAVM-05-Amstelveenseweg;mob 3D sensor;Eigen voeding via lichtnet;0;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;Amstelveenseweg;12;Park;Vondelpark
-84;0101000020E6100000E5805D4D9E9213404E2A1A6B7F2D4A40;GAAM-01-AlbertCuypstraat;mob 3D sensor;Eigen voeding via lichtnet;0;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;Albert Cuypstraat;;Shopping;Albert Cuypstraat
-86;;GAWW-03-3D;3D sensor;;;Nee;;Stoofsteeg;2.68;;
-87;0101000020E6100000CBA2B08BA29713402C11A8FE41304A40;GACM-04;mob 3D sensor;NULL;;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;Damrak 1-5;7;Shopping;Winkelgebied centrum
-88;0101000020E61000001F1329CDE69113403881E9B46E2F4A40;GACM-03;mob 3D sensor;NULL;;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;Rokin 66;6;Shopping;Winkelgebied centrum
-90;0101000020E6100000FAB836548CE31340D177B7B244294A40;GABM-01;mob 3D sensor;NULL;;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;Ganzenpoort;8;Shopping;Zuidoost
-91;0101000020E610000019E25817B7D1134002840F255A284A40;GABM-02;mob 3D sensor;NULL;;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;AmsterdamsePoort-RiAntondeKomplein-Oost;13;Shopping;Zuidoost
-92;0101000020E6100000BF4692205CD11340AF40F4A44C284A40;GABM-03;mob 3D sensor;NULL;;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;AmsterdamsePoort-RiAntondeKomplein-West;13;Shopping;Zuidoost
-93;0101000020E61000008D7A884677D01340C47B0E2C47284A40;GABM-04;mob 3D sensor;NULL;;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;AmsterdamsePoort-RiAbcouderpad-Oost;10;Shopping;Zuidoost
-94;0101000020E6100000511212691BCF13401F12BEF737284A40;GABM-05;mob 3D sensor;NULL;;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;AmsterdamsePoort-RiAbcouderpad-West;10;Shopping;Zuidoost
-95;0101000020E61000000458E4D70F911340DAACFA5C6D2F4A40;GACM-01;mob 3D sensor;NULL;;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;Kalverstraat Zuid t.h.v.73;6.5;Shopping;Winkelgebied centrum
-96;0101000020E610000023DC64541976134035F0A31AF62D4A40;GAVM-06-Kattenlaan;mob 3D sensor;Eigen voeding via lichtnet;;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;Kattenlaan;;Park;Vondelpark
-97;0101000020E6100000732B84D558921340569FABADD82F4A40;GACM-02;mob 3D sensor;NULL;;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;Nieuwendijk t.h.v.218;6.3;Shopping;Winkelgebied centrum
+65;0101000020E61000002BA4FCA4DA2F4A400EF8FC3042981340;GAWW-12;2D sensor;Vaste spanning;115;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;Oudekennissteeg;1;Red_light;Wallen
+66;0101000020E6100000A260C614AC2F4A4070EA03C93B971340;GAWW-13;2D sensor;Vaste spanning;120;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;Oudezijds Achterburgwal t.h.v. 114;1;Red_light;Wallen
+67;0101000020E6100000AFB0E07EC02F4A40C0CC77F013971340;GAWW-14;2D sensor;Vaste spanning;40;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;Oudezijds Voorburgwal t.h.v. 91;1;Red_light;Wallen
+68;0101000020E6100000DB1324B6BB2F4A4031276893C3971340;GAWW-15;2D sensor;Vaste spanning;30;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;Oudezijds Achterburgwal t.h.v. 86;1;Red_light;Wallen
+69;0101000020E6100000033FAA61BF2F4A40AD872F1345981340;GAWW-16;2D sensor;Vaste spanning;30;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;Oudezijds Achterburgwal t.h.v. 91;1;Red_light;Wallen
+70;0101000020E6100000CC441152B72F4A40E4F6CB272B961340;GAWW-17;2D sensor;Vaste spanning;40;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;Oudezijds Voorburgwal t.h.v. 206;1;Red_light;Wallen
+71;0101000020E610000057B08D78B22F4A400ED76A0F7B911340;GAKH-01;2D sensor;Vaste spanning;200;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;Kalverstraat t.h.v. 1;1;Shopping;Winkelgebied centrum
+72;0101000020E6100000B1868BDCD32F4A4029965B5A0D991340;GAWW-19;2D sensor;Vaste spanning;115;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;Molensteeg;1;Red_light;Wallen
+73;0101000020E61000007847C66AF32F4A40B6D617096D991340;GAWW-11;2D sensor;Vaste spanning;115;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;Korte Niezel;1;Red_light;Wallen
+74;0101000020E6100000E253A5D2F47E1340F0C16B97362E4A40;GAVM-01-Vondelstraat;3D sensor;Eigen voeding via lichtnet;;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;Vondelstraat;;Park;Vondelpark
+76;0101000020E6100000B0DE4D5C33861340EA211ADD412E4A40;GAVM-02-Stadhouderskade;3D sensor;Eigen voeding via lichtnet;;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;Stadhouderskade;12;Park;Vondelpark
+78;0101000020E6100000B45E679EB77C134082FFAD64C72D4A40;GAVM-03-VanEeghenstraat;3D sensor;Eigen voeding via lichtnet;;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;Van Eeghenstraat;;Park;Vondelpark
+80;0101000020E610000053A74DE66972134092F249DD842D4A40;GAVM-04-Emmalaan;3D sensor;Eigen voeding via lichtnet;;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;Emmalaan;;Park;Vondelpark
+82;0101000020E6100000A3923A014D6C13403E3E213B6F2D4A40;GAVM-05-Amstelveenseweg;3D sensor;Eigen voeding via lichtnet;;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;Amstelveenseweg;12;Park;Vondelpark
+84;0101000020E6100000E5805D4D9E9213404E2A1A6B7F2D4A40;GAAM-01-AlbertCuypstraat;3D sensor;Eigen voeding via lichtnet;;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;Albert Cuypstraat;;Shopping;Albert Cuypstraat
+86;;GAWW-03-3D;3D sensor;;;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;Stoofsteeg;2.68;Red_light;Wallen
+87;0101000020E6100000CBA2B08BA29713402C11A8FE41304A40;GACM-04;3D sensor;NULL;;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;Damrak 1-5;7;Shopping;Winkelgebied centrum
+88;0101000020E61000001F1329CDE69113403881E9B46E2F4A40;GACM-03;3D sensor;NULL;;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;Rokin 66;6;Shopping;Winkelgebied centrum
+90;0101000020E6100000FAB836548CE31340D177B7B244294A40;GABM-01;3D sensor;NULL;;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;Ganzenpoort;8;Shopping;Zuidoost
+91;0101000020E610000019E25817B7D1134002840F255A284A40;GABM-02;3D sensor;NULL;;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;AmsterdamsePoort-RiAntondeKomplein-Oost;13;Shopping;Zuidoost
+92;0101000020E6100000BF4692205CD11340AF40F4A44C284A40;GABM-03;3D sensor;NULL;;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;AmsterdamsePoort-RiAntondeKomplein-West;13;Shopping;Zuidoost
+93;0101000020E61000008D7A884677D01340C47B0E2C47284A40;GABM-04;3D sensor;NULL;;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;AmsterdamsePoort-RiAbcouderpad-Oost;10;Shopping;Zuidoost
+94;0101000020E6100000511212691BCF13401F12BEF737284A40;GABM-05;3D sensor;NULL;;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;AmsterdamsePoort-RiAbcouderpad-West;10;Shopping;Zuidoost
+95;0101000020E61000000458E4D70F911340DAACFA5C6D2F4A40;GACM-01;3D sensor;NULL;;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;Kalverstraat Zuid t.h.v.73;6.5;Shopping;Winkelgebied centrum
+96;0101000020E610000023DC64541976134035F0A31AF62D4A40;GAVM-06-Kattenlaan;3D sensor;Eigen voeding via lichtnet;;Nee;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;Kattenlaan;;Park;Vondelpark
+97;0101000020E6100000732B84D558921340569FABADD82F4A40;GACM-02;3D sensor;NULL;;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;Nieuwendijk t.h.v.218;6.3;Shopping;Winkelgebied centrum
 98;0101000020E6100000B8A2DE9DC6BF134085C7C8A365304A40;GVCV-06;3D sensor;NULL;;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;Azartplein;1;Ferries;IJ-veren
 99;0101000020E6100000C031152C1F8B13407B2DE8BD31324A40;GVCV-07;3D sensor;NULL;;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;Pontsteiger N (ri. NDSM);1;Ferries;IJ-veren
 100;0101000020E61000009B4A500D458B134071491F042E324A40;GVCV-08;3D sensor;NULL;;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;Pontsteiger Z (ri. Distelweg);1;Ferries;IJ-veren
 101;0101000020E6100000DCDEC90281911340838362D0AE2F4A40;GKS-01-Kalverstraat;2D sensor;Eigen voeding via lichtnet;200;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;Kalverstraat t.h.v. 1;8;Shopping;Winkelgebied centrum
 102;0101000020E6100000C2323674B3CF1340F4160FEF39284A40;GABM-06;3D sensor;Eigen voeding via lichtnet;;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;AmsterdamsePoort-riAbcouderpad-Roltrappen;5;Shopping;Zuidoost
+103;0101000020E6100000DC4603780B304A409E4143FF04971340;GAWW-20;2D sensor;NULL;120;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;Oudebrugsteeg ;;Red_light;Wallen
+104;0101000020E61000005D33F9669B2F4A40BE30992A18951340;GAWW-21;2D sensor;NULL;120;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;Damstraat;;Red_light;Wallen
+105;0101000020E61000008811C2A38D2F4A402A5778978B981340;GAWW-22;2D sensor;NULL;30;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;Kloveniersburgwal ;;Red_light;Wallen
+106;0101000020E6100000259012BBB62F4A4034F8FBC56C991340;GAWW-23;2D sensor;NULL;109;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;Bloedstraat;;Red_light;Wallen
+107;0101000020E610000040FB912232304A409BC937DBDC981340;GAWW-24;2D sensor;NULL;138;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/crowd-monitoring-systeem-amsterdam/;Nieuwebrugsteeg;;Red_light;Wallen
+108;0101000020E6100000962023A0C22F4A406DC5FEB27B921340;GADM-01;2D sensor;NULL;;Ja;https://www.amsterdam.nl/privacy/specifieke/privacyverklaring-parkeren-verkeer-bouw/cmsa-corona-privacy/;Dam;;Shopping;Winkelgebied centrum
