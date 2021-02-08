@@ -13,14 +13,14 @@ click==7.1.2              # via flask, pip-tools
 configargparse==1.2.3     # via locust
 coreapi==2.3.3            # via -r ./requirements.txt, drf-yasg
 coreschema==0.0.4         # via -r ./requirements.txt, coreapi, drf-yasg
-coverage==5.3.1           # via pytest-cov
+coverage==5.4             # via pytest-cov
 decorator==4.4.2          # via ipython
 defusedxml==0.6.0         # via -r ./requirements.txt, djangorestframework-xml
 django-datetime-utc==1.0.3  # via -r ./requirements.txt
 django-debug-toolbar==3.2  # via -r ./requirements.txt
-django-extensions==3.1.0  # via -r ./requirements.txt
+django-extensions==3.1.1  # via -r ./requirements.txt
 django-filter==2.4.0      # via -r ./requirements.txt
-django==3.0.11            # via -r ./requirements.txt, django-datetime-utc, django-debug-toolbar, django-filter, djangorestframework, drf-yasg, model-bakery
+django==3.0.12            # via -r ./requirements.txt, django-datetime-utc, django-debug-toolbar, django-filter, djangorestframework, drf-yasg, model-bakery
 djangorestframework-csv==2.1.0  # via -r ./requirements.txt, drf-amsterdam
 djangorestframework-gis==0.17  # via -r ./requirements.txt
 djangorestframework-xml==2.0.0  # via -r ./requirements.txt, drf-amsterdam
@@ -29,7 +29,7 @@ drf-amsterdam==0.4.0      # via -r ./requirements.txt
 drf-extensions==0.6.0     # via -r ./requirements.txt, drf-amsterdam
 drf-yasg==1.20.0          # via -r ./requirements.txt
 factory-boy==3.2.0        # via -r requirements_dev.in, pytest-factoryboy
-faker==5.6.5              # via factory-boy
+faker==6.0.0              # via factory-boy
 flask-basicauth==0.2.0    # via locust
 flask==1.1.2              # via flask-basicauth, locust
 gevent==21.1.2            # via geventhttpclient, locust
@@ -39,16 +39,16 @@ idna==2.10                # via -r ./requirements.txt, requests
 inflection==0.5.1         # via -r ./requirements.txt, drf-yasg, pytest-factoryboy
 iniconfig==1.1.1          # via pytest
 ipython-genutils==0.2.0   # via traitlets
-ipython==7.19.0           # via -r requirements_dev.in
+ipython==7.20.0           # via -r requirements_dev.in
 itsdangerous==1.1.0       # via flask
 itypes==1.2.0             # via -r ./requirements.txt, coreapi
 jedi==0.18.0              # via ipython
-jinja2==2.11.2            # via -r ./requirements.txt, coreschema, flask
-locust==1.4.1             # via -r requirements_dev.in
+jinja2==2.11.3            # via -r ./requirements.txt, coreschema, flask
+locust==1.4.3             # via -r requirements_dev.in
 markupsafe==1.1.1         # via -r ./requirements.txt, jinja2
 model-bakery==1.2.1       # via -r requirements_dev.in
 msgpack==1.0.2            # via locust
-packaging==20.8           # via -r ./requirements.txt, drf-yasg, pytest
+packaging==20.9           # via -r ./requirements.txt, drf-yasg, pytest
 parso==0.8.1              # via jedi
 pexpect==4.8.0            # via ipython
 pickleshare==0.7.5        # via ipython
@@ -64,10 +64,10 @@ pyparsing==2.4.7          # via -r ./requirements.txt, packaging
 pytest-cov==2.11.1        # via -r requirements_dev.in
 pytest-django==4.1.0      # via -r requirements_dev.in
 pytest-factoryboy==2.1.0  # via -r requirements_dev.in
-pytest==6.2.1             # via -r requirements_dev.in, pytest-cov, pytest-django, pytest-factoryboy
+pytest==6.2.2             # via -r requirements_dev.in, pytest-cov, pytest-django, pytest-factoryboy
 python-dateutil==2.8.1    # via -r ./requirements.txt, django-datetime-utc, faker
-pytz==2020.5              # via -r ./requirements.txt, django
-pyzmq==21.0.1             # via locust
+pytz==2021.1              # via -r ./requirements.txt, django
+pyzmq==22.0.2             # via locust
 requests==2.25.1          # via -r ./requirements.txt, coreapi, locust
 ruamel.yaml.clib==0.2.2   # via -r ./requirements.txt, ruamel.yaml
 ruamel.yaml==0.16.12      # via -r ./requirements.txt, drf-yasg
@@ -79,7 +79,7 @@ toml==0.10.2              # via pytest
 traitlets==5.0.5          # via ipython
 unicodecsv==0.14.1        # via -r ./requirements.txt, djangorestframework-csv
 uritemplate==3.0.1        # via -r ./requirements.txt, coreapi, drf-yasg
-urllib3==1.26.2           # via -r ./requirements.txt, requests, sentry-sdk
+urllib3==1.26.3           # via -r ./requirements.txt, requests, sentry-sdk
 wcwidth==0.2.5            # via prompt-toolkit
 werkzeug==1.0.1           # via flask, locust
 zope.event==4.5.0         # via gevent
