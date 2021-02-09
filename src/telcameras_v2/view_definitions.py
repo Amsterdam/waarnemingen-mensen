@@ -1051,445 +1051,6 @@ VIEW_STRINGS = {
        FROM V1_en_V2_data_15min aq
          LEFT JOIN percentiles p ON aq.sensor::text = p.sensor::text AND date_part('dow'::text, aq.timestamp_rounded) = p.dayofweek::double precision AND aq.timestamp_rounded::time without time zone = p.castedtimestamp
       ORDER BY aq.sensor, aq.timestamp_rounded;""",
-	  
-	  
-	  
-	'cmsa_15min_view_v8': r"""
-        CREATE VIEW cmsa_15min_view_v8 AS
-
-        with v2_feed_start_date as (
-            select
-            sensor
-            , min(timestamp_start) 	as start_of_feed
-            from telcameras_v2_observation
-            group by sensor 
-        )
-
-        , v1_data_uniek as (
-            select
-            a.sensor
-            , a."timestamp"
-            , max(a.id::text)	as idt
-            from peoplemeasurement_peoplemeasurement	as a
-            left join v2_feed_start_date 				as fsd	on fsd.sensor::text = a.sensor::text
-            where 1=1
-            and (
-                a."timestamp" < fsd.start_of_feed
-                or fsd.start_of_feed is null
-            )
-            group by
-            a.sensor
-            , a."timestamp" 
-        )
-
-        , v1_data_sel as (
-            select
-            dp.sensor
-            , dp."timestamp"
-            , 	  date_trunc('hour'::text, dp."timestamp") 
-                + (date_part('minute'::text, dp."timestamp")::integer / 15)::double precision 
-                * '00:15:00'::interval 		as timestamp_rounded
-            , 1 							as aantal
-            , dp.details
-            from peoplemeasurement_peoplemeasurement 	as dp
-            join v1_data_uniek							as csdu		on  dp.id::text = csdu.idt
-                                                                    and dp."timestamp" = csdu."timestamp" 
-        )
-
-        , v1_data as (
-            select
-            ds.sensor
-            , ds.timestamp_rounded
-            , count(distinct ds."timestamp")																																	as basedonxmessages
-            , 	  coalesce(sum((detail_elems.value ->> 'count'::text)::integer) 	filter (where (detail_elems.value ->> 'direction'::text) = 'down'::text), 0::bigint) 
-                + coalesce(sum((detail_elems.value ->> 'count'::text)::integer) 	filter (where (detail_elems.value ->> 'direction'::text) = 'up'::text), 0::bigint) 			as total_count
-            , coalesce(sum((detail_elems.value ->> 'count'::text)::integer) 		filter (where (detail_elems.value ->> 'direction'::text) = 'down'::text), 0::bigint)		as count_down
-            , coalesce(sum((detail_elems.value ->> 'count'::text)::integer) 		filter (where (detail_elems.value ->> 'direction'::text) = 'up'::text), 0::bigint)			as count_up
-            , avg((detail_elems.value ->> 'count'::text)::numeric) 					filter (where (detail_elems.value ->> 'direction'::text) = 'density'::text)					as density_avg
-            , avg((detail_elems.value ->> 'count'::text)::numeric)					filter (where (detail_elems.value ->> 'direction'::text) = 'speed'::text)					as speed_avg
-            from v1_data_sel as ds
-            , lateral jsonb_array_elements(ds.details) detail_elems(value)
-            group by
-            ds.sensor
-            , ds.timestamp_rounded
-            order by
-            ds.sensor
-            , ds.timestamp_rounded 
-        )
-
-        , v2_selectie as (
-            select
-            id
-            , sensor
-            , timestamp_start
-            , 	  date_trunc('hour'::text, timestamp_start) 
-                + (date_part('minute'::text, timestamp_start)::integer / 15)::double precision 
-                * '00:15:00'::interval																as timestamp_rounded
-            , 1																						as aantal
-            from telcameras_v2_observation
-            where (
-                id in (
-                    select
-                    t.id
-                    from (
-                        select
-                        id
-                        , row_number() over (
-                                partition by 
-                                sensor
-                                , timestamp_start
-                                order by
-                                sensor
-                                , timestamp_start
-                                , timestamp_message desc
-                        ) as row_num
-                        from telcameras_v2_observation
-                    ) as t
-                    where t.row_num = 1
-                )
-            )
-            and timestamp_start > (now() - '1 year'::interval)
-            and timestamp_start < (now() - '00:18:00'::interval) 
-        )
-
-        , v2_sensor_15min_sel as (
-            select
-            sensor
-            , timestamp_rounded
-            , sum(aantal)			as basedonxmessages
-            from v2_selectie
-            group by
-            sensor
-            , timestamp_rounded
-            order by
-            sensor
-            , timestamp_rounded
-        )
-
-        , v2_observatie_snelheid as (
-            with v2_observatie_persoon as (
-                select
-                sel.sensor
-                , sel.timestamp_rounded
-                , pa.speed
-                , string_to_array(substr(pa.geom, "position"(pa.geom, '('::text) + 1, "position"(pa.geom, ')'::text) - "position"(pa.geom, '('::text) - 1), ' '::text) as tijd_array
-                from telcameras_v2_personaggregate	as pa
-                join v2_selectie					as sel		on  pa.observation_id = sel.id
-                                                                and pa.observation_timestamp_start = sel.timestamp_start
-                where 1=1
-                and pa.speed is not null
-                and pa.geom is not null
-                and pa.geom <> ''::text
-                
-                union all
-                
-                select
-                sel2.sensor
-                , sel2.timestamp_rounded
-                , pa.speed
-                , array['1'::text, '2'::text]	as tijd_array
-                from telcameras_v2_personaggregate	as pa
-                join v2_selectie					as sel2		on  pa.observation_id = sel2.id
-                                                                and pa.observation_timestamp_start = sel2.timestamp_start
-                where 1=1
-                and pa.speed is not null
-                and (
-                    pa.geom is null
-                    or pa.geom = ''::text
-                )
-            )
-            
-            select
-            sensor
-            , timestamp_rounded
-            , case
-                when sum(tijd_array[cardinality(tijd_array)]::numeric - tijd_array[1]::numeric) > 0::numeric 
-                    then 	  sum(speed * (tijd_array[cardinality(tijd_array)]::numeric - tijd_array[1]::numeric)::double precision) 
-                            / sum(tijd_array[cardinality(tijd_array)]::numeric - tijd_array[1]::numeric)::double precision
-                else 0::double precision
-            end									as speed_avg
-            from v2_observatie_persoon
-            group by
-            sensor
-            , timestamp_rounded
-        )
-
-        , v2_countaggregate_zone_count as (
-            select
-            sel.sensor
-            , sel.timestamp_rounded
-            , max(c.azimuth)				as azimuth
-            , sum(c.count_in)				as count_in
-            , sum(c.count_out)				as count_out
-            , sum(c.count_in + c.count_out)	as total_count
-            , avg(c.count)					as area_count
-            , max(c.area)					as area
-            from telcameras_v2_countaggregate 	as c
-            join v2_selectie					as sel	on  c.observation_id = sel.id
-                                                        and c.observation_timestamp_start = sel.timestamp_start
-            group by
-            sel.sensor
-            , sel.timestamp_rounded 
-        )
-
-        , v2_data as (
-            select
-            sel3.sensor
-            , sel3.timestamp_rounded
-            , coalesce(oc.total_count::integer, 0)	as total_count
-            , coalesce(oc.count_in::integer, 0)		as count_up
-            , coalesce(oc.count_out::integer, 0)	as count_down
-            , case
-                when    oc.area is not null
-                    and oc.area <> 0::double precision
-                    and oc.area_count is not null
-                    and oc.area_count > 0::numeric 
-                        then oc.area_count::double precision / oc.area
-                else null::double precision
-            end									as density_avg
-            , os.speed_avg
-            , sel3.basedonxmessages
-            from v2_sensor_15min_sel				as sel3
-            left join v2_observatie_snelheid		as os 		on  sel3.sensor::text = os.sensor::text
-                                                                and sel3.timestamp_rounded = os.timestamp_rounded
-            left join v2_countaggregate_zone_count	as oc 		on  sel3.sensor::text = oc.sensor::text
-                                                                and sel3.timestamp_rounded = oc.timestamp_rounded 
-        ),
-            
-        v3_selectie as (
-            /* V3 selection, HIG data */	
-            /* 
-            * Some observation records do have duplicates, for example id 1701379 for sensor CMSA-GAWW-16 (unique key = sensor + timestamp)
-            * In these cases the last record (based on the create_at field) is taken, assuming these are better (corrections).
-            *
-            * Q = What are de exact definitions for the timestamp and created_at fields?
-            * A = ...?
-            *
-            * Q = There are observations for 1 sensor with a different long/lat, for example sensor CMSA-GAWW-14, date 2021-01-06 vs. 2021-01-19?
-            * A = In these cases the lat and long were adjusted during the test phase to get better insights.
-            * 
-            * Q = Why take only data from last year and exclude last 18 minutes?
-            * A = ...?
-            **/
-            select
-            o.id			as observation_id
-            , o.sensor
-            , o.timestamp
-            , date_trunc('hour'::text, o.timestamp) + (date_part('minute'::text, o.timestamp)::integer / 15)::double precision * '00:15:00'::interval as timestamp_rounded
-            , 1 as aantal
-            , density
-            from telcameras_v3_observation o
-            where (
-                o.id in (										-- If multiple rows are present (based on sensor + timestamp) then pick last one based on latest date in create_at field
-                    select
-                    t.id
-                    from (
-                        select
-                        id
-                        , row_number() over (
-                            partition by sensor, "timestamp"
-                            order by   sensor
-                                    , timestamp
-                                    , created_at desc
-                        ) as row_num
-                        from telcameras_v3_observation
-                    ) t
-                    where t.row_num = 1
-                )
-            )
-            and o.timestamp > (now() - '1 year'::interval)		-- Retreive only data from the last year (based on current timestamp)
-            and o.timestamp < (now() - '00:18:00'::interval)	-- Exclude last 18 minutes
-        )
-
-        , v3_sensor_15min_sel as (
-            select 
-            sel.sensor													-- name of sensor
-            , sel.timestamp_rounded											-- the quarter to which this data applies
-            , sum(aantal)						as basedonxobservations		-- number of observations for specifc sensor (should be 15, 1 per minute)
-            , sum(grpagg.count)					as count					-- number of counted objects (pedestrians/cyclist) within the quarter for specific azimuth (direction)
-            , sum(sel.density) / sum(aantal)	as density_avg				-- calculate the average density by summing the density for all observations within the specific quarter and divide this by the count of observations (should be 15, 1 per minute)
-            , grpagg.azimuth												-- the direction in degrees
-            , row_number() over (
-                partition by
-                sel.sensor
-                , sel.timestamp_rounded
-                order by 
-                grpagg.azimuth
-            )									as azimuth_seqence_number	-- set ordernumber by azimuth, causing number 1 is always the same azimuth (needed to determine up/down direction)
-            , sum(grpagg.cumulative_distance)	as cumulative_distance		-- sum over the cumulative distance in meters for the relevant quarter
-            , sum(grpagg.cumulative_time)		as cumulative_time			-- sum over the cumulative time in meters for the relevant quarter
-        --  , sum(grpagg.median_speed)			as median_speed				-- sum over the median speed in meters/seconds, not needed because this median_speed is coming from the observation and therefore is per 1 minute
-        --																	-- so for a better calculation we use a new calculation with cumulative_distance / cumulative_time
-            from telcameras_v3_groupaggregate		as grpagg
-            inner join v3_selectie					as sel		on grpagg.observation_id = sel.observation_id
-            where 1=1
-            and grpagg.observation_id in (
-                select observation_id 
-                from v3_selectie
-            )
-            group by
-            sel.sensor
-            , sel.timestamp_rounded
-            , grpagg.azimuth
-            order by 
-            sel.sensor
-            , sel.timestamp_rounded
-        )
-
-        , v3_data as (
-            select
-            up.sensor														-- name of sensor
-            , up.timestamp_rounded											-- the quarter to which this data applies
-            , up.basedonxobservations										-- number of observations for specifc sensor (should be 15, 1 per minute)
-            , up.density_avg												-- average density over the specific quarter, don't sum the up an down azimuth (directions) because density is coming from the observation table wich doesn't contain azimuth
-            , up.count + down.count 			as total_count				-- total count (wich contains both azimuth directions)
-            , up.cumulative_distance 
-                + down.cumulative_distance		as cumulative_distance		-- cumulative distance (wich contains both azimuth directions)
-            , up.cumulative_time 
-                + down.cumulative_time			as cumulative_time			-- cumulative time (wich contains both azimuth directions)
-            , (	  up.cumulative_distance 
-                + down.cumulative_distance
-            )
-                /	
-            nullif(
-                up.cumulative_time 
-                + down.cumulative_time
-                , 0
-            )									as speed_avg				-- average speed 
-            /* direction 1 */
-        --	, up.azimuth													-- the first azimuth, direction in degrees (up)
-            , up.count							as count_up					-- count for azimuth nr.1 (direction 1)
-        --	, up.cumulative_distance										-- cumulative distance for azimuth 1, drection in degrees (up)
-        --	, up.cumulative_time											-- cumulative time for azimuth 1, drection in degrees (up)
-        --	, up.median_speed					as median_speed_up			-- median speed for azimuth 1, drection in degrees (up)
-            /* direction 2 */
-        --	, down.azimuth													-- the second azimuth, direction in degrees (down)
-            , down.count						as count_down				-- count for azimuth nr.2 (direction 2)
-        --	, down.cumulative_distance										-- cumulative distance for azimuth 2, drection in degrees (down)
-        --	, down.cumulative_time											-- cumulative time for azimuth 2, drection in degrees (down)
-        --	, down.median_speed					as median_speed_down		-- median speed for azimuth 1, drection in degrees (up)
-            from v3_sensor_15min_sel		as up
-            inner join v3_sensor_15min_sel	as down		on  up.sensor = down.sensor
-                                                    and up.timestamp_rounded = down.timestamp_rounded
-                                                    and down.azimuth_seqence_number = 2
-            where 1=1
-            and up.azimuth_seqence_number = 1						
-        )
-
-        , v1_v2_en_v3_data_15min as (
-            select 
-            v1_data.sensor,
-            v1_data.timestamp_rounded,
-            v1_data.total_count,
-            v1_data.count_down,
-            v1_data.count_up,
-            v1_data.density_avg,
-            v1_data.speed_avg,
-            v1_data.basedonxmessages
-            from v1_data
-            
-            union all
-            
-            select 
-            v2_data.sensor,
-            v2_data.timestamp_rounded,
-            v2_data.total_count,
-            v2_data.count_up,
-            v2_data.count_down,
-            v2_data.density_avg,
-            v2_data.speed_avg,
-            v2_data.basedonxmessages
-            from v2_data
-            
-            union all
-            
-            select 
-            v3_data.sensor,
-            v3_data.timestamp_rounded,
-            v3_data.total_count,
-            v3_data.count_up,
-            v3_data.count_down,
-            v3_data.density_avg,
-            v3_data.speed_avg,
-            v3_data.basedonxobservations	as basedonxmessages
-            from v3_data
-        )
-
-        , percentiles as (
-            select
-            v.sensor
-            , date_part('dow'::text, v.timestamp_rounded)::integer 								as dayofweek
-            , v.timestamp_rounded::time without time zone 										as castedtimestamp
-            , percentile_disc(0.1::double precision) within group (order by v.total_count)		as total_count_p10
-            , percentile_disc(0.2::double precision) within group (order by v.total_count)		as total_count_p20
-            , percentile_disc(0.5::double precision) within group (order by v.total_count)		as total_count_p50
-            , percentile_disc(0.8::double precision) within group (order by v.total_count)		as total_count_p80
-            , percentile_disc(0.9::double precision) within group (order by v.total_count)		as total_count_p90
-            , percentile_disc(0.1::double precision) within group (order by v.count_down)		as count_down_p10
-            , percentile_disc(0.2::double precision) within group (order by v.count_down)		as count_down_p20
-            , percentile_disc(0.5::double precision) within group (order by v.count_down)		as count_down_p50
-            , percentile_disc(0.8::double precision) within group (order by v.count_down)		as count_down_p80
-            , percentile_disc(0.9::double precision) within group (order by v.count_down)		as count_down_p90
-            , percentile_disc(0.1::double precision) within group (order by v.count_up)			as count_up_p10
-            , percentile_disc(0.2::double precision) within group (order by v.count_up)			as count_up_p20
-            , percentile_disc(0.5::double precision) within group (order by v.count_up)			as count_up_p50
-            , percentile_disc(0.8::double precision) within group (order by v.count_up)			as count_up_p80
-            , percentile_disc(0.9::double precision) within group (order by v.count_up)			as count_up_p90
-            , percentile_disc(0.2::double precision) within group (order by v.density_avg)		as density_avg_p20
-            , percentile_disc(0.5::double precision) within group (order by v.density_avg)		as density_avg_p50
-            , percentile_disc(0.8::double precision) within group (order by v.density_avg)		as density_avg_p80
-            , percentile_disc(0.2::double precision) within group (order by v.speed_avg)		as speed_avg_p20
-            , percentile_disc(0.5::double precision) within group (order by v.speed_avg)		as speed_avg_p50
-            , percentile_disc(0.8::double precision) within group (order by v.speed_avg)		as speed_avg_p80
-            from v1_v2_en_v3_data_15min		as v
-            where 1=1
-            and v.timestamp_rounded >= ((select now() - '1 year'::interval))
-            group by 
-            v.sensor
-            , (date_part('dow'::text, v.timestamp_rounded))
-            , (v.timestamp_rounded::time without time zone)
-        )
-
-        select
-          aq.sensor
-        , aq.timestamp_rounded
-        , aq.total_count
-        , aq.count_down
-        , aq.count_up
-        , aq.density_avg
-        , aq.speed_avg
-        , aq.basedonxmessages
-        , p.total_count_p10
-        , p.total_count_p20
-        , p.total_count_p50
-        , p.total_count_p80
-        , p.total_count_p90
-        , p.count_down_p10
-        , p.count_down_p20
-        , p.count_down_p50
-        , p.count_down_p80
-        , p.count_down_p90
-        , p.count_up_p10
-        , p.count_up_p20
-        , p.count_up_p50
-        , p.count_up_p80
-        , p.count_up_p90
-        , p.density_avg_p20
-        , p.density_avg_p50
-        , p.density_avg_p80
-        , p.speed_avg_p20
-        , p.speed_avg_p50
-        , p.speed_avg_p80
-        from v1_v2_en_v3_data_15min	as aq
-        left join percentiles		as p	on  aq.sensor::text = p.sensor::text
-                                            and date_part('dow'::text, aq.timestamp_rounded) = p.dayofweek::double precision 
-                                            and aq.timestamp_rounded::time without time zone = p.castedtimestamp
-        order by 
-          aq.sensor
-        , aq.timestamp_rounded
-        ;
-    """,
-
 
 
     'cmsa_15min_view_v7_realtime_predict': r"""CREATE VIEW cmsa_15min_view_v7_realtime_predict AS
@@ -1712,6 +1273,443 @@ VIEW_STRINGS = {
          LEFT JOIN voorspel_berekening vb ON vb.sensor::text = s.sensor::text AND s.timestamp_rounded = vb.timestamp_rounded_toep
       ORDER BY s.sensor, s.timestamp_rounded;
     """,
+
+
+    'cmsa_15min_view_v8': r"""
+    CREATE VIEW cmsa_15min_view_v8 AS
+
+    with v2_feed_start_date as (
+        select
+        sensor
+        , min(timestamp_start) 	as start_of_feed
+        from telcameras_v2_observation
+        group by sensor 
+    )
+
+    , v1_data_uniek as (
+        select
+        a.sensor
+        , a."timestamp"
+        , max(a.id::text)	as idt
+        from peoplemeasurement_peoplemeasurement	as a
+        left join v2_feed_start_date 				as fsd	on fsd.sensor::text = a.sensor::text
+        where 1=1
+        and (
+            a."timestamp" < fsd.start_of_feed
+            or fsd.start_of_feed is null
+        )
+        group by
+        a.sensor
+        , a."timestamp" 
+    )
+
+    , v1_data_sel as (
+        select
+        dp.sensor
+        , dp."timestamp"
+        , 	  date_trunc('hour'::text, dp."timestamp") 
+            + (date_part('minute'::text, dp."timestamp")::integer / 15)::double precision 
+            * '00:15:00'::interval 		as timestamp_rounded
+        , 1 							as aantal
+        , dp.details
+        from peoplemeasurement_peoplemeasurement 	as dp
+        join v1_data_uniek							as csdu		on  dp.id::text = csdu.idt
+                                                                and dp."timestamp" = csdu."timestamp" 
+    )
+
+    , v1_data as (
+        select
+        ds.sensor
+        , ds.timestamp_rounded
+        , count(distinct ds."timestamp")																																	as basedonxmessages
+        , 	  coalesce(sum((detail_elems.value ->> 'count'::text)::integer) 	filter (where (detail_elems.value ->> 'direction'::text) = 'down'::text), 0::bigint) 
+            + coalesce(sum((detail_elems.value ->> 'count'::text)::integer) 	filter (where (detail_elems.value ->> 'direction'::text) = 'up'::text), 0::bigint) 			as total_count
+        , coalesce(sum((detail_elems.value ->> 'count'::text)::integer) 		filter (where (detail_elems.value ->> 'direction'::text) = 'down'::text), 0::bigint)		as count_down
+        , coalesce(sum((detail_elems.value ->> 'count'::text)::integer) 		filter (where (detail_elems.value ->> 'direction'::text) = 'up'::text), 0::bigint)			as count_up
+        , avg((detail_elems.value ->> 'count'::text)::numeric) 					filter (where (detail_elems.value ->> 'direction'::text) = 'density'::text)					as density_avg
+        , avg((detail_elems.value ->> 'count'::text)::numeric)					filter (where (detail_elems.value ->> 'direction'::text) = 'speed'::text)					as speed_avg
+        from v1_data_sel as ds
+        , lateral jsonb_array_elements(ds.details) detail_elems(value)
+        group by
+        ds.sensor
+        , ds.timestamp_rounded
+        order by
+        ds.sensor
+        , ds.timestamp_rounded 
+    )
+
+    , v2_selectie as (
+        select
+        id
+        , sensor
+        , timestamp_start
+        , 	  date_trunc('hour'::text, timestamp_start) 
+            + (date_part('minute'::text, timestamp_start)::integer / 15)::double precision 
+            * '00:15:00'::interval																as timestamp_rounded
+        , 1																						as aantal
+        from telcameras_v2_observation
+        where (
+            id in (
+                select
+                t.id
+                from (
+                    select
+                    id
+                    , row_number() over (
+                            partition by 
+                            sensor
+                            , timestamp_start
+                            order by
+                            sensor
+                            , timestamp_start
+                            , timestamp_message desc
+                    ) as row_num
+                    from telcameras_v2_observation
+                ) as t
+                where t.row_num = 1
+            )
+        )
+        and timestamp_start > (now() - '1 year'::interval)
+        and timestamp_start < (now() - '00:18:00'::interval) 
+    )
+
+    , v2_sensor_15min_sel as (
+        select
+        sensor
+        , timestamp_rounded
+        , sum(aantal)			as basedonxmessages
+        from v2_selectie
+        group by
+        sensor
+        , timestamp_rounded
+        order by
+        sensor
+        , timestamp_rounded
+    )
+
+    , v2_observatie_snelheid as (
+        with v2_observatie_persoon as (
+            select
+            sel.sensor
+            , sel.timestamp_rounded
+            , pa.speed
+            , string_to_array(substr(pa.geom, "position"(pa.geom, '('::text) + 1, "position"(pa.geom, ')'::text) - "position"(pa.geom, '('::text) - 1), ' '::text) as tijd_array
+            from telcameras_v2_personaggregate	as pa
+            join v2_selectie					as sel		on  pa.observation_id = sel.id
+                                                            and pa.observation_timestamp_start = sel.timestamp_start
+            where 1=1
+            and pa.speed is not null
+            and pa.geom is not null
+            and pa.geom <> ''::text
+
+            union all
+
+            select
+            sel2.sensor
+            , sel2.timestamp_rounded
+            , pa.speed
+            , array['1'::text, '2'::text]	as tijd_array
+            from telcameras_v2_personaggregate	as pa
+            join v2_selectie					as sel2		on  pa.observation_id = sel2.id
+                                                            and pa.observation_timestamp_start = sel2.timestamp_start
+            where 1=1
+            and pa.speed is not null
+            and (
+                pa.geom is null
+                or pa.geom = ''::text
+            )
+        )
+
+        select
+        sensor
+        , timestamp_rounded
+        , case
+            when sum(tijd_array[cardinality(tijd_array)]::numeric - tijd_array[1]::numeric) > 0::numeric 
+                then 	  sum(speed * (tijd_array[cardinality(tijd_array)]::numeric - tijd_array[1]::numeric)::double precision) 
+                        / sum(tijd_array[cardinality(tijd_array)]::numeric - tijd_array[1]::numeric)::double precision
+            else 0::double precision
+        end									as speed_avg
+        from v2_observatie_persoon
+        group by
+        sensor
+        , timestamp_rounded
+    )
+
+    , v2_countaggregate_zone_count as (
+        select
+        sel.sensor
+        , sel.timestamp_rounded
+        , max(c.azimuth)				as azimuth
+        , sum(c.count_in)				as count_in
+        , sum(c.count_out)				as count_out
+        , sum(c.count_in + c.count_out)	as total_count
+        , avg(c.count)					as area_count
+        , max(c.area)					as area
+        from telcameras_v2_countaggregate 	as c
+        join v2_selectie					as sel	on  c.observation_id = sel.id
+                                                    and c.observation_timestamp_start = sel.timestamp_start
+        group by
+        sel.sensor
+        , sel.timestamp_rounded 
+    )
+
+    , v2_data as (
+        select
+        sel3.sensor
+        , sel3.timestamp_rounded
+        , coalesce(oc.total_count::integer, 0)	as total_count
+        , coalesce(oc.count_in::integer, 0)		as count_up
+        , coalesce(oc.count_out::integer, 0)	as count_down
+        , case
+            when    oc.area is not null
+                and oc.area <> 0::double precision
+                and oc.area_count is not null
+                and oc.area_count > 0::numeric 
+                    then oc.area_count::double precision / oc.area
+            else null::double precision
+        end									as density_avg
+        , os.speed_avg
+        , sel3.basedonxmessages
+        from v2_sensor_15min_sel				as sel3
+        left join v2_observatie_snelheid		as os 		on  sel3.sensor::text = os.sensor::text
+                                                            and sel3.timestamp_rounded = os.timestamp_rounded
+        left join v2_countaggregate_zone_count	as oc 		on  sel3.sensor::text = oc.sensor::text
+                                                            and sel3.timestamp_rounded = oc.timestamp_rounded 
+    ),
+
+    v3_selectie as (
+        /* V3 selection, HIG data */	
+        /* 
+        * Some observation records do have duplicates, for example id 1701379 for sensor CMSA-GAWW-16 (unique key = sensor + timestamp)
+        * In these cases the last record (based on the create_at field) is taken, assuming these are better (corrections).
+        *
+        * Q = What are de exact definitions for the timestamp and created_at fields?
+        * A = ...?
+        *
+        * Q = There are observations for 1 sensor with a different long/lat, for example sensor CMSA-GAWW-14, date 2021-01-06 vs. 2021-01-19?
+        * A = In these cases the lat and long were adjusted during the test phase to get better insights.
+        * 
+        * Q = Why take only data from last year and exclude last 18 minutes?
+        * A = ...?
+        **/
+        select
+        o.id			as observation_id
+        , o.sensor
+        , o.timestamp
+        , date_trunc('hour'::text, o.timestamp) + (date_part('minute'::text, o.timestamp)::integer / 15)::double precision * '00:15:00'::interval as timestamp_rounded
+        , 1 as aantal
+        , density
+        from telcameras_v3_observation o
+        where (
+            o.id in (										-- If multiple rows are present (based on sensor + timestamp) then pick last one based on latest date in create_at field
+                select
+                t.id
+                from (
+                    select
+                    id
+                    , row_number() over (
+                        partition by sensor, "timestamp"
+                        order by   sensor
+                                , timestamp
+                                , created_at desc
+                    ) as row_num
+                    from telcameras_v3_observation
+                ) t
+                where t.row_num = 1
+            )
+        )
+        and o.timestamp > (now() - '1 year'::interval)		-- Retreive only data from the last year (based on current timestamp)
+        and o.timestamp < (now() - '00:18:00'::interval)	-- Exclude last 18 minutes
+    )
+
+    , v3_sensor_15min_sel as (
+        select 
+        sel.sensor													-- name of sensor
+        , sel.timestamp_rounded											-- the quarter to which this data applies
+        , sum(aantal)						as basedonxobservations		-- number of observations for specifc sensor (should be 15, 1 per minute)
+        , sum(grpagg.count)					as count					-- number of counted objects (pedestrians/cyclist) within the quarter for specific azimuth (direction)
+        , sum(sel.density) / sum(aantal)	as density_avg				-- calculate the average density by summing the density for all observations within the specific quarter and divide this by the count of observations (should be 15, 1 per minute)
+        , grpagg.azimuth												-- the direction in degrees
+        , row_number() over (
+            partition by
+            sel.sensor
+            , sel.timestamp_rounded
+            order by 
+            grpagg.azimuth
+        )									as azimuth_seqence_number	-- set ordernumber by azimuth, causing number 1 is always the same azimuth (needed to determine up/down direction)
+        , sum(grpagg.cumulative_distance)	as cumulative_distance		-- sum over the cumulative distance in meters for the relevant quarter
+        , sum(grpagg.cumulative_time)		as cumulative_time			-- sum over the cumulative time in meters for the relevant quarter
+    --  , sum(grpagg.median_speed)			as median_speed				-- sum over the median speed in meters/seconds, not needed because this median_speed is coming from the observation and therefore is per 1 minute
+    --																	-- so for a better calculation we use a new calculation with cumulative_distance / cumulative_time
+        from telcameras_v3_groupaggregate		as grpagg
+        inner join v3_selectie					as sel		on grpagg.observation_id = sel.observation_id
+        where 1=1
+        and grpagg.observation_id in (
+            select observation_id 
+            from v3_selectie
+        )
+        group by
+        sel.sensor
+        , sel.timestamp_rounded
+        , grpagg.azimuth
+        order by 
+        sel.sensor
+        , sel.timestamp_rounded
+    )
+
+    , v3_data as (
+        select
+        up.sensor														-- name of sensor
+        , up.timestamp_rounded											-- the quarter to which this data applies
+        , up.basedonxobservations										-- number of observations for specifc sensor (should be 15, 1 per minute)
+        , up.density_avg												-- average density over the specific quarter, don't sum the up an down azimuth (directions) because density is coming from the observation table wich doesn't contain azimuth
+        , up.count + down.count 			as total_count				-- total count (wich contains both azimuth directions)
+        , up.cumulative_distance 
+            + down.cumulative_distance		as cumulative_distance		-- cumulative distance (wich contains both azimuth directions)
+        , up.cumulative_time 
+            + down.cumulative_time			as cumulative_time			-- cumulative time (wich contains both azimuth directions)
+        , (	  up.cumulative_distance 
+            + down.cumulative_distance
+        )
+            /	
+        nullif(
+            up.cumulative_time 
+            + down.cumulative_time
+            , 0
+        )									as speed_avg				-- average speed 
+        /* direction 1 */
+    --	, up.azimuth													-- the first azimuth, direction in degrees (up)
+        , up.count							as count_up					-- count for azimuth nr.1 (direction 1)
+    --	, up.cumulative_distance										-- cumulative distance for azimuth 1, drection in degrees (up)
+    --	, up.cumulative_time											-- cumulative time for azimuth 1, drection in degrees (up)
+    --	, up.median_speed					as median_speed_up			-- median speed for azimuth 1, drection in degrees (up)
+        /* direction 2 */
+    --	, down.azimuth													-- the second azimuth, direction in degrees (down)
+        , down.count						as count_down				-- count for azimuth nr.2 (direction 2)
+    --	, down.cumulative_distance										-- cumulative distance for azimuth 2, drection in degrees (down)
+    --	, down.cumulative_time											-- cumulative time for azimuth 2, drection in degrees (down)
+    --	, down.median_speed					as median_speed_down		-- median speed for azimuth 1, drection in degrees (up)
+        from v3_sensor_15min_sel		as up
+        inner join v3_sensor_15min_sel	as down		on  up.sensor = down.sensor
+                                                and up.timestamp_rounded = down.timestamp_rounded
+                                                and down.azimuth_seqence_number = 2
+        where 1=1
+        and up.azimuth_seqence_number = 1						
+    )
+
+    , v1_v2_en_v3_data_15min as (
+        select 
+        v1_data.sensor,
+        v1_data.timestamp_rounded,
+        v1_data.total_count,
+        v1_data.count_down,
+        v1_data.count_up,
+        v1_data.density_avg,
+        v1_data.speed_avg,
+        v1_data.basedonxmessages
+        from v1_data
+
+        union all
+
+        select 
+        v2_data.sensor,
+        v2_data.timestamp_rounded,
+        v2_data.total_count,
+        v2_data.count_up,
+        v2_data.count_down,
+        v2_data.density_avg,
+        v2_data.speed_avg,
+        v2_data.basedonxmessages
+        from v2_data
+
+        union all
+
+        select 
+        v3_data.sensor,
+        v3_data.timestamp_rounded,
+        v3_data.total_count,
+        v3_data.count_up,
+        v3_data.count_down,
+        v3_data.density_avg,
+        v3_data.speed_avg,
+        v3_data.basedonxobservations	as basedonxmessages
+        from v3_data
+    )
+
+    , percentiles as (
+        select
+        v.sensor
+        , date_part('dow'::text, v.timestamp_rounded)::integer 								as dayofweek
+        , v.timestamp_rounded::time without time zone 										as castedtimestamp
+        , percentile_disc(0.1::double precision) within group (order by v.total_count)		as total_count_p10
+        , percentile_disc(0.2::double precision) within group (order by v.total_count)		as total_count_p20
+        , percentile_disc(0.5::double precision) within group (order by v.total_count)		as total_count_p50
+        , percentile_disc(0.8::double precision) within group (order by v.total_count)		as total_count_p80
+        , percentile_disc(0.9::double precision) within group (order by v.total_count)		as total_count_p90
+        , percentile_disc(0.1::double precision) within group (order by v.count_down)		as count_down_p10
+        , percentile_disc(0.2::double precision) within group (order by v.count_down)		as count_down_p20
+        , percentile_disc(0.5::double precision) within group (order by v.count_down)		as count_down_p50
+        , percentile_disc(0.8::double precision) within group (order by v.count_down)		as count_down_p80
+        , percentile_disc(0.9::double precision) within group (order by v.count_down)		as count_down_p90
+        , percentile_disc(0.1::double precision) within group (order by v.count_up)			as count_up_p10
+        , percentile_disc(0.2::double precision) within group (order by v.count_up)			as count_up_p20
+        , percentile_disc(0.5::double precision) within group (order by v.count_up)			as count_up_p50
+        , percentile_disc(0.8::double precision) within group (order by v.count_up)			as count_up_p80
+        , percentile_disc(0.9::double precision) within group (order by v.count_up)			as count_up_p90
+        , percentile_disc(0.2::double precision) within group (order by v.density_avg)		as density_avg_p20
+        , percentile_disc(0.5::double precision) within group (order by v.density_avg)		as density_avg_p50
+        , percentile_disc(0.8::double precision) within group (order by v.density_avg)		as density_avg_p80
+        , percentile_disc(0.2::double precision) within group (order by v.speed_avg)		as speed_avg_p20
+        , percentile_disc(0.5::double precision) within group (order by v.speed_avg)		as speed_avg_p50
+        , percentile_disc(0.8::double precision) within group (order by v.speed_avg)		as speed_avg_p80
+        from v1_v2_en_v3_data_15min		as v
+        where 1=1
+        and v.timestamp_rounded >= ((select now() - '1 year'::interval))
+        group by 
+        v.sensor
+        , (date_part('dow'::text, v.timestamp_rounded))
+        , (v.timestamp_rounded::time without time zone)
+    )
+
+    select
+      aq.sensor
+    , aq.timestamp_rounded
+    , aq.total_count
+    , aq.count_down
+    , aq.count_up
+    , aq.density_avg
+    , aq.speed_avg
+    , aq.basedonxmessages
+    , p.total_count_p10
+    , p.total_count_p20
+    , p.total_count_p50
+    , p.total_count_p80
+    , p.total_count_p90
+    , p.count_down_p10
+    , p.count_down_p20
+    , p.count_down_p50
+    , p.count_down_p80
+    , p.count_down_p90
+    , p.count_up_p10
+    , p.count_up_p20
+    , p.count_up_p50
+    , p.count_up_p80
+    , p.count_up_p90
+    , p.density_avg_p20
+    , p.density_avg_p50
+    , p.density_avg_p80
+    , p.speed_avg_p20
+    , p.speed_avg_p50
+    , p.speed_avg_p80
+    from v1_v2_en_v3_data_15min	as aq
+    left join percentiles		as p	on  aq.sensor::text = p.sensor::text
+                                        and date_part('dow'::text, aq.timestamp_rounded) = p.dayofweek::double precision 
+                                        and aq.timestamp_rounded::time without time zone = p.castedtimestamp
+    order by 
+      aq.sensor
+    , aq.timestamp_rounded
+    ;
+""",
 }
 
 
