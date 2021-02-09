@@ -111,6 +111,48 @@ TEST_POST = """
 }
 """
 
+TEST_POST_DOUBLE_ZONE = """
+{
+    "data": [
+        {
+            "sensor": "GADM-01",
+            "sensor_type": "telcamera",
+            "message_type": "count",
+            "timestamp_message": "2021-02-03T13:57:34.680Z",
+            "sensor_state": "operational",
+            "version": "CS_count_0.0.1",
+            "owner": "Gemeente Amsterdam venor",
+            "supplier": "Connection Systems",
+            "purpose": [
+                "safety",
+                "comfort"
+            ],
+            "latitude": 52.373128,
+            "longitude": 4.89305,
+            "message": 15749,
+            "timestamp_start": "2021-02-03T13:56:00.000Z",
+            "interval": 60,
+            "aggregate": [
+                {
+                    "type": "zone",
+                    "id": "GADM-01-total",
+                    "area": 8100,
+                    "geom": "",
+                    "count": 2
+                },
+                {
+                    "type": "zone",
+                    "id": "GADM-01-zone0",
+                    "area": 1563,
+                    "geom": "",
+                    "count": 1
+                }
+            ]
+        }
+    ]
+}
+"""
+
 
 def create_new_v2_json(timestamp_str="2019-06-21T10:35:46+02:00"):
     test_post = json.loads(TEST_POST)
@@ -129,7 +171,6 @@ class DataPosterTest(APITestCase):
 
     def setUp(self):
         self.URL = '/telcameras/v2/'
-
         self.sensor = Sensors.objects.create(objectnummer='GAVM-01-Vondelstraat')
 
     @override_settings(STORE_ALL_DATA_TELCAMERAS_V2=False)
@@ -205,18 +246,17 @@ class DataPosterTest(APITestCase):
         self.assertEqual(CountAggregate.objects.all().count(), len(post_data['data'][0]['aggregate']))
         for count_aggr in CountAggregate.objects.all():
 
-            fields_to_check = []
-            posted_count_aggregate = None
 
             # Get the post data for this CountAggregate (they might not be in the same order)
+            posted_count_aggregate = None
             for postedCountAggregate in post_data['data'][0]['aggregate']:
                 if postedCountAggregate['type'] == count_aggr.type:
                     posted_count_aggregate = postedCountAggregate
 
-                if count_aggr.type == 'line':
-                    fields_to_check = ('type', 'azimuth', 'count_in', 'count_out')
-                elif count_aggr.type == 'zone':
-                    fields_to_check = ('type', 'area', 'geom', 'count')
+            if count_aggr.type == 'line':
+                fields_to_check = ('type', 'azimuth', 'count_in', 'count_out')
+            elif count_aggr.type == 'zone':
+                fields_to_check = ('type', 'area', 'geom', 'count')
 
             # Check whether we actually found the correct posted count aggregate
             self.assertEqual(type(posted_count_aggregate), dict)
@@ -248,6 +288,45 @@ class DataPosterTest(APITestCase):
                     self.assertEqual(getattr(pers_aggr, attr), posted_person_aggregate[attr])
 
             self.assertEqual(str(pers_aggr.person_id), posted_person_aggregate['personId'])
+
+    def test_post_new_record_with_double_zone(self):
+        """ Test posting a new message with a double zone in the count message """
+        post_data = json.loads(TEST_POST_DOUBLE_ZONE)
+        response = self.client.post(self.URL, post_data, **AUTHORIZATION_HEADER, format='json')
+
+        # Check the Observation record
+        self.assertEqual(response.status_code, 201, response.data)
+        self.assertEqual(Observation.objects.all().count(), 1)
+        observation = Observation.objects.all()[0]
+        fields_to_check = ('sensor', 'sensor_type', 'sensor_state', 'owner', 'supplier', 'purpose', 'latitude',
+                           'longitude', 'interval', 'timestamp_message', 'timestamp_start')
+        for attr in fields_to_check:
+            if type(getattr(observation, attr)) is Decimal:
+                self.assertEqual(float(getattr(observation, attr)), post_data['data'][0][attr])
+            elif type(getattr(observation, attr)) is datetime:
+                self.assertEqual(getattr(observation, attr), parser.parse(post_data['data'][0][attr]))
+            else:
+                self.assertEqual(getattr(observation, attr), post_data['data'][0][attr])
+
+        # Check the CountAggregate records
+        self.assertEqual(CountAggregate.objects.all().count(), len(post_data['data'][0]['aggregate']))
+        for count_aggr in CountAggregate.objects.all():
+
+            # Get the post data for this CountAggregate (they might not be in the same order)
+            posted_count_aggregate = None
+            for postedCountAggregate in post_data['data'][0]['aggregate']:
+                if postedCountAggregate['id'] == count_aggr.external_id:
+                    posted_count_aggregate = postedCountAggregate
+
+            # Check whether we actually found the correct posted count aggregate
+            self.assertEqual(type(posted_count_aggregate), dict)
+
+            for attr in ('type', 'area', 'count'):
+                self.assertEqual(getattr(count_aggr, attr), posted_count_aggregate[attr])
+            self.assertEqual(count_aggr.external_id, posted_count_aggregate['id'])
+            self.assertEqual(count_aggr.geom, None)  # In both zone counts the geom is an empty string. So we check whether they are None
+            self.assertEqual(count_aggr.message, post_data['data'][0]['message'])
+            self.assertEqual(count_aggr.version, post_data['data'][0]['version'])
 
     def test_post_fails_without_token(self):
         response = self.client.post(self.URL, json.loads(TEST_POST), format='json')
