@@ -1,7 +1,7 @@
 from django.db import migrations
 
 VIEWS = [
-    'cmsa_1h_count_view_v1',  # TODO: Check whether anybody still uses this view
+    'cmsa_1h_count_view_v1',
     'cmsa_15min',
     'cmsa_15min_view_v2',
     'cmsa_15min_view_v3',
