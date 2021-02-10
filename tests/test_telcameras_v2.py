@@ -249,9 +249,9 @@ class DataPosterTest(APITestCase):
 
             # Get the post data for this CountAggregate (they might not be in the same order)
             posted_count_aggregate = None
-            for postedCountAggregate in post_data['data'][0]['aggregate']:
-                if postedCountAggregate['type'] == count_aggr.type:
-                    posted_count_aggregate = postedCountAggregate
+            for aggregate in post_data['data'][0]['aggregate']:
+                if aggregate['type'] == count_aggr.type:
+                    posted_count_aggregate = aggregate
 
             if count_aggr.type == 'line':
                 fields_to_check = ('type', 'azimuth', 'count_in', 'count_out')
@@ -297,7 +297,7 @@ class DataPosterTest(APITestCase):
         # Check the Observation record
         self.assertEqual(response.status_code, 201, response.data)
         self.assertEqual(Observation.objects.all().count(), 1)
-        observation = Observation.objects.all()[0]
+        observation = Observation.objects.get()
         fields_to_check = ('sensor', 'sensor_type', 'sensor_state', 'owner', 'supplier', 'purpose', 'latitude',
                            'longitude', 'interval', 'timestamp_message', 'timestamp_start')
         for attr in fields_to_check:
@@ -314,9 +314,9 @@ class DataPosterTest(APITestCase):
 
             # Get the post data for this CountAggregate (they might not be in the same order)
             posted_count_aggregate = None
-            for postedCountAggregate in post_data['data'][0]['aggregate']:
-                if postedCountAggregate['id'] == count_aggr.external_id:
-                    posted_count_aggregate = postedCountAggregate
+            for aggregate in post_data['data'][0]['aggregate']:
+                if aggregate['id'] == count_aggr.external_id:
+                    posted_count_aggregate = aggregate
 
             # Check whether we actually found the correct posted count aggregate
             self.assertEqual(type(posted_count_aggregate), dict)
