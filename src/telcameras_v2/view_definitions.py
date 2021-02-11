@@ -1457,7 +1457,11 @@ VIEW_STRINGS = {
             select
               sel3.sensor
             , sel3.timestamp_rounded
-            , coalesce(oc.total_count::integer, 0)  as total_count
+            , case
+                when left(sel3.sensor, 4) in ('GADM', 'GAMM')           -- This filter applies to zone sensors for wich only the area_count is filled 
+                then coalesce(oc.area_count::integer, 0)
+                else coalesce(oc.total_count::integer, 0)
+              end                                   as total_count
             , coalesce(oc.count_in::integer, 0)     as count_up
             , coalesce(oc.count_out::integer, 0)    as count_down
             , case
