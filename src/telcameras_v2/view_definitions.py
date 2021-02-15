@@ -1,5 +1,5 @@
 VIEW_STRINGS = {
-    # NOTE: the regex in thes queries cause a DeprecationWarning: invalid escape sequence
+    # NOTE: the regex in these queries cause a DeprecationWarning: invalid escape sequence
     # For this reason we use a rawstring for these queries
     'cmsa_15min_view_v4': r"""CREATE VIEW cmsa_15min_view_v4 AS
     WITH rawdata AS (
