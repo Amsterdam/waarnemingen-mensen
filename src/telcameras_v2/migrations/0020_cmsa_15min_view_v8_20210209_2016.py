@@ -6,7 +6,7 @@ from telcameras_v2.view_definitions import get_view_strings
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('telcameras_v2', '0019_drop_old_views_20210209_1153'),
+        ('telcameras_v2', '0018_drop_old_tables_20200208_1555'),
         ('telcameras_v3', '0002_timescale_20201214_1412'),
     ]
 
