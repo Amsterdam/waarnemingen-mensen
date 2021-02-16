@@ -15,7 +15,7 @@ VIEWS = [
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('telcameras_v2', '0018_drop_old_tables_20200208_1555'),
+        ('telcameras_v2', '0022_cmsa_15min_view_v8_realtime_predict_20210211'),
     ]
 
     # Remove the old views which aren't used anymore
