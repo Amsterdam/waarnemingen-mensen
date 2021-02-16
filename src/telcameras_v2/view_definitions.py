@@ -1338,18 +1338,33 @@ VIEW_STRINGS = {
             , ds.timestamp_rounded 
         )
 
+        , v2_zone_sensor as (
+            -- Zone sensors give 2 count values (one per area) but in the observation table there is only 1 sensorname. This piece of code generates a new sensorname which contains the area because we want to know the count value per area.
+            -- Filter just 1 day from performance perspective. When filtering less (for example 1 hour) it is possible that there is no data available. Data is only available when there is actually a participant in the images of the sensor.
+            select 
+              external_id
+            , substring(external_id, 0, length(external_id) -5) as sensor
+            from public.telcameras_v2_countaggregate
+            where 1=1
+            and left(external_id, 4) in ('GADM', 'GAMM')
+            and observation_timestamp_start > (now() - '1 day'::interval)
+            group by external_id
+        )
+
         , v2_selectie as (
             select
-              id
-            , sensor
-            , timestamp_start
-            ,       date_trunc('hour'::text, timestamp_start) 
-                + (date_part('minute'::text, timestamp_start)::integer / 15)::double precision 
+              o.id
+            , coalesce(zs.external_id, o.sensor) as sensor          -- use external_id for zone sensors (these contain the area)
+            , o.timestamp_start
+            ,       date_trunc('hour'::text, o.timestamp_start) 
+                + (date_part('minute'::text, o.timestamp_start)::integer / 15)::double precision 
                 * '00:15:00'::interval                                                              as timestamp_rounded
             , 1                                                                                     as aantal
-            from telcameras_v2_observation
+            from telcameras_v2_observation  as o
+            left join v2_zone_sensor        as zs   on  left(o.sensor, 4) in ('GADM', 'GAMM')
+                                                    and o.sensor = zs.sensor
             where (
-                id in (
+                o.id in (
                     select
                       t.id
                     from (
@@ -1369,8 +1384,8 @@ VIEW_STRINGS = {
                     where t.row_num = 1
                 )
             )
-            and timestamp_start > (now() - '1 year'::interval)
-            and timestamp_start < (now() - '00:18:00'::interval) 
+            and o.timestamp_start > (now() - '1 year'::interval)
+            and o.timestamp_start < (now() - '00:18:00'::interval) 
         )
 
         , v2_sensor_15min_sel as (
@@ -1436,6 +1451,28 @@ VIEW_STRINGS = {
         )
 
         , v2_countaggregate_zone_count as (
+            -- For non-zone sensors 
+            select
+              sel.sensor
+            , sel.timestamp_rounded
+            , max(c.azimuth)                    as azimuth          -- azimuth is always the same so max()/min() doesn't do anything (just for grouping)
+            , sum(c.count_in)                   as count_in
+            , sum(c.count_out)                  as count_out
+            , sum(c.count_in + c.count_out)     as total_count
+            , avg(c.count)                      as area_count
+            , max(c.area)                       as area
+            from telcameras_v2_countaggregate       as c
+            join v2_selectie                        as sel  on  c.observation_id = sel.id
+                                                            and c.observation_timestamp_start = sel.timestamp_start
+            where 1=1
+            and left(sel.sensor, 4) not in ('GADM', 'GAMM')
+            group by
+              sel.sensor
+            , sel.timestamp_rounded
+
+            union all
+
+            -- For zone sensors (beginning with 'GADM', 'GAMM') use a extra join argument on external_id to get the correct count values. Needed because one observation (observation_id) consist both area count values. 
             select
               sel.sensor
             , sel.timestamp_rounded
@@ -1448,9 +1485,12 @@ VIEW_STRINGS = {
             from telcameras_v2_countaggregate       as c
             join v2_selectie                        as sel  on  c.observation_id = sel.id
                                                             and c.observation_timestamp_start = sel.timestamp_start
+                                                            and c.external_id = sel.sensor
+            where 1=1
+            and left(sel.sensor, 4) in ('GADM', 'GAMM')
             group by
               sel.sensor
-            , sel.timestamp_rounded 
+            , sel.timestamp_rounded
         )
 
         , v2_data as (
@@ -1724,7 +1764,7 @@ VIEW_STRINGS = {
 
         with mat_view_updated as (
             select
-            sensor
+              sensor
             , max(timestamp_rounded) + '00:15:00'::interval as last_updated
             from cmsa_15min_view_v8_materialized
             where timestamp_rounded > (now() - '3 days'::interval)
@@ -1733,32 +1773,47 @@ VIEW_STRINGS = {
 
         , time_serie as (
             select
-            mat_view_updated.sensor
+              mat_view_updated.sensor
             , generate_series(mat_view_updated.last_updated, now() + '01:00:00'::interval, '00:15:00'::interval) as timestamp_rounded
             from mat_view_updated
         )
 
+        , v2_zone_sensor as (
+            -- Zone sensors give 2 count values (one per area) but in the observation table there is only 1 sensorname. This piece of code generates a new sensorname which contains the area because we want to know the count value per area.
+            -- Filter just 1 day from performance perspective. When filtering less (for example 1 hour) it is possible that there is no data available. Data is only available when there is actually a participant in the images of the sensor.
+            select 
+              external_id
+            , substring(external_id, 0, length(external_id) -5) as sensor
+            from public.telcameras_v2_countaggregate
+            where 1=1
+            and left(external_id, 4) in ('GADM', 'GAMM')
+            and observation_timestamp_start > (now() - '1 day'::interval)
+            group by external_id
+        )
+
         , v2_selectie as (
             select
-            o.id
-            , o.sensor
+              o.id
+            , coalesce(zs.external_id, o.sensor) as sensor          -- use external_id for zone sensors (these contain the area)
             , o.timestamp_start
             ,      date_trunc('hour'::text, o.timestamp_start) 
                 + (date_part('minute'::text, o.timestamp_start)::integer / 15)::double precision 
                 * '00:15:00'::interval                                                              as timestamp_rounded
             , 1                                                                                     as aantal
             from telcameras_v2_observation      as o
+            left join v2_zone_sensor            as zs   on  left(o.sensor, 4) in ('GADM', 'GAMM')
+                                                        and o.sensor = zs.sensor
             left join mat_view_updated          as u    on o.sensor::text = u.sensor::text
             where (
                 o.id in (
                     select
-                    t.id
+                      t.id
                     from (
                         select
                         id
                         , row_number() over (
                                 partition by 
-                                sensor
+                                  sensor
                                 , timestamp_start
                                 order by
                                 sensor
@@ -1773,28 +1828,28 @@ VIEW_STRINGS = {
             )
             and o.timestamp_start > (now() - '1 days'::interval)
             and (
-                o.timestamp_start > u.last_updated
+                   o.timestamp_start > u.last_updated
                 or u.last_updated is null
             )
         )
 
         , v2_sensor_15min_sel as (
             select
-            v2_selectie.sensor
+              v2_selectie.sensor
             , v2_selectie.timestamp_rounded
             from v2_selectie
             group by
-            v2_selectie.sensor
+              v2_selectie.sensor
             , v2_selectie.timestamp_rounded
             order by
-            v2_selectie.sensor
+              v2_selectie.sensor
             , v2_selectie.timestamp_rounded
         )
 
         , v2_observatie_snelheid as (
             with v2_observatie_persoon as (
                 select
-                sel.sensor
+                  sel.sensor
                 , sel.timestamp_rounded
                 , pa.speed
                 , string_to_array(substr(pa.geom::text, "position"(pa.geom::text, '('::text) + 1, "position"(pa.geom::text, ')'::text) - "position"(pa.geom::text, '('::text) - 1), ' '::text) as tijd_array
@@ -1810,7 +1865,7 @@ VIEW_STRINGS = {
                 union all
             
                 select
-                sel2.sensor
+                  sel2.sensor
                 , sel2.timestamp_rounded
                 , pa.speed
                 , array['1'::text, '2'::text]   as tijd_array
@@ -1821,13 +1876,13 @@ VIEW_STRINGS = {
                 and pa.observation_timestamp_start > (now() - '1 days'::interval)
                 and pa.speed is not null
                 and (
-                    pa.geom is null
+                       pa.geom is null
                     or pa.geom::text = ''::text
                 ) 
             )
             
             select
-            sensor
+              sensor
             , timestamp_rounded
             , case
                 when sum(tijd_array[cardinality(tijd_array)]::numeric - tijd_array[1]::numeric) > 0::numeric
@@ -1837,13 +1892,14 @@ VIEW_STRINGS = {
             end as speed_avg
             from v2_observatie_persoon
             group by
-            sensor
+              sensor
             , timestamp_rounded 
         )
 
         , v2_countaggregate_zone_count as (
+            -- For non-zone sensors 
             select
-            sel.sensor
+              sel.sensor
             , sel.timestamp_rounded
             , max(c.azimuth)                as azimuth
             , sum(c.count_in)               as count_in
@@ -1857,8 +1913,32 @@ VIEW_STRINGS = {
                                                         and c.observation_timestamp_start = sel.timestamp_start
             where 1=1
             and c.observation_timestamp_start > (now() - '1 days'::interval)
+            and left(sel.sensor, 4) not in ('GADM', 'GAMM')
             group by
-            sel.sensor
+              sel.sensor
+            , sel.timestamp_rounded
+
+            union all
+
+            -- For zone sensors (beginning with 'GADM', 'GAMM') use a extra join argument on external_id to get the correct count values. Needed because one observation (observation_id) consist both area count values. 
+            select
+              sel.sensor
+            , sel.timestamp_rounded
+            , max(c.azimuth)                    as azimuth
+            , sum(c.count_in)                   as count_in
+            , sum(c.count_out)                  as count_out
+            , sum(c.count_in + c.count_out)     as total_count
+            , avg(c.count)                      as area_count
+            , max(c.area)                       as area
+            from telcameras_v2_countaggregate       as c
+            join v2_selectie                        as sel  on  c.observation_id = sel.id
+                                                            and c.observation_timestamp_start = sel.timestamp_start
+                                                            and c.external_id = sel.sensor
+            where 1=1
+            and c.observation_timestamp_start > (now() - '1 days'::interval)
+            and left(sel.sensor, 4) in ('GADM', 'GAMM')
+            group by
+              sel.sensor
             , sel.timestamp_rounded
         )
 
@@ -1992,7 +2072,7 @@ VIEW_STRINGS = {
 
         , aggregatedbyquarter as (
             select
-            sel3.sensor
+              sel3.sensor
             , sel3.timestamp_rounded
             , case
                 when left(sel3.sensor, 4) in ('GADM', 'GAMM')           -- This filter applies to zone sensors for wich only the area_count is filled  
