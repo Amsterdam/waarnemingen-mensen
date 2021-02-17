@@ -6,7 +6,7 @@ from telcameras_v2.view_definitions import get_view_strings
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('telcameras_v2', '0022_cmsa_15min_view_v8_realtime_predict_20210211'),
+        ('telcameras_v2', '0023_drop_old_views_20210209_1153'),
     ]
 
     # NOTE: Simply remove the views and redeploy them. Because the materialized view
