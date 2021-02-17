@@ -1930,6 +1930,7 @@ VIEW_STRINGS = {
             , sum(c.count_in + c.count_out)     as total_count
             , avg(c.count)                      as area_count
             , max(c.area)                       as area
+            , count(*)                          as basedonxmessages
             from telcameras_v2_countaggregate       as c
             join v2_selectie                        as sel  on  c.observation_id = sel.id
                                                             and c.observation_timestamp_start = sel.timestamp_start
@@ -2100,7 +2101,7 @@ VIEW_STRINGS = {
             union all
             
             select 
-            sensor
+              sensor
             , timestamp_rounded
             , total_count
             , count_up

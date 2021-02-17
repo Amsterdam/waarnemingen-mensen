@@ -20,7 +20,12 @@ class Migration(migrations.Migration):
     _realtime_view_strings = get_view_strings(_REALTIME_VIEW_NAME)
 
     operations = [
-         # First remove the views
+        # First remove the views
+
+        migrations.RunSQL(
+            sql=_realtime_view_strings['reverse_sql_materialized'],
+            reverse_sql=_realtime_view_strings['sql_materialized']
+        ),
         migrations.RunSQL(
             sql=_realtime_view_strings['reverse_sql'],
             reverse_sql=_realtime_view_strings['sql']
