@@ -2,8 +2,8 @@ import json
 import logging
 
 from django.conf import settings
+from ingress.consumer.base import BaseConsumer
 
-from ingress.parser import IngressParser
 from telcameras_v2.serializers import ObservationSerializer
 from telcameras_v2.tools import (SensorError, data_to_observation,
                                  get_sensor_for_data)
@@ -11,11 +11,11 @@ from telcameras_v2.tools import (SensorError, data_to_observation,
 logger = logging.getLogger(__name__)
 
 
-class TelcameraParser(IngressParser):
-    endpoint_url_key = 'telcameras_v2'
+class TelcameraParser(BaseConsumer):
+    collection_name = 'telcameras_v2'
 
-    def parse_single_message(self, ingress_raw_data):
-        data = json.loads(ingress_raw_data)['data']
+    def consume_raw_data(self, raw_data):
+        data = json.loads(raw_data)['data']
         observation = data_to_observation(data)
 
         if not settings.STORE_ALL_DATA_TELCAMERAS_V2:
