@@ -39,6 +39,8 @@ coreschema==0.0.4
     #   drf-yasg
 coverage==5.5
     # via pytest-cov
+datapunt-waarnemingen-ingress==0.0.1
+    # via -r ./requirements.txt
 decorator==4.4.2
     # via ipython
 defusedxml==0.7.0
@@ -56,6 +58,7 @@ django-filter==2.4.0
 django==3.1.7
     # via
     #   -r ./requirements.txt
+    #   datapunt-waarnemingen-ingress
     #   django-datetime-utc
     #   django-debug-toolbar
     #   django-filter

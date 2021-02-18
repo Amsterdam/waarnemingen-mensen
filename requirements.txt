@@ -18,6 +18,8 @@ coreschema==0.0.4
     # via
     #   coreapi
     #   drf-yasg
+datapunt-waarnemingen-ingress==0.0.1
+    # via -r requirements.in
 defusedxml==0.7.0
     # via djangorestframework-xml
 django-datetime-utc==1.0.3
@@ -31,6 +33,7 @@ django-filter==2.4.0
 django==3.1.7
     # via
     #   -r requirements.in
+    #   datapunt-waarnemingen-ingress
     #   django-datetime-utc
     #   django-debug-toolbar
     #   django-filter
