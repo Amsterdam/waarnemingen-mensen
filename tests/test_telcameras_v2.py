@@ -6,11 +6,13 @@ from decimal import Decimal
 import pytz
 from dateutil import parser
 from django.conf import settings
-from django.test import override_settings
+from django.test import TestCase, override_settings
+from model_bakery import baker
 from rest_framework.test import APITestCase
 
 from peoplemeasurement.models import Sensors
 from telcameras_v2.models import CountAggregate, Observation, PersonAggregate
+from telcameras_v2.tools import scramble_count_aggregate
 
 log = logging.getLogger(__name__)
 timezone = pytz.timezone("UTC")
@@ -401,3 +403,53 @@ class DataPosterTest(APITestCase):
     def test_405_on_delete(self):
         response = self.client.delete(self.URL, json.loads(TEST_POST), **AUTHORIZATION_HEADER, format='json')
         self.assertEqual(response.status_code, 405, response.data)
+
+
+class ToolsTest(TestCase):
+    def test_scramble_counts_vanilla(self):
+        count_agg = baker.make(CountAggregate)
+        count_agg.count_in = 1
+        count_agg.count_out = 1
+        count_agg.count_in_scrambled = None
+        count_agg.count_out_scrambled = None
+
+        count_agg = scramble_count_aggregate(count_agg)
+
+        self.assertIn(count_agg.count_in_scrambled, (0, 1, 2))
+        self.assertIn(count_agg.count_out_scrambled, (0, 1, 2))
+
+    def test_scramble_counts_with_counts_none(self):
+        count_agg = baker.make(CountAggregate)
+        count_agg.count_in = None
+        count_agg.count_out = None
+        count_agg.count_in_scrambled = None
+        count_agg.count_out_scrambled = None
+
+        count_agg = scramble_count_aggregate(count_agg)
+
+        self.assertIsNone(count_agg.count_in_scrambled)
+        self.assertIsNone(count_agg.count_out_scrambled)
+
+    def test_scramble_counts_doesnt_overwrite(self):
+        count_agg = baker.make(CountAggregate)
+        count_agg.count_in = 1
+        count_agg.count_out = 1
+        count_agg.count_in_scrambled = 1
+        count_agg.count_out_scrambled = 1
+
+        count_agg = scramble_count_aggregate(count_agg)
+
+        self.assertEquals(count_agg.count_in_scrambled, 1)
+        self.assertEquals(count_agg.count_out_scrambled, 1)
+
+    def test_scramble_counts_with_counts_zero(self):
+        count_agg = baker.make(CountAggregate)
+        count_agg.count_in = 0
+        count_agg.count_out = 0
+        count_agg.count_in_scrambled = None
+        count_agg.count_out_scrambled = None
+
+        count_agg = scramble_count_aggregate(count_agg)
+
+        self.assertIn(count_agg.count_in_scrambled, (0, 1))
+        self.assertIn(count_agg.count_out_scrambled, (0, 1))
