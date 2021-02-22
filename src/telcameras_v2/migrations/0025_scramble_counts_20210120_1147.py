@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('telcameras_v2', '0017_cmsa_15min_view_v7_again_20201201_1515'),
+        ('telcameras_v2', '0024_redeploy_cmsa_15min_view_v8_20210216_1433'),
     ]
 
     operations = [
