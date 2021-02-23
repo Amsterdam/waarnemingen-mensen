@@ -1,3 +1,4 @@
+from django.test import TestCase
 import json
 import logging
 
@@ -5,13 +6,14 @@ import pytest
 import pytz
 from django.conf import settings
 from django.test import override_settings
-from ingress.models import Collection, Message, FailedMessage
+from ingress.models import Collection, FailedMessage, Message
 from model_bakery import baker
 
 from peoplemeasurement.models import Sensors
 from telcameras_v3.ingress_parser import TelcameraParser
 from telcameras_v3.models import GroupAggregate, Observation, Person
 from telcameras_v3.tools import scramble_group_aggregate
+from tests.tools_for_testing import call_man_command
 
 log = logging.getLogger(__name__)
 timezone = pytz.timezone("UTC")
@@ -239,7 +241,7 @@ class TestDataIngressPoster:
 
 
 @pytest.mark.django_db
-class TestTools:
+class TestTools(TestCase):
     def test_scramble_count_vanilla(self):
         count_agg = baker.make(GroupAggregate)
         count_agg.count = 1
@@ -273,5 +275,23 @@ class TestTools:
         count_agg.count_scrambled = None
 
         count_agg = scramble_group_aggregate(count_agg)
+        self.assertIn(count_agg.count_scrambled, (0, 1))
 
-        assert count_agg.count_scrambled in (0, 1)
+    def test_scramble_v3_counts_command(self):
+        baker.make(GroupAggregate, _quantity=1100)
+        for ga in GroupAggregate.objects.all():
+            self.assertIsNotNone(ga.count)
+            self.assertIsNone(ga.count_scrambled)
+
+        # Do the scrambling
+        call_man_command('scramble_v3_counts')
+
+        differ_count = 0
+        for ga in GroupAggregate.objects.all():
+            self.assertIsNotNone(ga.count_scrambled)
+            self.assertIn(ga.count_scrambled, (ga.count-1, ga.count, ga.count+1))
+            if ga.count_scrambled != ga.count:
+                differ_count += 1
+
+        # Make sure that a significant amount of counts_scrambled were actually changed from the original
+        self.assertGreater(differ_count, 600)

@@ -2,6 +2,7 @@ import json
 import logging
 from datetime import datetime
 from decimal import Decimal
+from random import randint
 
 import pytest
 import pytz
@@ -15,6 +16,7 @@ from peoplemeasurement.models import Sensors
 from telcameras_v2.ingress_parser import TelcameraParser
 from telcameras_v2.models import CountAggregate, Observation
 from telcameras_v2.tools import scramble_count_aggregate
+from tests.tools_for_testing import call_man_command
 
 log = logging.getLogger(__name__)
 timezone = pytz.timezone("UTC")
@@ -453,3 +455,47 @@ class ToolsTest():
         assert count_agg.count_in_scrambled in (0, 1)
         assert count_agg.count_out_scrambled in (0, 1)
         assert count_agg.count_scrambled in (0, 1)
+
+    def test_scramble_v2_counts_command(self):
+        baker.make(CountAggregate, _fill_optional=['count_in', 'count_out', 'count'], _quantity=1100)
+        for ca in CountAggregate.objects.all():
+            # ModelBaker doesn't take the smallinteger into account, so we adjust for it here
+            if ca.count_in >= 32767 or ca.count_out >= 32767 or ca.count >= 32767:
+                ca.count_in = randint(0, 1000)
+                ca.count_out = randint(0, 1000)
+                ca.count = randint(0, 1000)
+                ca.save()
+
+            self.assertIsNotNone(ca.count_in)
+            self.assertIsNotNone(ca.count_out)
+            self.assertIsNotNone(ca.count)
+            self.assertIsNone(ca.count_in_scrambled)
+            self.assertIsNone(ca.count_out_scrambled)
+            self.assertIsNone(ca.count_scrambled)
+
+        # Do the scrambling
+        call_man_command('scramble_v2_counts')
+
+        differ_count_in = 0
+        differ_count_out = 0
+        differ_count = 0
+        for ca in CountAggregate.objects.all():
+            self.assertIsNotNone(ca.count_in_scrambled)
+            self.assertIn(ca.count_in_scrambled, (ca.count_in - 1, ca.count_in, ca.count_in + 1))
+            if ca.count_in_scrambled != ca.count_in:
+                differ_count_in += 1
+
+            self.assertIsNotNone(ca.count_out_scrambled)
+            self.assertIn(ca.count_out_scrambled, (ca.count_out - 1, ca.count_out, ca.count_out + 1))
+            if ca.count_out_scrambled != ca.count_out:
+                differ_count_out += 1
+
+            self.assertIsNotNone(ca.count_scrambled)
+            self.assertIn(ca.count_scrambled, (ca.count - 1, ca.count, ca.count + 1))
+            if ca.count_scrambled != ca.count:
+                differ_count += 1
+
+        # Make sure that a significant amount of counts_scrambled were actually changed from the original
+        self.assertGreater(differ_count_in, 600)
+        self.assertGreater(differ_count_out, 600)
+        self.assertGreater(differ_count, 600)
