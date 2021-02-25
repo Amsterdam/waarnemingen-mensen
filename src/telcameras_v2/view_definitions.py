@@ -1765,16 +1765,16 @@ VIEW_STRINGS = {
         with mat_view_updated as (
             select
               sensor
-            , max(timestamp_rounded) + '00:15:00'::interval as last_updated
+            ,  min(timestamp_rounded) as start_datetime
             from cmsa_15min_view_v8_materialized
-            where timestamp_rounded > (now() - '3 days'::interval)
+            where timestamp_rounded > (now() - '1 day'::interval)
             group by sensor
         )
 
         , time_serie as (
             select
               mat_view_updated.sensor
-            , generate_series(mat_view_updated.last_updated, now() + '01:00:00'::interval, '00:15:00'::interval) as timestamp_rounded
+            , generate_series(start_datetime, now() + '01:00:00'::interval, '00:15:00'::interval) as timestamp_rounded
             from mat_view_updated
         )
 
@@ -1821,16 +1821,12 @@ VIEW_STRINGS = {
                                 , timestamp_message desc
                         ) as row_num
                         from telcameras_v2_observation
-                        where timestamp_start > (now() - '1 days'::interval)
+                        where timestamp_start > (now() - '1 day'::interval)
                     ) as t
                     where t.row_num = 1
                 )
             )
-            and o.timestamp_start > (now() - '1 days'::interval)
-            and (
-                   o.timestamp_start > u.last_updated
-                or u.last_updated is null
-            )
+            and o.timestamp_start > (now() - '1 day'::interval)
         )
 
         , v2_sensor_15min_sel as (
@@ -1839,9 +1835,6 @@ VIEW_STRINGS = {
             , v2_selectie.timestamp_rounded
             from v2_selectie
             group by
-              v2_selectie.sensor
-            , v2_selectie.timestamp_rounded
-            order by
               v2_selectie.sensor
             , v2_selectie.timestamp_rounded
         )
@@ -1854,10 +1847,12 @@ VIEW_STRINGS = {
                 , pa.speed
                 , string_to_array(substr(pa.geom::text, "position"(pa.geom::text, '('::text) + 1, "position"(pa.geom::text, ')'::text) - "position"(pa.geom::text, '('::text) - 1), ' '::text) as tijd_array
                 from telcameras_v2_personaggregate  as pa
-                join v2_selectie                    as sel  on  pa.observation_id = sel.id
-                                                            and pa.observation_timestamp_start = sel.timestamp_start
+                join v2_selectie                    as sel  on pa.observation_timestamp_start > (now() - '1 day'::interval)
+                                                               and pa.observation_timestamp_start = sel.timestamp_start
+                                                               and pa.observation_id = sel.id
+                                                            
                 where 1=1
-                and pa.observation_timestamp_start > (now() - '1 days'::interval)
+                and pa.observation_timestamp_start > (now() - '1 day'::interval)
                 and pa.speed is not null
                 and pa.geom is not null
                 and pa.geom::text <> ''::text
@@ -1870,10 +1865,11 @@ VIEW_STRINGS = {
                 , pa.speed
                 , array['1'::text, '2'::text]   as tijd_array
                 from telcameras_v2_personaggregate  as pa
-                join v2_selectie                    as sel2     on  pa.observation_id = sel2.id
+                join v2_selectie                    as sel2     on  pa.observation_timestamp_start > (now() - '1 day'::interval)
+                                                                and pa.observation_id = sel2.id
                                                                 and pa.observation_timestamp_start = sel2.timestamp_start
                 where 1=1
-                and pa.observation_timestamp_start > (now() - '1 days'::interval)
+                and pa.observation_timestamp_start > (now() - '1 day'::interval)
                 and pa.speed is not null
                 and (
                        pa.geom is null
@@ -1909,10 +1905,11 @@ VIEW_STRINGS = {
             , max(c.area)                   as area
             , count(*)                      as basedonxmessages
             from telcameras_v2_countaggregate   as c
-            join v2_selectie                    as sel   on  c.observation_id = sel.id
+            join v2_selectie                    as sel   on  c.observation_timestamp_start > (now() - '1 day'::interval)
+                                                        and c.observation_id = sel.id
                                                         and c.observation_timestamp_start = sel.timestamp_start
             where 1=1
-            and c.observation_timestamp_start > (now() - '1 days'::interval)
+            and c.observation_timestamp_start > (now() - '1 day'::interval)
             and left(sel.sensor, 4) not in ('GADM', 'GAMM')
             group by
               sel.sensor
@@ -1932,11 +1929,12 @@ VIEW_STRINGS = {
             , max(c.area)                       as area
             , count(*)                          as basedonxmessages
             from telcameras_v2_countaggregate       as c
-            join v2_selectie                        as sel  on  c.observation_id = sel.id
+            join v2_selectie                        as sel  on  c.observation_timestamp_start > (now() - '1 day'::interval)
+                                                            and c.observation_id = sel.id
                                                             and c.observation_timestamp_start = sel.timestamp_start
                                                             and c.external_id = sel.sensor
             where 1=1
-            and c.observation_timestamp_start > (now() - '1 days'::interval)
+            and c.observation_timestamp_start > (now() - '1 day'::interval)
             and left(sel.sensor, 4) in ('GADM', 'GAMM')
             group by
               sel.sensor
@@ -1984,16 +1982,12 @@ VIEW_STRINGS = {
                             , created_at desc
                         ) as row_num
                         from telcameras_v3_observation
-                        where timestamp > (now() - '1 days'::interval)
+                        where timestamp > (now() - '1 day'::interval)
                     ) t
                     where t.row_num = 1
                 )
             )
-            and o.timestamp > (now() - '1 days'::interval)  -- Retreive only data from for 1 day (based on current timestamp)
-            and (                                           -- ..?
-                o.timestamp > u.last_updated
-                or u.last_updated is null
-            )
+            and o.timestamp > (now() - '1 day'::interval)  -- Retreive only data from for 1 day (based on current timestamp)
         )
 
         , v3_sensor_15min_sel as (
@@ -2016,7 +2010,7 @@ VIEW_STRINGS = {
         -- , sum(grpagg.median_speed)          as median_speed             -- sum over the median speed in meters/seconds, not needed because this median_speed is coming from the observation and therefore is per 1 minute
         --                                                                 -- so for a better calculation we use a new calculation with cumulative_distance / cumulative_time
             from telcameras_v3_groupaggregate       as grpagg
-            inner join v3_selectie                  as sel      on grpagg.observation_id = sel.observation_id
+            inner join v3_selectie                  as sel      on grpagg.observation_timestamp > (now() - '1 day'::interval) and grpagg.observation_id = sel.observation_id
             where 1=1
             and grpagg.observation_id in (
                 select observation_id 
@@ -2026,9 +2020,6 @@ VIEW_STRINGS = {
             sel.sensor
             , sel.timestamp_rounded
             , grpagg.azimuth
-            order by 
-            sel.sensor
-            , sel.timestamp_rounded
         )
 
         , v3_data as (
@@ -2237,10 +2228,6 @@ VIEW_STRINGS = {
             left join peoplemeasurement_voorspelcoefficient     as vc   on  vc.sensor::text = d.sensor::text
                                                                         and vc.bron_kwartier_volgnummer = d.bronnr
                                                                         and vc.toepassings_kwartier_volgnummer = d.toepnr
-            order by
-            d.sensor
-            , d.toepnr
-            , d.bronnr
         )
 
         , voorspel_berekening as (
@@ -2260,10 +2247,6 @@ VIEW_STRINGS = {
                 )                                     as total_count_voorspeld
                 from alle_data_met_vc
                 group by
-                sensor
-                , timestamp_rounded_toep
-                , toepnr
-                order by
                 sensor
                 , timestamp_rounded_toep
                 , toepnr
@@ -2315,7 +2298,9 @@ VIEW_STRINGS = {
         s.sensor
         , s.timestamp_rounded
         ;
-    """
+    """,
+
+
 }
 
 
