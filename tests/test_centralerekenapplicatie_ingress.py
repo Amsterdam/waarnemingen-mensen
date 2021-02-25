@@ -144,16 +144,15 @@ class TestDataIngressPoster:
     #     assert LineMetric.objects.all().count() == 3
     #     assert LineMetricCount.objects.all().count() == 6
 
-
     @pytest.mark.parametrize(
         "store_all_data,expected_areas,expected_lines,expected_line_counts", [
             (True, 3, 3, 6),
             (False, 0, 0, 0),
         ]
     )
-    def test_data_for_inactive_sensor_is_added_to_the_db(
+    def test_data_for_inactive_sensor(
             self, client, store_all_data, expected_areas,
-            expected_lines,expected_line_counts
+            expected_lines, expected_line_counts
     ):
         with override_settings(STORE_ALL_DATA_CRA=store_all_data):
             # First add a couple ingress records with a non existing sensor code
@@ -197,9 +196,9 @@ class TestDataIngressPoster:
             (False, 0, 0, 0),
         ]
     )
-    def test_data_for_non_existing_sensor_is_not_added_to_the_db(
+    def test_data_for_non_existing_sensor(
             self, client, store_all_data, expected_areas,
-            expected_lines,expected_line_counts
+            expected_lines, expected_line_counts
     ):
         with override_settings(STORE_ALL_DATA_CRA=store_all_data):
             # First add a couple ingress records with a non existing sensor code

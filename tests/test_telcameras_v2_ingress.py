@@ -33,36 +33,48 @@ class TestDataIngressPoster:
         # Create the sensor in the database
         self.sensor = Sensors.objects.create(objectnummer='GAVM-01-Vondelstraat')
 
-    @override_settings(STORE_ALL_DATA_TELCAMERAS_V2=True)
-    def test_data_for_inactive_sensor_is_added_to_the_db_if_STORE_ALL_DATA_is_true(self, client):
-        # First add a couple ingress records with a non existing sensor code
+    @pytest.mark.parametrize(
+        "store_all_data", [True, False]
+    )
+    def test_parse_ingress(self, client, store_all_data):
+        with override_settings(STORE_ALL_DATA_TELCAMERAS_V2=store_all_data):
+            # First add a couple ingress records
+            Message.objects.all().delete()
+            for i in range(3):
+                client.post(self.URL, TEST_POST, **AUTHORIZATION_HEADER, content_type='application/json')
+            assert Message.objects.count() == 3
+
+            # Then run the parse_ingress script
+            parser = TelcameraParser()
+            parser.consume(end_at_empty_queue=True)
+
+            # Test whether the records in the ingress queue are correctly set to parsed
+            assert Message.objects.filter(consume_succeeded_at__isnull=False).count() == 3
+            assert FailedMessage.objects.count() == 0
+            for ingress in Message.objects.all():
+                assert ingress.consume_started_at is not None
+                assert ingress.consume_succeeded_at is not None
+
+            # Test whether the records were added to the database
+            assert Observation.objects.all().count() == 3
+
+    def test_parse_ingress_fail_with_wrong_input(self, client):
+        # First add an ingress record which is not correct json
         Message.objects.all().delete()
-        for i in range(3):
-            client.post(self.URL, TEST_POST, **AUTHORIZATION_HEADER, content_type='application/json')
-        assert Message.objects.count() == 3
+        client.post(self.URL, "NOT JSON", **AUTHORIZATION_HEADER, content_type='application/json')
+        assert Message.objects.count() == 1
 
-        # Set the sensor to inactive
-        self.sensor.is_active = False
-        self.sensor.save()
-
-        # Then run the parser
+        # Then run the parse_ingress script
         parser = TelcameraParser()
         parser.consume(end_at_empty_queue=True)
 
-        # Test whether the records in the ingress queue are correctly set to parsed
-        assert Message.objects.filter(consume_succeeded_at__isnull=False).count() == 3
-        assert FailedMessage.objects.count() == 0
-        for ingress in Message.objects.all():
-            assert ingress.consume_started_at is not None
-            assert ingress.consume_succeeded_at is not None
-
-
-        # Test whether the records were added to the database
-        assert Observation.objects.all().count() == 3
-
-        # Set the sensor back to active again
-        self.sensor.is_active = True
-        self.sensor.save()
+        # Test whether the record in the ingress queue is moved to the failed queue
+        assert Message.objects.count() == 0
+        assert FailedMessage.objects.count() == 1
+        for failed_ingress in FailedMessage.objects.all():
+            assert failed_ingress.consume_started_at is not None
+            assert failed_ingress.consume_failed_at is not None
+            assert failed_ingress.consume_succeeded_at is None
 
     @pytest.mark.parametrize(
         "store_all_data,expected_observations", [
@@ -70,7 +82,7 @@ class TestDataIngressPoster:
             (False, 0),
         ]
     )
-    def test_data_for_non_existing_sensor_is_not_added_to_the_db(self, client, store_all_data, expected_observations):
+    def test_data_for_non_existing_sensor(self, client, store_all_data, expected_observations):
         with override_settings(STORE_ALL_DATA_TELCAMERAS_V2=store_all_data):
             # First add a couple ingress records with a non existing sensor code
             Message.objects.all().delete()
@@ -95,71 +107,37 @@ class TestDataIngressPoster:
             # Test whether the records were indeed not added to the database
             assert Observation.objects.all().count() == expected_observations
 
-    @override_settings(STORE_ALL_DATA_TELCAMERAS_V2=False)
-    def test_data_for_inactive_sensor_is_not_added_to_the_db(self, client):
-        # First add a couple ingress records with a non existing sensor code
-        Message.objects.all().delete()
-        for i in range(3):
-            client.post(self.URL, TEST_POST, **AUTHORIZATION_HEADER, content_type='application/json')
-        assert Message.objects.count() == 3
+    @pytest.mark.parametrize("store_all_data,expected_observations", [
+        (True, 3),
+        (False, 0)
+    ])
+    def test_data_for_inactive_sensor(self, client, store_all_data, expected_observations):
+        with override_settings(STORE_ALL_DATA_TELCAMERAS_V2=store_all_data):
+            # First add a couple ingress records with a non existing sensor code
+            Message.objects.all().delete()
+            for i in range(3):
+                client.post(self.URL, TEST_POST, **AUTHORIZATION_HEADER, content_type='application/json')
+            assert Message.objects.count() == 3
 
-        # Set the sensor to inactive
-        self.sensor.is_active = False
-        self.sensor.save()
+            # Set the sensor to inactive
+            self.sensor.is_active = False
+            self.sensor.save()
 
-        # Then run the parser
-        parser = TelcameraParser()
-        parser.consume(end_at_empty_queue=True)
+            # Then run the parser
+            parser = TelcameraParser()
+            parser.consume(end_at_empty_queue=True)
 
-        # Test whether the records in the ingress queue are correctly set to parsed
-        assert Message.objects.filter(consume_succeeded_at__isnull=False).count() == 3
-        assert FailedMessage.objects.count() == 0
-        for ingress in Message.objects.all():
-            assert ingress.consume_started_at is not None
-            assert ingress.consume_succeeded_at is not None
+            # Test whether the records in the ingress queue are correctly set to parsed
+            assert Message.objects.filter(consume_succeeded_at__isnull=False).count() == 3
+            assert FailedMessage.objects.count() == 0
+            for ingress in Message.objects.all():
+                assert ingress.consume_started_at is not None
+                assert ingress.consume_succeeded_at is not None
 
-        # Test whether the records were indeed not added to the database
-        assert Observation.objects.all().count() == 0
+            # Test whether the records were indeed not added to the database
+            assert Observation.objects.all().count() == expected_observations
 
-        # Set the sensor back to active again
-        self.sensor.is_active = True
-        self.sensor.save()
+            # Set the sensor back to active again
+            self.sensor.is_active = True
+            self.sensor.save()
 
-    def test_parse_ingress(self, client):
-        # First add a couple ingress records
-        Message.objects.all().delete()
-        for i in range(3):
-            client.post(self.URL, TEST_POST, **AUTHORIZATION_HEADER, content_type='application/json')
-        assert Message.objects.count() == 3
-
-        # Then run the parse_ingress script
-        parser = TelcameraParser()
-        parser.consume(end_at_empty_queue=True)
-
-        # Test whether the records in the ingress queue are correctly set to parsed
-        assert Message.objects.filter(consume_succeeded_at__isnull=False).count() == 3
-        assert FailedMessage.objects.count() == 0
-        for ingress in Message.objects.all():
-            assert ingress.consume_started_at is not None
-            assert ingress.consume_succeeded_at is not None
-
-        # Test whether the records were added to the database
-        assert Observation.objects.all().count() == 3
-
-    def test_parse_ingress_fail(self, client):
-        # First add an ingress record which is not correct json
-        Message.objects.all().delete()
-        client.post(self.URL, "NOT JSON", **AUTHORIZATION_HEADER, content_type='application/json')
-        assert Message.objects.count() == 1
-
-        # Then run the parse_ingress script
-        parser = TelcameraParser()
-        parser.consume(end_at_empty_queue=True)
-
-        # Test whether the record in the ingress queue is moved to the failed queue
-        assert Message.objects.count() == 0
-        assert FailedMessage.objects.count() == 1
-        for failed_ingress in FailedMessage.objects.all():
-            assert failed_ingress.consume_started_at is not None
-            assert failed_ingress.consume_failed_at is not None
-            assert failed_ingress.consume_succeeded_at is None
