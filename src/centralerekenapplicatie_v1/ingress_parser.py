@@ -14,6 +14,17 @@ logger = logging.getLogger(__name__)
 class MetricParser(BaseConsumer):
     collection_name = 'centralerekenapplicatie'
 
+    """
+    Whether or not to immediately remove messages once consumption succeeds.
+    If set to False, message.consume_succeeded_at will be set.
+    """
+    remove_message_on_consumed = False
+
+    """
+    Whether or not to set Message.consume_started_at immediately once consumption starts
+    """
+    set_consume_started_at = True
+
     def consume_raw_data(self, raw_data):
         record = json.loads(raw_data)
         

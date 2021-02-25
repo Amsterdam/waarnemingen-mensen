@@ -13,6 +13,17 @@ logger = logging.getLogger(__name__)
 class TelcameraParser(BaseConsumer):
     collection_name = 'telcameras_v3'
 
+    """
+    Whether or not to immediately remove messages once consumption succeeds.
+    If set to False, message.consume_succeeded_at will be set.
+    """
+    remove_message_on_consumed = False
+
+    """
+    Whether or not to set Message.consume_started_at immediately once consumption starts
+    """
+    set_consume_started_at = True
+
     def consume_raw_data(self, raw_data):
         observation = json.loads(raw_data)
         observation['message_id'] = observation.pop('id')
