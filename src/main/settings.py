@@ -49,6 +49,7 @@ MIDDLEWARE = [
 INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.staticfiles",
+    "django.contrib.auth",
     "django_filters",
     "django_extensions",
     "django.contrib.gis",
