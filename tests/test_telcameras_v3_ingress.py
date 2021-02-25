@@ -262,6 +262,7 @@ class TestDataIngressPoster:
         self.sensor.save()
 
 
+@pytest.mark.django_db
 class TestTools:
     def test_scramble_count_vanilla(self):
         count_agg = baker.make(GroupAggregate)
