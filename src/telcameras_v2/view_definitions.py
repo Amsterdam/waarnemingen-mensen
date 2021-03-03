@@ -1662,8 +1662,8 @@ VIEW_STRINGS = {
             v2_data.sensor,
             v2_data.timestamp_rounded,
             v2_data.total_count,
-            v2_data.count_up,
             v2_data.count_down,
+            v2_data.count_up,
             v2_data.density_avg,
             v2_data.speed_avg,
             v2_data.basedonxmessages
@@ -1675,8 +1675,8 @@ VIEW_STRINGS = {
             v3_data.sensor,
             v3_data.timestamp_rounded,
             v3_data.total_count,
-            v3_data.count_up,
             v3_data.count_down,
+            v3_data.count_up,
             v3_data.density_avg,
             v3_data.speed_avg,
             v3_data.basedonxobservations    as basedonxmessages
