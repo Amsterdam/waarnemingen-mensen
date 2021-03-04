@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
     _realtime_view_strings = get_view_strings(_REALTIME_VIEW_NAME)
 
     _REALTIME_30D_VIEW_NAME = "cmsa_15min_view_v8_realtime_predict_30d"
-    _realtime_30d_view_strings = get_view_strings(_REALTIME_VIEW_NAME)
+    _realtime_30d_view_strings = get_view_strings(_REALTIME_30D_VIEW_NAME)
 
     operations = [
         # First remove the views
