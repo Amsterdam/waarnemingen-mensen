@@ -37,11 +37,11 @@ coreschema==0.0.4
     #   -r ./requirements.txt
     #   coreapi
     #   drf-yasg
-coverage==5.4
+coverage==5.5
     # via pytest-cov
 decorator==4.4.2
     # via ipython
-defusedxml==0.6.0
+defusedxml==0.7.0
     # via
     #   -r ./requirements.txt
     #   djangorestframework-xml
@@ -92,7 +92,7 @@ factory-boy==3.2.0
     # via
     #   -r requirements_dev.in
     #   pytest-factoryboy
-faker==6.4.1
+faker==6.5.0
     # via factory-boy
 flask-basicauth==0.2.0
     # via locust
@@ -121,7 +121,7 @@ iniconfig==1.1.1
     # via pytest
 ipython-genutils==0.2.0
     # via traitlets
-ipython==7.20.0
+ipython==7.21.0
     # via -r requirements_dev.in
 itsdangerous==1.1.0
     # via flask
@@ -171,7 +171,7 @@ ptyprocess==0.7.0
     # via pexpect
 py==1.10.0
     # via pytest
-pygments==2.8.0
+pygments==2.8.1
     # via ipython
 pyparsing==2.4.7
     # via
@@ -209,11 +209,11 @@ ruamel.yaml.clib==0.2.2
     # via
     #   -r ./requirements.txt
     #   ruamel.yaml
-ruamel.yaml==0.16.12
+ruamel.yaml==0.16.13
     # via
     #   -r ./requirements.txt
     #   drf-yasg
-sentry-sdk==0.20.3
+sentry-sdk==1.0.0
     # via -r ./requirements.txt
 six==1.15.0
     # via
