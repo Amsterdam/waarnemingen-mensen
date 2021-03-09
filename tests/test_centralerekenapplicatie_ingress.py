@@ -64,7 +64,7 @@ class TestDataIngressPoster:
     @pytest.fixture(autouse=True)
     def setup(self):
         self.collection_name = 'centralerekenapplicatie'
-        self.URL = '/ingress/' + self.collection_name
+        self.URL = f'/ingress/{self.collection_name}/'
 
         # Create a collection
         self.collection_obj = Collection.objects.create(name=self.collection_name, consumer_enabled=True)
@@ -118,31 +118,6 @@ class TestDataIngressPoster:
             assert failed_ingress.consume_started_at is not None
             assert failed_ingress.consume_failed_at is not None
             assert failed_ingress.consume_succeeded_at is None
-
-    # @override_settings(STORE_ALL_DATA_CRA=True)  # It is by default true, but to make it explicit I also override it here
-    # def test_data_for_non_existing_sensor_is_added_to_the_db(self, client):
-    #     # First add a couple ingress records with a non existing sensor code
-    #     Message.objects.all().delete()
-    #     post_data = json.loads(TEST_POST_LINE)
-    #     post_data['source']['sensor'] = 'does not exist'
-    #     for _ in range(3):
-    #         client.post(self.URL, json.dumps(post_data), **AUTHORIZATION_HEADER, content_type='application/json')
-    #     assert Message.objects.count() == 3
-    #
-    #     # Then run the parser
-    #     parser = MetricParser()
-    #     parser.consume(end_at_empty_queue=True)
-    #
-    #     # Test whether the records in the ingress queue are correctly set to parsed
-    #     assert Message.objects.filter(consume_succeeded_at__isnull=False).count() == 3
-    #     assert FailedMessage.objects.count() == 0
-    #     for ingress in Message.objects.all():
-    #         assert ingress.consume_started_at is not None
-    #         assert ingress.consume_succeeded_at is not None
-    #
-    #     # Test whether the records were added to the database
-    #     assert LineMetric.objects.all().count() == 3
-    #     assert LineMetricCount.objects.all().count() == 6
 
     @pytest.mark.parametrize(
         "store_all_data,expected_areas,expected_lines,expected_line_counts", [

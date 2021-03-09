@@ -25,7 +25,7 @@ class TestDataIngressPoster:
     @pytest.fixture(autouse=True)
     def setup(self):
         self.collection_name = 'telcameras_v2'
-        self.URL = '/ingress/' + self.collection_name
+        self.URL = f'/ingress/{self.collection_name}/'
 
         # Create an endpoint
         self.collection_obj = Collection.objects.create(name=self.collection_name, consumer_enabled=True)

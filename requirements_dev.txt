@@ -39,11 +39,11 @@ coreschema==0.0.4
     #   drf-yasg
 coverage==5.5
     # via pytest-cov
-datapunt-data-ingress==0.0.1
+datapunt-data-ingress==2.0.1
     # via -r ./requirements.txt
 decorator==4.4.2
     # via ipython
-defusedxml==0.7.0
+defusedxml==0.7.1
     # via
     #   -r ./requirements.txt
     #   djangorestframework-xml
@@ -83,7 +83,7 @@ djangorestframework==3.12.2
     #   drf-amsterdam
     #   drf-extensions
     #   drf-yasg
-drf-amsterdam==0.4.0
+drf-amsterdam==0.4.1
     # via -r ./requirements.txt
 drf-extensions==0.7.0
     # via
@@ -95,7 +95,7 @@ factory-boy==3.2.0
     # via
     #   -r requirements_dev.in
     #   pytest-factoryboy
-faker==6.5.0
+faker==6.5.2
     # via factory-boy
 flask-basicauth==0.2.0
     # via locust
