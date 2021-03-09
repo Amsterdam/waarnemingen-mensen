@@ -49,6 +49,7 @@ MIDDLEWARE = [
 INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.staticfiles",
+    "django.contrib.auth",
     "django_filters",
     "django_extensions",
     "django.contrib.gis",
@@ -117,6 +118,15 @@ TESTING = len(sys.argv) > 1 and sys.argv[1] == "test"
 
 STATIC_URL = '/mensen/static/'
 STATIC_ROOT = '/static/'
+
+INGRESS_CONSUMER_CLASSES = [
+    'centralerekenapplicatie_v1.ingress_parser.MetricParser',
+    'telcameras_v2.ingress_parser.TelcameraParser',
+    'telcameras_v3.ingress_parser.TelcameraParser'
+]
+
+INGRESS_AUTHENTICATION_CLASSES = ['auth.TokenAuthentication']
+INGRESS_PERMISSION_CLASSES = ['rest_framework.permissions.IsAuthenticated']
 
 if DEBUG:
     INSTALLED_APPS += ('debug_toolbar',)

@@ -18,7 +18,9 @@ coreschema==0.0.4
     # via
     #   coreapi
     #   drf-yasg
-defusedxml==0.7.0
+datapunt-data-ingress==2.0.1
+    # via -r requirements.in
+defusedxml==0.7.1
     # via djangorestframework-xml
 django-datetime-utc==1.0.3
     # via -r requirements.in
@@ -31,6 +33,7 @@ django-filter==2.4.0
 django==3.1.7
     # via
     #   -r requirements.in
+    #   datapunt-data-ingress
     #   django-datetime-utc
     #   django-debug-toolbar
     #   django-filter
@@ -52,7 +55,7 @@ djangorestframework==3.12.2
     #   drf-amsterdam
     #   drf-extensions
     #   drf-yasg
-drf-amsterdam==0.4.0
+drf-amsterdam==0.4.1
     # via -r requirements.in
 drf-extensions==0.7.0
     # via drf-amsterdam
