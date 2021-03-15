@@ -1456,9 +1456,11 @@ VIEW_STRINGS = {
               sel.sensor
             , sel.timestamp_rounded
             , max(c.azimuth)                    as azimuth          -- azimuth is always the same so max()/min() doesn't do anything (just for grouping)
-            , sum(c.count_in)                   as count_in
-            , sum(c.count_out)                  as count_out
-            , sum(c.count_in + c.count_out)     as total_count
+            , sum(c.count_in_scrambled)         as count_in
+            , sum(c.count_out_scrambled)        as count_out
+            , sum(
+                  c.count_in_scrambled 
+                + c.count_out_scrambled)        as total_count
             , avg(c.count)                      as area_count
             , max(c.area)                       as area
             from telcameras_v2_countaggregate       as c
@@ -1477,9 +1479,11 @@ VIEW_STRINGS = {
               sel.sensor
             , sel.timestamp_rounded
             , max(c.azimuth)                    as azimuth
-            , sum(c.count_in)                   as count_in
-            , sum(c.count_out)                  as count_out
-            , sum(c.count_in + c.count_out)     as total_count
+            , sum(c.count_in_scrambled)         as count_in
+            , sum(c.count_out_scrambled)        as count_out
+            , sum(
+                  c.count_in_scrambled 
+                + c.count_out_scrambled)        as total_count
             , avg(c.count)                      as area_count
             , max(c.area)                       as area
             from telcameras_v2_countaggregate       as c
@@ -1574,7 +1578,7 @@ VIEW_STRINGS = {
               sel.sensor                                                    -- name of sensor
             , sel.timestamp_rounded                                         -- the quarter to which this data applies
             , sum(aantal)                       as basedonxobservations     -- number of observations for specifc sensor (should be 15, 1 per minute)
-            , sum(grpagg.count)                 as count                    -- number of counted objects (pedestrians/cyclist) within the quarter for specific azimuth (direction)
+            , sum(grpagg.count_scrambled)       as count                    -- number of counted (scrambled) objects (pedestrians/cyclist) within the quarter for specific azimuth (direction)
             , sum(sel.density) / sum(aantal)    as density_avg              -- calculate the average density by summing the density for all observations within the specific quarter and divide this by the count of observations (should be 15, 1 per minute)
             , grpagg.azimuth                                                -- the direction in degrees
             , row_number() over (
@@ -1898,9 +1902,11 @@ VIEW_STRINGS = {
               sel.sensor
             , sel.timestamp_rounded
             , max(c.azimuth)                as azimuth
-            , sum(c.count_in)               as count_in
-            , sum(c.count_out)              as count_out
-            , sum(c.count_in + c.count_out) as total_count
+            , sum(c.count_in_scrambled)     as count_in
+            , sum(c.count_out_scrambled)    as count_out
+            , sum(
+                  c.count_in_scrambled 
+                + c.count_out_scrambled)    as total_count
             , avg(c.count)                  as area_count
             , max(c.area)                   as area
             , count(*)                      as basedonxmessages
@@ -1921,13 +1927,15 @@ VIEW_STRINGS = {
             select
               sel.sensor
             , sel.timestamp_rounded
-            , max(c.azimuth)                    as azimuth
-            , sum(c.count_in)                   as count_in
-            , sum(c.count_out)                  as count_out
-            , sum(c.count_in + c.count_out)     as total_count
-            , avg(c.count)                      as area_count
-            , max(c.area)                       as area
-            , count(*)                          as basedonxmessages
+            , max(c.azimuth)                as azimuth
+            , sum(c.count_in_scrambled)     as count_in
+            , sum(c.count_out_scrambled)    as count_out
+            , sum(
+                  c.count_in_scrambled 
+                + c.count_out_scrambled)    as total_count
+            , avg(c.count)                  as area_count
+            , max(c.area)                   as area
+            , count(*)                      as basedonxmessages
             from telcameras_v2_countaggregate       as c
             join v2_selectie                        as sel  on  c.observation_timestamp_start > (now() - '1 day'::interval)
                                                             and c.observation_id = sel.id
@@ -1995,7 +2003,7 @@ VIEW_STRINGS = {
             sel.sensor                                                    -- name of sensor
             , sel.timestamp_rounded                                         -- the quarter to which this data applies
             , sum(aantal)                       as basedonxobservations     -- number of observations for specifc sensor (should be 15, 1 per minute)
-            , sum(grpagg.count)                 as count                    -- number of counted objects (pedestrians/cyclist) within the quarter for specific azimuth (direction)
+            , sum(grpagg.count_scrambled)       as count                    -- number of counted (scrambled) objects (pedestrians/cyclist) within the quarter for specific azimuth (direction)
             , sum(sel.density) / sum(aantal)    as density_avg              -- calculate the average density by summing the density for all observations within the specific quarter and divide this by the count of observations (should be 15, 1 per minute)
             , grpagg.azimuth                                                -- the direction in degrees
             , row_number() over (
@@ -2439,9 +2447,11 @@ VIEW_STRINGS = {
               sel.sensor
             , sel.timestamp_rounded
             , max(c.azimuth)                as azimuth
-            , sum(c.count_in)               as count_in
-            , sum(c.count_out)              as count_out
-            , sum(c.count_in + c.count_out) as total_count
+            , sum(c.count_in_scrambled)     as count_in
+            , sum(c.count_out_scrambled)    as count_out
+            , sum(
+                  c.count_in_scrambled 
+                + c.count_out_scrambled)    as total_count
             , avg(c.count)                  as area_count
             , max(c.area)                   as area
             , count(*)                      as basedonxmessages
@@ -2462,13 +2472,15 @@ VIEW_STRINGS = {
             select
               sel.sensor
             , sel.timestamp_rounded
-            , max(c.azimuth)                    as azimuth
-            , sum(c.count_in)                   as count_in
-            , sum(c.count_out)                  as count_out
-            , sum(c.count_in + c.count_out)     as total_count
-            , avg(c.count)                      as area_count
-            , max(c.area)                       as area
-            , count(*)                          as basedonxmessages
+            , max(c.azimuth)                as azimuth
+            , sum(c.count_in_scrambled)     as count_in
+            , sum(c.count_out_scrambled)    as count_out
+            , sum(
+                  c.count_in_scrambled 
+                + c.count_out_scrambled)    as total_count
+            , avg(c.count)                  as area_count
+            , max(c.area)                   as area
+            , count(*)                      as basedonxmessages
             from telcameras_v2_countaggregate       as c
             join v2_selectie                        as sel  on  c.observation_timestamp_start > (now() - '30 days'::interval)
                                                             and c.observation_id = sel.id
@@ -2536,7 +2548,7 @@ VIEW_STRINGS = {
             sel.sensor                                                    -- name of sensor
             , sel.timestamp_rounded                                         -- the quarter to which this data applies
             , sum(aantal)                       as basedonxobservations     -- number of observations for specifc sensor (should be 15, 1 per minute)
-            , sum(grpagg.count)                 as count                    -- number of counted objects (pedestrians/cyclist) within the quarter for specific azimuth (direction)
+            , sum(grpagg.count_scrambled)       as count                    -- number of counted (scrambled) objects (pedestrians/cyclist) within the quarter for specific azimuth (direction)
             , sum(sel.density) / sum(aantal)    as density_avg              -- calculate the average density by summing the density for all observations within the specific quarter and divide this by the count of observations (should be 15, 1 per minute)
             , grpagg.azimuth                                                -- the direction in degrees
             , row_number() over (
