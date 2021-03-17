@@ -18,7 +18,7 @@ coreschema==0.0.4
     # via
     #   coreapi
     #   drf-yasg
-datapunt-data-ingress==2.0.1
+datapunt-data-ingress==2.0.2
     # via -r requirements.in
 defusedxml==0.7.1
     # via djangorestframework-xml
@@ -107,7 +107,7 @@ uritemplate==3.0.1
     # via
     #   coreapi
     #   drf-yasg
-urllib3==1.26.3
+urllib3==1.26.4
     # via
     #   requests
     #   sentry-sdk
