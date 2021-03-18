@@ -18,7 +18,7 @@ coreschema==0.0.4
     # via
     #   coreapi
     #   drf-yasg
-datapunt-data-ingress==2.0.2
+datapunt-data-ingress==2.0.3
     # via -r requirements.in
 defusedxml==0.7.1
     # via djangorestframework-xml
