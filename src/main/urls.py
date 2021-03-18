@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.conf import settings
 from django.conf.urls import include, url
+from django.contrib import admin
 from django.urls import path
 
 urlpatterns = [
@@ -23,6 +24,7 @@ urlpatterns = [
     path('telcameras/v1/', include('peoplemeasurement.urls')),
     path('telcameras/v2/', include('telcameras_v2.urls')),
     url('status/', include('health.urls')),
+    path('admin/', admin.site.urls),
 ]
 
 

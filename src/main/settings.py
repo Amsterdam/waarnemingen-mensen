@@ -39,6 +39,10 @@ INTERNAL_IPS = ('127.0.0.1', '0.0.0.0')
 HEALTH_MODEL = 'peoplemeasurement.PeopleMeasurement'
 
 MIDDLEWARE = [
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -47,9 +51,12 @@ MIDDLEWARE = [
 
 
 INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.messages',
+    'django.contrib.sessions',
     "django.contrib.contenttypes",
     "django.contrib.staticfiles",
-    "django.contrib.auth",
     "django_filters",
     "django_extensions",
     "django.contrib.gis",
