@@ -25,6 +25,9 @@ class TelcameraParser(BaseConsumer):
     """
     set_consume_started_at = True
 
+    def get_default_batch_size(self):
+        return 10000
+
     def consume_raw_data(self, raw_data):
         data = json.loads(raw_data)['data']
         observation = data_to_observation(data)
