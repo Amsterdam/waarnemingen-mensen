@@ -2961,7 +2961,7 @@ VIEW_STRINGS = {
             , sum(
                   c.count_in_scrambled 
                 + c.count_out_scrambled)        as total_count
-            , avg(c.count)                      as area_count
+            , avg(c.count_scrambled)            as area_count
             , max(c.area)                       as area
             from telcameras_v2_countaggregate       as c
             join v2_selectie                        as sel  on  c.observation_id = sel.id
@@ -2984,7 +2984,7 @@ VIEW_STRINGS = {
             , sum(
                   c.count_in_scrambled 
                 + c.count_out_scrambled)        as total_count
-            , avg(c.count)                      as area_count
+            , avg(c.count_scrambled)            as area_count
             , max(c.area)                       as area
             from telcameras_v2_countaggregate       as c
             join v2_selectie                        as sel  on  c.observation_id = sel.id
@@ -3406,7 +3406,7 @@ VIEW_STRINGS = {
             , sum(
                   c.count_in_scrambled 
                 + c.count_out_scrambled)    as total_count
-            , avg(c.count)                  as area_count
+            , avg(c.count_scrambled)        as area_count
             , max(c.area)                   as area
             , count(*)                      as basedonxmessages
             from telcameras_v2_countaggregate   as c
@@ -3432,7 +3432,7 @@ VIEW_STRINGS = {
             , sum(
                   c.count_in_scrambled 
                 + c.count_out_scrambled)    as total_count
-            , avg(c.count)                  as area_count
+            , avg(c.count_scrambled)        as area_count
             , max(c.area)                   as area
             , count(*)                      as basedonxmessages
             from telcameras_v2_countaggregate       as c
@@ -3951,7 +3951,7 @@ VIEW_STRINGS = {
             , sum(
                   c.count_in_scrambled 
                 + c.count_out_scrambled)    as total_count
-            , avg(c.count)                  as area_count
+            , avg(c.count_scrambled)        as area_count
             , max(c.area)                   as area
             , count(*)                      as basedonxmessages
             from telcameras_v2_countaggregate   as c
@@ -3977,7 +3977,7 @@ VIEW_STRINGS = {
             , sum(
                   c.count_in_scrambled 
                 + c.count_out_scrambled)    as total_count
-            , avg(c.count)                  as area_count
+            , avg(c.count_scrambled)        as area_count
             , max(c.area)                   as area
             , count(*)                      as basedonxmessages
             from telcameras_v2_countaggregate       as c
