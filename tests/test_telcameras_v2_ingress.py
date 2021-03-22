@@ -140,4 +140,3 @@ class TestDataIngressPoster:
             # Set the sensor back to active again
             self.sensor.is_active = True
             self.sensor.save()
-

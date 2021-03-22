@@ -1,4 +1,4 @@
-from django.db import migrations
+from django.db import migrations, models
 
 from telcameras_v2.view_definitions import get_view_strings
 
@@ -25,6 +25,12 @@ class Migration(migrations.Migration):
     _realtime_30d_view_strings = get_view_strings(_REALTIME_30D_VIEW_NAME)
 
     operations = [
+        migrations.AddField(
+            model_name='countaggregate',
+            name='count_scrambled',
+            field=models.SmallIntegerField(null=True),
+        ),
+
         # Create the views
         migrations.RunSQL(
             sql=_view_strings['sql'],

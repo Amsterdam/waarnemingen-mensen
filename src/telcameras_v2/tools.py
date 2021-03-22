@@ -83,4 +83,10 @@ def scramble_count_aggregate(count_aggregate):
         else:
             count_aggregate.count_out_scrambled = count_aggregate.count_out + randint(-1, 1)
 
+    if count_aggregate.count is not None and count_aggregate.count_scrambled is None:
+        if count_aggregate.count == 0:
+            count_aggregate.count_scrambled = count_aggregate.count + randint(0, 1)
+        else:
+            count_aggregate.count_scrambled = count_aggregate.count + randint(-1, 1)
+
     return count_aggregate
