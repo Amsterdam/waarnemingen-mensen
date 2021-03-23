@@ -410,46 +410,58 @@ class ToolsTest(TestCase):
         count_agg = baker.make(CountAggregate)
         count_agg.count_in = 1
         count_agg.count_out = 1
+        count_agg.count = 1
         count_agg.count_in_scrambled = None
         count_agg.count_out_scrambled = None
+        count_agg.count_scrambled = None
 
         count_agg = scramble_count_aggregate(count_agg)
 
         self.assertIn(count_agg.count_in_scrambled, (0, 1, 2))
         self.assertIn(count_agg.count_out_scrambled, (0, 1, 2))
+        self.assertIn(count_agg.count_scrambled, (0, 1, 2))
 
     def test_scramble_counts_with_counts_none(self):
         count_agg = baker.make(CountAggregate)
         count_agg.count_in = None
         count_agg.count_out = None
+        count_agg.count = None
         count_agg.count_in_scrambled = None
         count_agg.count_out_scrambled = None
+        count_agg.count_scrambled = None
 
         count_agg = scramble_count_aggregate(count_agg)
 
         self.assertIsNone(count_agg.count_in_scrambled)
         self.assertIsNone(count_agg.count_out_scrambled)
+        self.assertIsNone(count_agg.count_scrambled)
 
     def test_scramble_counts_doesnt_overwrite(self):
         count_agg = baker.make(CountAggregate)
         count_agg.count_in = 1
         count_agg.count_out = 1
+        count_agg.count = 1
         count_agg.count_in_scrambled = 1
         count_agg.count_out_scrambled = 1
+        count_agg.count_scrambled = 1
 
         count_agg = scramble_count_aggregate(count_agg)
 
         self.assertEquals(count_agg.count_in_scrambled, 1)
         self.assertEquals(count_agg.count_out_scrambled, 1)
+        self.assertEquals(count_agg.count_scrambled, 1)
 
     def test_scramble_counts_with_counts_zero(self):
         count_agg = baker.make(CountAggregate)
         count_agg.count_in = 0
         count_agg.count_out = 0
+        count_agg.count = 0
         count_agg.count_in_scrambled = None
         count_agg.count_out_scrambled = None
+        count_agg.count_scrambled = None
 
         count_agg = scramble_count_aggregate(count_agg)
 
         self.assertIn(count_agg.count_in_scrambled, (0, 1))
         self.assertIn(count_agg.count_out_scrambled, (0, 1))
+        self.assertIn(count_agg.count_scrambled, (0, 1))
