@@ -1,21 +1,163 @@
 import json
 import logging
+from datetime import datetime
+from decimal import Decimal
 
 import pytest
 import pytz
+from dateutil import parser as dateparser
 from django.conf import settings
 from django.test import override_settings
-from ingress.models import Message, Collection, FailedMessage
+from ingress.models import Collection, FailedMessage, Message
+from model_bakery import baker
 
 from peoplemeasurement.models import Sensors
 from telcameras_v2.ingress_parser import TelcameraParser
-from telcameras_v2.models import Observation
-from tests.test_telcameras_v2 import TEST_POST
+from telcameras_v2.models import CountAggregate, Observation
+from telcameras_v2.tools import scramble_count_aggregate
 
 log = logging.getLogger(__name__)
 timezone = pytz.timezone("UTC")
 
 AUTHORIZATION_HEADER = {'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}
+
+
+# In the posts that we receive, all root fields in the objects are the same,
+# except for the version, the message (id), the message_type and the aggregate
+TEST_POST = """
+{
+    "data": [
+        {
+            "sensor": "GAVM-01-Vondelstraat",
+            "sensor_type": "3d_camera",
+            "sensor_state": "operational",
+            "owner": "Gemeente Amsterdam venor",
+            "supplier": "Connection Systems",
+            "purpose": ["safety", "comfort"],
+            "latitude": 52.361081,
+            "longitude": 4.873822,
+            "interval": 60,
+            "timestamp_message": "2020-06-12T15:39:39.701Z",
+            "timestamp_start": "2020-06-12T15:05:00.000Z",
+            "message": 211,
+            "version": "CS_count_0.0.1",
+            "message_type": "count",
+            "aggregate": [
+                {
+                    "id": "Line 0",
+                    "type": "line",
+                    "azimuth": 170,
+                    "count_in": 15,
+                    "count_out": 12
+                },
+                {
+                    "type": "zone",
+                    "id": "Zone 0",
+                    "area": 27.5,
+                    "geom": "4.3 6.9,9.4 7.3,9.4 1.9,5.2 2.0",
+                    "count": 5
+                }
+            ]
+        }, 
+        {
+            "sensor": "GAVM-01-Vondelstraat",
+            "sensor_type": "3d_camera",
+            "sensor_state": "operational",
+            "owner": "Gemeente Amsterdam venor",
+            "supplier": "Connection Systems",
+            "purpose": ["safety", "comfort"],
+            "latitude": 52.361081,
+            "longitude": 4.873822,
+            "interval": 60,
+            "timestamp_message": "2020-06-12T15:39:39.701Z",
+            "timestamp_start": "2020-06-12T15:05:00.000Z",
+            "message": 215,
+            "version": "CS_person_0.0.1",
+            "message_type": "person",
+            "aggregate": [
+                {
+                    "personId": "3560f51a-4978-4b82-ab6f-b421e739230d",
+                    "observation_timestamp": "2020-06-12T15:05:00.000Z",
+                    "record": 5342,
+                    "speed": 1.5,
+                    "geom": "0.6 1.9,0.7 1.6,0.8 1.3,1 1,1 0.6,1.1 0.3,1.2 -0.1,1.2 -0.3,1.2 -0.8,1.2 -1.2,1.2 -1.6,1.2 -1.9,1 -2.3,0.9 -2.8,0.7 -3.2,0.6 -3.5 (-1.2 -0.9 -0.7 -0.5 -0.2 0.1 0.3 0.5 0.8 1 1.3 1.5 1.8 2.1 2.3 2.5)",
+                    "quality": 80,
+                    "distances": [
+                        {
+                            "personId": "d89d68be-591e-46f4-a546-81a77114e7a9",
+                            "observation_timestamp": "2020-06-12T15:05:00.000Z",
+                            "distance_to": "3.4 (-1.2)"
+                        }, 
+                        {
+                            "personId": "653042c8-742a-4735-b619-1f8823304f34",
+                            "observation_timestamp": "2020-06-12T15:05:00.000Z",
+                            "distance_to": "0.5 0.6 0.6 0.7 0.7 0.6 0.7 0.6 0.8 0.8 0.8 0.9 0.8 0.6 (-0.2 0 0.3 0.6 0.8 1 1.3 1.5 1.8 2 2.3 2.6 2.8 3)"
+                        }
+                    ]
+                }, 
+                {
+                    "personId": "653042c8-742a-4735-b619-1f8823304f34",
+                    "observation_timestamp": "2020-06-12T15:05:00.000Z",
+                    "record": 5343,
+                    "speed": null,
+                    "geom": "0.4 1.2,0.4 0.7,0.4 0.2,0.5 0,0.7 -0.5,0.5 -1.1,0.6 -1.3,0.5 -2,0.5 -2.2,0.3 -2.8,0.1 -3.3,0.1 -3.6,0.2 -3.9,0.3 -4.3 (-0.5 -0.2 0.1 0.3 0.5 0.8 1 1.3 1.5 1.8 2.1 2.3 2.5 2.8)",
+                    "quality": 80,
+                    "distances": [
+                        {
+                            "personId": "3560f51a-4978-4b82-ab6f-b421e739230d",
+                            "observation_timestamp": "2020-06-12T15:05:00.000Z",
+                            "distance_to": "0.5 0.6 0.6 0.7 0.7 0.6 0.7 0.6 0.8 0.8 0.8 0.9 0.8 0.6 (-0.7 -0.5 -0.2 0.1 0.3 0.5 0.8 1 1.3 1.5 1.8 2.1 2.3 2.5)"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
+"""
+
+
+TEST_POST_DOUBLE_ZONE = """
+{
+    "data": [
+        {
+            "sensor": "GADM-01",
+            "sensor_type": "telcamera",
+            "message_type": "count",
+            "timestamp_message": "2021-02-03T13:57:34.680Z",
+            "sensor_state": "operational",
+            "version": "CS_count_0.0.1",
+            "owner": "Gemeente Amsterdam venor",
+            "supplier": "Connection Systems",
+            "purpose": [
+                "safety",
+                "comfort"
+            ],
+            "latitude": 52.373128,
+            "longitude": 4.89305,
+            "message": 15749,
+            "timestamp_start": "2021-02-03T13:56:00.000Z",
+            "interval": 60,
+            "aggregate": [
+                {
+                    "type": "zone",
+                    "id": "GADM-01-total",
+                    "area": 8100,
+                    "geom": "",
+                    "count": 2
+                },
+                {
+                    "type": "zone",
+                    "id": "GADM-01-zone0",
+                    "area": 1563,
+                    "geom": "",
+                    "count": 1
+                }
+            ]
+        }
+    ]
+}
+"""
 
 
 @pytest.mark.django_db
@@ -140,3 +282,174 @@ class TestDataIngressPoster:
             # Set the sensor back to active again
             self.sensor.is_active = True
             self.sensor.save()
+
+    def test_post_new_record_with_double_zone(self, client):
+        """ Test posting a new message with a double zone in the count message """
+        Message.objects.all().delete()
+        post_data = json.loads(TEST_POST_DOUBLE_ZONE)
+        client.post(self.URL, json.dumps(post_data), **AUTHORIZATION_HEADER, content_type='application/json')
+        assert Message.objects.count() == 1
+
+        # Then run the parser
+        parser = TelcameraParser()
+        parser.consume(end_at_empty_queue=True)
+
+        # Check the Observation record
+        assert Observation.objects.all().count() == 1
+        observation = Observation.objects.get()
+        fields_to_check = ('sensor', 'sensor_type', 'sensor_state', 'owner', 'supplier', 'purpose', 'latitude',
+                           'longitude', 'interval', 'timestamp_message', 'timestamp_start')
+        for attr in fields_to_check:
+            if type(getattr(observation, attr)) is Decimal:
+                assert float(getattr(observation, attr)) == post_data['data'][0][attr]
+            elif type(getattr(observation, attr)) is datetime:
+                assert getattr(observation, attr) == dateparser.parse(post_data['data'][0][attr])
+            else:
+                assert getattr(observation, attr) == post_data['data'][0][attr]
+
+        # Check the CountAggregate records
+        assert CountAggregate.objects.all().count() == len(post_data['data'][0]['aggregate'])
+        for count_aggr in CountAggregate.objects.all():
+
+            # Get the post data for this CountAggregate (they might not be in the same order)
+            posted_count_aggregate = None
+            for aggregate in post_data['data'][0]['aggregate']:
+                if aggregate['id'] == count_aggr.external_id:
+                    posted_count_aggregate = aggregate
+
+            # Check whether we actually found the correct posted count aggregate
+            assert type(posted_count_aggregate) == dict
+
+            for attr in ('type', 'area', 'count'):
+                assert getattr(count_aggr, attr) == posted_count_aggregate[attr]
+            assert count_aggr.external_id == posted_count_aggregate['id']
+            assert count_aggr.geom is None  # In both zone counts the geom is an empty string. So we check whether they are None
+            assert count_aggr.message == post_data['data'][0]['message']
+            assert count_aggr.version == post_data['data'][0]['version']
+
+    def test_geom_fields_to_null(self, client):
+        post_data = json.loads(TEST_POST)
+        post_data['data'][0]['aggregate'][1]['geom'] = None
+        post_data['data'][1]['aggregate'][0]['geom'] = None
+        post_data['data'][1]['aggregate'][1]['geom'] = None
+
+        Message.objects.all().delete()
+        client.post(self.URL, json.dumps(post_data), **AUTHORIZATION_HEADER, content_type='application/json')
+        assert Message.objects.count() == 1
+
+        # Then run the parser
+        parser = TelcameraParser()
+        parser.consume(end_at_empty_queue=True)
+
+        assert Observation.objects.all().count() == 1
+
+    def test_absent_geom_fields(self, client):
+        post_data = json.loads(TEST_POST)
+        del post_data['data'][0]['aggregate'][1]['geom']
+        del post_data['data'][1]['aggregate'][0]['geom']
+        del post_data['data'][1]['aggregate'][1]['geom']
+
+        Message.objects.all().delete()
+        client.post(self.URL, json.dumps(post_data), **AUTHORIZATION_HEADER, content_type='application/json')
+        assert Message.objects.count() == 1
+
+        # Then run the parser
+        parser = TelcameraParser()
+        parser.consume(end_at_empty_queue=True)
+
+        assert Observation.objects.all().count() == 1
+
+    def test_geom_fields_to_empty_string(self, client):
+        post_data = json.loads(TEST_POST)
+        post_data['data'][0]['aggregate'][1]['geom'] = ''
+        post_data['data'][1]['aggregate'][0]['geom'] = ''
+        post_data['data'][1]['aggregate'][1]['geom'] = ''
+
+        Message.objects.all().delete()
+        client.post(self.URL, json.dumps(post_data), **AUTHORIZATION_HEADER, content_type='application/json')
+        assert Message.objects.count() == 1
+
+        # Then run the parser
+        parser = TelcameraParser()
+        parser.consume(end_at_empty_queue=True)
+
+        assert Observation.objects.all().count() == 1
+
+    def test_lat_lng_with_many_decimals(self, client):
+        post_data = json.loads(TEST_POST)
+        post_data['data'][0]['latitude'] = 52.3921439524031
+        post_data['data'][0]['longitude'] = 4.885872984800177
+        post_data['data'][1]['latitude'] = post_data['data'][0]['latitude']
+        post_data['data'][1]['longitude'] = post_data['data'][0]['longitude']
+
+        Message.objects.all().delete()
+        client.post(self.URL, json.dumps(post_data), **AUTHORIZATION_HEADER, content_type='application/json')
+        assert Message.objects.count() == 1
+
+        # Then run the parser
+        parser = TelcameraParser()
+        parser.consume(end_at_empty_queue=True)
+
+        assert Observation.objects.all().count() == 1
+
+
+class ToolsTest():
+    def test_scramble_counts_vanilla(self):
+        count_agg = baker.make(CountAggregate)
+        count_agg.count_in = 1
+        count_agg.count_out = 1
+        count_agg.count = 1
+        count_agg.count_in_scrambled = None
+        count_agg.count_out_scrambled = None
+        count_agg.count_scrambled = None
+
+        count_agg = scramble_count_aggregate(count_agg)
+
+        assert count_agg.count_in_scrambled in (0, 1, 2)
+        assert count_agg.count_out_scrambled in (0, 1, 2)
+        assert count_agg.count_scrambled in (0, 1, 2)
+
+    def test_scramble_counts_with_counts_none(self):
+        count_agg = baker.make(CountAggregate)
+        count_agg.count_in = None
+        count_agg.count_out = None
+        count_agg.count = None
+        count_agg.count_in_scrambled = None
+        count_agg.count_out_scrambled = None
+        count_agg.count_scrambled = None
+
+        count_agg = scramble_count_aggregate(count_agg)
+
+        assert count_agg.count_in_scrambled is None
+        assert count_agg.count_out_scrambled is None
+        assert count_agg.count_scrambled is None
+
+    def test_scramble_counts_doesnt_overwrite(self):
+        count_agg = baker.make(CountAggregate)
+        count_agg.count_in = 1
+        count_agg.count_out = 1
+        count_agg.count = 1
+        count_agg.count_in_scrambled = 1
+        count_agg.count_out_scrambled = 1
+        count_agg.count_scrambled = 1
+
+        count_agg = scramble_count_aggregate(count_agg)
+
+        assert count_agg.count_in_scrambled == 1
+        assert count_agg.count_out_scrambled == 1
+        assert count_agg.count_scrambled == 1
+
+    def test_scramble_counts_with_counts_zero(self):
+        count_agg = baker.make(CountAggregate)
+        count_agg.count_in = 0
+        count_agg.count_out = 0
+        count_agg.count = 0
+        count_agg.count_in_scrambled = None
+        count_agg.count_out_scrambled = None
+        count_agg.count_scrambled = None
+
+        count_agg = scramble_count_aggregate(count_agg)
+
+        assert count_agg.count_in_scrambled in (0, 1)
+        assert count_agg.count_out_scrambled in (0, 1)
+        assert count_agg.count_scrambled in (0, 1)

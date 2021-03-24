@@ -41,13 +41,6 @@ services:
     image: docker-registry.data.amsterdam.nl/datapunt/waarnemingen-mensen:${VERSION:-latest}
     command: /deploy/docker-run.sh
 
-  parser_telcameras_v2:
-    <<: *base-app
-    build:
-      context: .
-      target: dev
-    command: python manage.py parse_ingress_telcameras_v2
-
   test:
     <<: *base-app
     build:
