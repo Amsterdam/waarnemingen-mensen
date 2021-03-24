@@ -1,21 +1,15 @@
 import json
 import logging
 from datetime import datetime
-from uuid import uuid4
 
 import pytz
 from django.conf import settings
-from django.db import connection
-from factory import fuzzy
 from rest_framework.test import APITestCase
-from tests.tools_for_testing import call_man_command
 
 from peoplemeasurement.models import (PeopleMeasurement, Sensors, Servicelevel,
                                       VoorspelCoefficient, VoorspelIntercept)
-
-from .test_telcameras_v2 import \
-    AUTHORIZATION_HEADER as V2_POST_AUTHORIZATION_HEADER
-from .test_telcameras_v2 import create_new_v2_json
+from tests.test_telcameras_v2_ingress import TEST_POST
+from tests.tools_for_testing import call_man_command
 
 log = logging.getLogger(__name__)
 timezone = pytz.timezone("UTC")
@@ -24,6 +18,18 @@ BBOX = [52.03560, 4.58565, 52.48769, 5.31360]
 
 POST_AUTHORIZATION_HEADER = {'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}
 GET_AUTHORIZATION_HEADER = {'HTTP_AUTHORIZATION': f"Token {settings.GET_AUTHORIZATION_TOKEN}"}
+
+
+def create_new_v2_json(timestamp_str="2019-06-21T10:35:46+02:00"):
+    test_post = json.loads(TEST_POST)
+    for i in range(2):
+        test_post['data'][i]['timestamp_message'] = timestamp_str
+        test_post['data'][i]['timestamp_start'] = timestamp_str
+
+    for personaggregate in test_post['data'][1]['aggregate']:
+        personaggregate['observation_timestamp'] = timestamp_str
+
+    return json.dumps(test_post)
 
 
 class PeopleMeasurementTestGetV1(APITestCase):
@@ -76,7 +82,7 @@ class PeopleMeasurementTestGetV1(APITestCase):
             self.client.post(
                 self.POST_URL_V2,
                 json.loads(create_new_v2_json(timestamp_str=timestamp_str)),
-                **V2_POST_AUTHORIZATION_HEADER,
+                **POST_AUTHORIZATION_HEADER,
                 format='json'
             )
 

@@ -22,7 +22,6 @@ from django.urls import path
 urlpatterns = [
     path('ingress/', include('ingress.urls')),
     path('telcameras/v1/', include('peoplemeasurement.urls')),
-    path('telcameras/v2/', include('telcameras_v2.urls')),
     url('status/', include('health.urls')),
     path('admin/', admin.site.urls),
 ]
