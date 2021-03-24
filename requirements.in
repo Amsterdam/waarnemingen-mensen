@@ -16,3 +16,4 @@ pytz
 requests
 sentry-sdk
 datapunt-data-ingress
+datapunt-authorization-django
