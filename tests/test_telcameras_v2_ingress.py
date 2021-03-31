@@ -8,9 +8,11 @@ import pytest
 import pytz
 from dateutil import parser as dateparser
 from django.conf import settings
+from django.db.models import Q, F
 from django.test import override_settings
 from ingress.models import Collection, FailedMessage, Message
 from model_bakery import baker
+from model_bakery.recipe import Recipe
 
 from peoplemeasurement.models import Sensors
 from telcameras_v2.ingress_parser import TelcameraParser
@@ -457,21 +459,16 @@ class ToolsTest():
         assert count_agg.count_scrambled in (0, 1)
 
     def test_scramble_v2_counts_command(self):
-        baker.make(CountAggregate, _fill_optional=['count_in', 'count_out', 'count'], _quantity=1100)
-        for ca in CountAggregate.objects.all():
-            # ModelBaker doesn't take the smallinteger into account, so we adjust for it here
-            if ca.count_in >= 32767 or ca.count_out >= 32767 or ca.count >= 32767:
-                ca.count_in = randint(0, 1000)
-                ca.count_out = randint(0, 1000)
-                ca.count = randint(0, 1000)
-                ca.save()
-
-            self.assertIsNotNone(ca.count_in)
-            self.assertIsNotNone(ca.count_out)
-            self.assertIsNotNone(ca.count)
-            self.assertIsNone(ca.count_in_scrambled)
-            self.assertIsNone(ca.count_out_scrambled)
-            self.assertIsNone(ca.count_scrambled)
+        count_aggregate_recipe = Recipe(
+            CountAggregate,
+            count_in=randint(0, 1000),
+            count_out=randint(0, 1000),
+            count=randint(0, 1000),
+            count_in_scrambled=None,
+            count_out_scrambled=None,
+            count_scrambled=None,
+        )
+        count_aggregate_recipe.make(_quantity=100)
 
         # Do the scrambling
         call_man_command('scramble_v2_counts')
@@ -495,7 +492,18 @@ class ToolsTest():
             if ca.count_scrambled != ca.count:
                 differ_count += 1
 
+        # check all records have their scrambled counts set
+        assert not CountAggregate.objects.filter(
+            Q(count_in_scrambled=None) | Q(count_out_scrambled=None) | Q(count_scrambled=None)).exists()
+
+        # check that all scrambled counts are within valid range
+        assert not CountAggregate.objects.filter(
+            Q(count_in_scrambled__gt=F('count_in') + 1) | Q(count_in_scrambled__lt=F('count_in') - 1),
+            Q(count_out_scrambled__gt=F('count_out') + 1) | Q(count_out_scrambled__lt=F('count_out') - 1),
+            Q(count_scrambled__gt=F('count') + 1) | Q(count_scrambled__lt=F('count') - 1),
+        )
+
         # Make sure that a significant amount of counts_scrambled were actually changed from the original
-        self.assertGreater(differ_count_in, 600)
-        self.assertGreater(differ_count_out, 600)
-        self.assertGreater(differ_count, 600)
+        self.assertGreater(differ_count_in, 60)
+        self.assertGreater(differ_count_out, 60)
+        self.assertGreater(differ_count, 60)

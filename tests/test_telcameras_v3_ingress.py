@@ -278,7 +278,17 @@ class TestTools(TestCase):
         self.assertIn(count_agg.count_scrambled, (0, 1))
 
     def test_scramble_v3_counts_command(self):
-        baker.make(GroupAggregate, _quantity=1100)
+        from django.db.models import Q, F
+        from model_bakery.recipe import Recipe
+        from random import randint
+
+        group_aggregate_recipe = Recipe(
+            GroupAggregate,
+            count=randint(0, 1000),
+            count_scrambled=None
+        )
+        group_aggregate_recipe.make(_quantity=100)
+
         for ga in GroupAggregate.objects.all():
             self.assertIsNotNone(ga.count)
             self.assertIsNone(ga.count_scrambled)
@@ -293,5 +303,12 @@ class TestTools(TestCase):
             if ga.count_scrambled != ga.count:
                 differ_count += 1
 
+        # check all records have their scrambled counts set
+        assert not GroupAggregate.objects.filter(count_scrambled=None).exists()
+
+        # check that all scrambled counts are within valid range
+        assert not GroupAggregate.objects.filter(
+            Q(count_scrambled__gt=F('count') + 1) | Q(count_scrambled__lt=F('count') - 1))
+
         # Make sure that a significant amount of counts_scrambled were actually changed from the original
-        self.assertGreater(differ_count, 600)
+        self.assertGreater(differ_count, 60)

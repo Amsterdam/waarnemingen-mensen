@@ -26,6 +26,6 @@ class Command(BaseCommand):
     help = "Adds either -1, 0 or 1 to count_in and count_out for privacy reasons."
 
     def handle(self, *args, **options):
-        scrambled = None
-        while scrambled != 0:
-            scrambled = scramble_n_counts(10000)
+        num_scrambled = None
+        while num_scrambled != 0:
+            num_scrambled = scramble_n_counts(10000)
