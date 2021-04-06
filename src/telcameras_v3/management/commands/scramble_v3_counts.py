@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
@@ -28,4 +30,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         num_scrambled = None
         while num_scrambled != 0:
-            num_scrambled = scramble_n_counts(10000)
+            start = datetime.now()
+            num_scrambled = scramble_n_counts(1000)
+            self.stdout.write(f"Scrambled {num_scrambled} v3 records in {datetime.now() - start}")
