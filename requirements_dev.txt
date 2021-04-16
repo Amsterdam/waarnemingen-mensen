@@ -59,7 +59,7 @@ defusedxml==0.7.1
     #   djangorestframework-xml
 django-datetime-utc==1.0.3
     # via -r ./requirements.txt
-django-debug-toolbar==3.2
+django-debug-toolbar==3.2.1
     # via -r ./requirements.txt
 django-extensions==3.1.1
     # via -r ./requirements.txt
