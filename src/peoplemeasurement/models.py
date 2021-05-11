@@ -60,3 +60,17 @@ class VoorspelIntercept(models.Model):
     sensor = models.CharField(max_length=255)
     toepassings_kwartier_volgnummer = models.IntegerField()
     intercept_waarde = models.FloatField()
+
+
+class Area(models.Model):
+    sensor = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)  # Naam van meetgebied
+    geom = models.PolygonField()  # Polygoon dat het meetgebied omvat
+    area = models.IntegerField()  # Oppervlakte van het meetgebied in m2
+
+
+class Line(models.Model):
+    sensor = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)  # Naam van de tellijn
+    geom = models.LineStringField()  # Lijn die de tellijn definieert
+    azimuth = models.FloatField()  # Azimuth van de looprichting van de passage
