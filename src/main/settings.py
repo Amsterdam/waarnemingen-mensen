@@ -92,6 +92,8 @@ TEMPLATES = [
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
 ROOT_URLCONF = "main.urls"
+BASE_URL = os.getenv('BASE_URL')
+FORCE_SCRIPT_NAME = BASE_URL
 
 WSGI_APPLICATION = "main.wsgi.application"
 
