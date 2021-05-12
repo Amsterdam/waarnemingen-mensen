@@ -124,7 +124,7 @@ TESTING = len(sys.argv) > 1 and sys.argv[1] == "test"
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
-STATIC_URL = '/mensen/static/'
+STATIC_URL = BASE_URL + '/static/'
 STATIC_ROOT = '/static/'
 
 INGRESS_CONSUMER_CLASSES = [
