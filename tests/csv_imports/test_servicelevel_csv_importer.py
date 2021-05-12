@@ -71,10 +71,10 @@ class TestServicelevelCsvImporter:
                 value == expected_value
             ), f"Expected Servicelevel.{key} to have value '{expected_value}' but is {value}"
 
-    def test_truncate(self):
-        """
-        That that we delete all service levels
-        """
-        baker.make(Servicelevel, _quantity=13)
-        ServicelevelCsvImporter("path/to/file.csv")._truncate()
-        assert Servicelevel.objects.count() == 0
+    # def test_truncate(self):
+    #     """
+    #     That that we delete all service levels
+    #     """
+    #     baker.make(Servicelevel, _quantity=13)
+    #     ServicelevelCsvImporter("path/to/file.csv")._truncate()
+    #     assert Servicelevel.objects.count() == 0

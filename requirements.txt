@@ -24,7 +24,7 @@ cryptography==3.4.7
     # via jwcrypto
 datapunt-authorization-django==1.3.0
     # via -r requirements.in
-datapunt-data-ingress==2.0.5
+datapunt-data-ingress==2.1.0
     # via -r requirements.in
 defusedxml==0.7.1
     # via djangorestframework-xml
@@ -32,11 +32,11 @@ django-datetime-utc==1.0.3
     # via -r requirements.in
 django-debug-toolbar==3.2.1
     # via -r requirements.in
-django-extensions==3.1.2
+django-extensions==3.1.3
     # via -r requirements.in
 django-filter==2.4.0
     # via -r requirements.in
-django==3.2
+django==3.2.1
     # via
     #   -r requirements.in
     #   datapunt-authorization-django

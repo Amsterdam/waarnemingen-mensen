@@ -3,7 +3,8 @@ from django.contrib import admin
 from django.contrib.gis.db import models as geomodels
 from django.contrib.gis.geos import Point
 
-from peoplemeasurement.models import Sensors
+from peoplemeasurement.models import (Area, Line, Sensors, Servicelevel,
+                                      VoorspelCoefficient, VoorspelIntercept)
 
 
 class LatLongWidget(forms.MultiWidget):
@@ -37,3 +38,28 @@ class LatLongWidget(forms.MultiWidget):
 class SensorAdmin(admin.ModelAdmin):
     list_display = ['id', 'objectnummer', 'soort']
     formfield_overrides = {geomodels.PointField: {'widget': LatLongWidget}}
+
+
+@admin.register(Servicelevel)
+class ServicelevelAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(VoorspelCoefficient)
+class VoorspelCoefficientAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(VoorspelIntercept)
+class VoorspelInterceptAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Area)
+class AreaAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Line)
+class LineAdmin(admin.ModelAdmin):
+    pass

@@ -49,7 +49,7 @@ cryptography==3.4.7
     #   jwcrypto
 datapunt-authorization-django==1.3.0
     # via -r ./requirements.txt
-datapunt-data-ingress==2.0.5
+datapunt-data-ingress==2.1.0
     # via -r ./requirements.txt
 decorator==5.0.7
     # via ipython
@@ -61,11 +61,11 @@ django-datetime-utc==1.0.3
     # via -r ./requirements.txt
 django-debug-toolbar==3.2.1
     # via -r ./requirements.txt
-django-extensions==3.1.2
+django-extensions==3.1.3
     # via -r ./requirements.txt
 django-filter==2.4.0
     # via -r ./requirements.txt
-django==3.2
+django==3.2.1
     # via
     #   -r ./requirements.txt
     #   datapunt-authorization-django
@@ -108,7 +108,7 @@ factory-boy==3.2.0
     # via
     #   -r requirements_dev.in
     #   pytest-factoryboy
-faker==8.1.0
+faker==8.1.2
     # via factory-boy
 flask-basicauth==0.2.0
     # via locust
@@ -137,7 +137,7 @@ iniconfig==1.1.1
     # via pytest
 ipython-genutils==0.2.0
     # via traitlets
-ipython==7.22.0
+ipython==7.23.0
     # via -r requirements_dev.in
 itsdangerous==1.1.0
     # via flask
@@ -156,13 +156,15 @@ jwcrypto==0.8
     # via
     #   -r ./requirements.txt
     #   datapunt-authorization-django
-locust==1.4.4
+locust==1.5.0
     # via -r requirements_dev.in
 markupsafe==1.1.1
     # via
     #   -r ./requirements.txt
     #   jinja2
-model-bakery==1.3.0
+matplotlib-inline==0.1.2
+    # via ipython
+model-bakery==1.3.1
     # via -r requirements_dev.in
 msgpack==1.0.2
     # via locust
@@ -197,7 +199,7 @@ pycparser==2.20
     # via
     #   -r ./requirements.txt
     #   cffi
-pygments==2.8.1
+pygments==2.9.0
     # via ipython
 pyparsing==2.4.7
     # via
@@ -260,7 +262,9 @@ toml==0.10.2
     #   pep517
     #   pytest
 traitlets==5.0.5
-    # via ipython
+    # via
+    #   ipython
+    #   matplotlib-inline
 unicodecsv==0.14.1
     # via
     #   -r ./requirements.txt

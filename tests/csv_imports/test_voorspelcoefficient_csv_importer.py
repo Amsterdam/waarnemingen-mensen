@@ -66,10 +66,10 @@ class TestVoorspelCoefficientCsvImporter:
                 value == expected_value
             ), f"Expected Voorspelcoefficient.{key} to have value '{expected_value}' but is {value}"
 
-    def test_truncate(self):
-        """
-        That that we delete all service levels
-        """
-        baker.make(VoorspelCoefficient, _quantity=13)
-        VoorspelCoefficientCsvImporter("path/to/file.csv", VoorspelCoefficient)._truncate()
-        assert VoorspelCoefficient.objects.count() == 0
+    # def test_truncate(self):
+    #     """
+    #     That that we delete all service levels
+    #     """
+    #     baker.make(VoorspelCoefficient, _quantity=13)
+    #     VoorspelCoefficientCsvImporter("path/to/file.csv", VoorspelCoefficient)._truncate()
+    #     assert VoorspelCoefficient.objects.count() == 0
