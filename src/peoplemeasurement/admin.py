@@ -42,24 +42,24 @@ class SensorAdmin(admin.ModelAdmin):
 
 @admin.register(Servicelevel)
 class ServicelevelAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['type_parameter', 'type_gebied', 'type_tijd', 'level_nr', 'level_label', 'lowerlimit', 'upperlimit']
 
 
 @admin.register(VoorspelCoefficient)
 class VoorspelCoefficientAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['sensor', 'bron_kwartier_volgnummer', 'toepassings_kwartier_volgnummer', 'coefficient_waarde']
 
 
 @admin.register(VoorspelIntercept)
 class VoorspelInterceptAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['sensor', 'toepassings_kwartier_volgnummer', 'intercept_waarde']
 
 
 @admin.register(Area)
 class AreaAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['sensor', 'name', 'geom', 'area']
 
 
 @admin.register(Line)
 class LineAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['sensor', 'name', 'geom', 'azimuth']
