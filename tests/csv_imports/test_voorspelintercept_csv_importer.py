@@ -63,10 +63,10 @@ class TestVoorspelInterceptCsvImporter:
                 value == expected_value
             ), f"Expected Voorspelintercept.{key} to have value '{expected_value}' but is {value}"
 
-    def test_truncate(self):
-        """
-        That that we delete all service levels
-        """
-        baker.make(VoorspelIntercept, _quantity=13)
-        VoorspelInterceptCsvImporter("path/to/file.csv")._truncate()
-        assert VoorspelIntercept.objects.count() == 0
+    # def test_truncate(self):
+    #     """
+    #     That that we delete all service levels
+    #     """
+    #     baker.make(VoorspelIntercept, _quantity=13)
+    #     VoorspelInterceptCsvImporter("path/to/file.csv")._truncate()
+    #     assert VoorspelIntercept.objects.count() == 0

@@ -74,10 +74,10 @@ class TestSensorCsvImporter:
                 value == expected_value
             ), f"Expected Sensor.{key} to have value '{expected_value}' but is {value}"
 
-    def test_truncate(self):
-        """
-        That that we delete all sensors
-        """
-        baker.make(Sensors, _quantity=13)
-        SensorCsvImporter("path/to/file.csv")._truncate()
-        assert Sensors.objects.count() == 0
+    # def test_truncate(self):
+    #     """
+    #     That that we delete all sensors
+    #     """
+    #     baker.make(Sensors, _quantity=13)
+    #     SensorCsvImporter("path/to/file.csv")._truncate()
+    #     assert Sensors.objects.count() == 0
