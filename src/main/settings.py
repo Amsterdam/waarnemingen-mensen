@@ -42,8 +42,6 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    "authorization_django.authorization_middleware",
     "django.middleware.security.SecurityMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -136,24 +134,6 @@ INGRESS_CONSUMER_CLASSES = [
 INGRESS_AUTHENTICATION_CLASSES = ['auth.TokenAuthentication']
 INGRESS_PERMISSION_CLASSES = ['rest_framework.permissions.IsAuthenticated']
 
-# Note! Scopes from keycloak are converted to uppercase,
-# and underscores are replaced by slashes.
-# Therefore bs_r and bs_w in keycloak become BS/R and BS/W.
-SCOPE_WM_W = "WM/W"  # "Waarnemingen Mensen Write" is used to be able to edit exposed models in django admin (sensors etc.)
-
-DATAPUNT_AUTHZ = {
-    "JWKS_URL": 'os.getenv("KEYCLOAK_JWKS_URL")',
-    "MIN_SCOPE": (),
-    "FORCED_ANONYMOUS_ROUTES": [
-        "/status/",
-        "/favicon.ico",
-        "/ingress/",  # Anonymous because auth is handled by another system
-        "/telcameras/v1/15minaggregate",  # Anonymous because auth is handled by another system
-    ],
-    "PROTECTED": [
-        ("/admin/", ["*"], [SCOPE_WM_W]),
-    ]
-}
 
 if DEBUG:
     INSTALLED_APPS += ('debug_toolbar',)
