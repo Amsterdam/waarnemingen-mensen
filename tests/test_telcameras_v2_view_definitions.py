@@ -24,10 +24,10 @@ class TestViewDefinitions:
                f"DROP MATERIALIZED VIEW IF EXISTS {mock_view_name}_materialized;"
         assert len(view_strings['indexes']) == 2
         assert view_strings['indexes'][0] == f"""
-                CREATE UNIQUE INDEX {mock_view_name}_materialized_column1_column2_idx 
-                ON public.{mock_view_name}_materialized USING btree (column1, column2);
+                CREATE UNIQUE INDEX test_view_v100_materialized_column1_column2_idx 
+                ON public.test_view_v100_materialized USING btree (column1, column2);
                 """
         assert view_strings['indexes'][1] == f"""
-                CREATE UNIQUE INDEX {mock_view_name}_materialized_column3_idx 
-                ON public.{mock_view_name}_materialized USING btree (column3);
+                CREATE UNIQUE INDEX test_view_v100_materialized_column3_idx 
+                ON public.test_view_v100_materialized USING btree (column3);
                 """
