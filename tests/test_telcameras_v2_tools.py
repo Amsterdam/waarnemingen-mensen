@@ -118,6 +118,6 @@ class TestTools:
         )
 
         # Make sure that a significant amount of counts_scrambled were actually changed from the original
-        assert differ_count_in > 55
-        assert differ_count_out > 55
-        assert differ_count > 55
+        assert differ_count_in > 50
+        assert differ_count_out > 50
+        assert differ_count > 50

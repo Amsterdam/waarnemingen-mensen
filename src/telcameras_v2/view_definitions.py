@@ -5499,30 +5499,54 @@ VIEW_STRINGS = {
         , rt.speed_avg_p50
         , rt.speed_avg_p80
         from cmsa_15min_view_v10_realtime_30d_materialized    as rt 
-        left join cmsa_15min_view_v10_predict_materialized    as pdt    on  rt.sensor = pdt.sensor
+        left join cmsa_15min_view_v10_predict                 as pdt    on  rt.sensor = pdt.sensor
                                                                         and rt.timestamp_rounded = pdt.timestamp_rounded
                                                                         and pdt.timestamp_rounded >= (now() - '00:18:00'::interval)
-        where 1=1
       ;
     """,
 }
 
 
-def get_view_strings(view_name):
+class WrongIndexException(Exception):
+    pass
+
+
+def get_view_strings(view_strings, view_name, indexes=None):
+    """
+    Creates query strings for the materialization of views and it's indexes
+
+    :param view_name:
+    :param indexes: a list of tuples containing the columns for indexes to be added.
+        Example: indexes=[('sensor', 'timestamp_rounded'), ('timestamp')]
+    :return:
+    """
+
     reverse_sql = f"DROP VIEW IF EXISTS {view_name};"
 
     sql_materialized = f"""
         CREATE MATERIALIZED VIEW {view_name}_materialized AS
         SELECT * FROM {view_name};
-        
-        CREATE UNIQUE INDEX {view_name}_materialized_sensor_timestamp_rounded_idx ON public.{view_name}_materialized USING btree (sensor, timestamp_rounded);
         """
 
     reverse_sql_materialized = f"DROP MATERIALIZED VIEW IF EXISTS {view_name}_materialized;"
 
+    index_definitions = []
+    if indexes:
+        for index in indexes:
+            if not isinstance(index, tuple):
+                error_message = "Indexes should be defined as indexes=[('sensor', 'timestamp_rounded'), ('timestamp')]"
+                raise WrongIndexException(error_message)
+
+            index_definition = f"""
+                CREATE UNIQUE INDEX {view_name}_materialized_{"_".join(index)}_idx 
+                ON public.{view_name}_materialized USING btree ({", ".join(index)});
+                """
+            index_definitions.append(index_definition)
+
     return {
-        'sql': VIEW_STRINGS[view_name],
+        'sql': view_strings[view_name],
         'reverse_sql': reverse_sql,
         'sql_materialized': sql_materialized,
         'reverse_sql_materialized': reverse_sql_materialized,
+        'indexes': index_definitions
     }
