@@ -5499,7 +5499,7 @@ VIEW_STRINGS = {
         , rt.speed_avg_p50
         , rt.speed_avg_p80
         from cmsa_15min_view_v10_realtime_30d_materialized    as rt 
-        left join cmsa_15min_view_v10_predict                 as pdt    on  rt.sensor = pdt.sensor
+        left join cmsa_15min_view_v10_predict_materialized    as pdt    on  rt.sensor = pdt.sensor
                                                                         and rt.timestamp_rounded = pdt.timestamp_rounded
                                                                         and pdt.timestamp_rounded >= (now() - '00:18:00'::interval)
       ;
