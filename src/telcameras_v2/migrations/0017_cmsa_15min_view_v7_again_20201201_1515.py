@@ -1,6 +1,6 @@
 from django.db import migrations
 
-from telcameras_v2.view_definitions import get_view_strings
+from telcameras_v2.view_definitions import VIEW_STRINGS, get_view_strings
 
 
 class Migration(migrations.Migration):
@@ -15,10 +15,10 @@ class Migration(migrations.Migration):
     # three of them, and then recreate them again in reversing order.
 
     _VIEW_NAME = "cmsa_15min_view_v7"
-    _view_strings = get_view_strings(_VIEW_NAME)
+    _view_strings = get_view_strings(VIEW_STRINGS, _VIEW_NAME)
 
     _REALTIME_VIEW_NAME = "cmsa_15min_view_v7_realtime_predict"
-    _realtime_view_strings = get_view_strings(_REALTIME_VIEW_NAME)
+    _realtime_view_strings = get_view_strings(VIEW_STRINGS, _REALTIME_VIEW_NAME)
 
     operations = [
         # First remove the views

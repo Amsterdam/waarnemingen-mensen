@@ -1,7 +1,6 @@
 from django.db import migrations
 
-from telcameras_v2.view_definitions import get_view_strings
-
+from telcameras_v2.view_definitions import VIEW_STRINGS, get_view_strings
 
 # These views need to be added again
 VIEWS = [
@@ -38,7 +37,7 @@ class Migration(migrations.Migration):
 
     # Add the previously removed views and their accompanying materialized views again
     for view in VIEWS:
-        view_strings = get_view_strings(view)
+        view_strings = get_view_strings(VIEW_STRINGS, view)
 
         operations.append(
             migrations.RunSQL(
