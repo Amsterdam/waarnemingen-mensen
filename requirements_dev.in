@@ -17,3 +17,4 @@ pytest-django
 pytest-factoryboy
 model-bakery
 ipython
+time-machine

@@ -311,4 +311,4 @@ class TestTools(TestCase):
             Q(count_scrambled__gt=F('count') + 1) | Q(count_scrambled__lt=F('count') - 1))
 
         # Make sure that a significant amount of counts_scrambled were actually changed from the original
-        self.assertGreater(differ_count, 60)
+        self.assertGreater(differ_count, 50)
