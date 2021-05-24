@@ -1,5 +1,8 @@
 import logging
+from datetime import timedelta
 from random import randint
+
+from django.utils.timezone import now
 
 from peoplemeasurement.models import Sensors
 
@@ -20,7 +23,7 @@ def data_to_observation(data):
         if obs['message_type'] == 'count':
             for count in obs['aggregate']:
                 count['external_id'] = count.pop(
-                    'id')  # Count aggregates have an id, so to avoid colisions with the django orm id we rename the existing id that to "external_id"
+                    'id')  # Count aggregates have an id, so to avoid colisions with the django orm id we rename the existing id to "external_id"
                 count['message'] = message
                 count['version'] = version
                 if 'geom' in count:
@@ -90,3 +93,8 @@ def scramble_count_aggregate(count_aggregate):
             count_aggregate.count_scrambled = count_aggregate.count + randint(-1, 1)
 
     return count_aggregate
+
+
+def get_messages_count_for_past_minutes(model_class, timestamp_fieldname, minutes):
+    check_from = now() - timedelta(minutes=minutes)
+    return model_class.objects.filter(**{f'{timestamp_fieldname}__gte': check_from}).count()
