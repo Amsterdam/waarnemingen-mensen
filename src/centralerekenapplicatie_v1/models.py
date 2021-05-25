@@ -33,3 +33,8 @@ class LineMetricCount(models.Model):
     line_metric_timestamp = TimescaleDateTimeField(interval="1 day")
     azimuth = models.FloatField()
     count = models.IntegerField()
+
+
+class CountMetric(CRAMetric):
+    count = models.IntegerField()
+    interval = models.IntegerField()
