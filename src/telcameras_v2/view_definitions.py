@@ -4358,10 +4358,14 @@ VIEW_STRINGS = {
 
         with v2_feed_start_date as (
             select
-            sensor
-            , min(timestamp_start)  as start_of_feed
+              sensor
+            , min(timestamp_start)        as start_of_feed_original
+            , date_trunc('hour'::text, min(timestamp_start))
+	            + (date_part('minute'::text, min(timestamp_start))::integer / 15)::double precision
+	            * '00:15:00'::interval
+	            + '00:15:00'::interval      as start_of_feed				-- rounded to the first following quarter to prevent overlap with v1 data
             from telcameras_v2_observation
-            group by sensor 
+            group by sensor
         )
 
         , v1_data_uniek as (
