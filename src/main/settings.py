@@ -34,6 +34,7 @@ STORE_ALL_DATA_CRA = os.getenv('STORE_ALL_DATA_CRA', True)
 ALLOWED_HOSTS = ['*']
 X_FRAME_OPTIONS = 'ALLOW-FROM *'
 INTERNAL_IPS = ('127.0.0.1', '0.0.0.0')
+DATA_UPLOAD_MAX_MEMORY_SIZE = 2621440 * 4  # Multiplied the default value of about 2.5MB times 4. That should be enough.
 
 # Application definition
 HEALTH_MODEL = 'peoplemeasurement.PeopleMeasurement'
