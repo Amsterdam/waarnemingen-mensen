@@ -5,11 +5,11 @@ import pytest
 import pytz
 from django.conf import settings
 from django.test import override_settings
-from ingress.models import Collection, Message, FailedMessage
+from ingress.models import Collection, FailedMessage, Message
 
 from centralerekenapplicatie_v1.ingress_parser import MetricParser
-from centralerekenapplicatie_v1.models import (AreaMetric, LineMetric,
-                                               LineMetricCount)
+from centralerekenapplicatie_v1.models import (AreaMetric, CountMetric,
+                                               LineMetric, LineMetricCount)
 from peoplemeasurement.models import Sensors
 
 log = logging.getLogger(__name__)
@@ -57,6 +57,23 @@ TEST_POST_LINE = """
 }
 """
 
+TEST_POST_COUNT = """
+{
+    "id": "27010580-count",
+    "count": 3,
+    "source": {
+        "sensor": "CMSA-WIFI-01",
+        "timestamp": "2021-05-10T08:20:00Z",
+        "interval": 60,
+        "originalId": 27010580,
+        "adminId": 1,
+        "latitude": 52.04,
+        "longitude": 4.97
+    },
+    "type": "countMetrics"
+}
+"""
+
 
 @pytest.mark.django_db
 class TestDataIngressPoster:
@@ -72,6 +89,7 @@ class TestDataIngressPoster:
         # Create the sensors in the database
         self.sensor_area = Sensors.objects.create(objectnummer=json.loads(TEST_POST_AREA)['source']['sensor'])
         self.sensor_line = Sensors.objects.create(objectnummer=json.loads(TEST_POST_LINE)['source']['sensor'])
+        self.sensor_count = Sensors.objects.create(objectnummer=json.loads(TEST_POST_COUNT)['source']['sensor'])
 
     @pytest.mark.parametrize(
         "store_all_data", [True, False]
@@ -83,14 +101,15 @@ class TestDataIngressPoster:
             for _ in range(3):
                 client.post(self.URL, TEST_POST_AREA, **AUTHORIZATION_HEADER, content_type='application/json')
                 client.post(self.URL, TEST_POST_LINE, **AUTHORIZATION_HEADER, content_type='application/json')
-            assert Message.objects.count() == 6
+                client.post(self.URL, TEST_POST_COUNT, **AUTHORIZATION_HEADER, content_type='application/json')
+            assert Message.objects.count() == 9
 
             # Then run the parse_ingress script
             parser = MetricParser()
             parser.consume(end_at_empty_queue=True)
 
             # Test whether the records in the ingress queue are correctly set to parsed
-            assert Message.objects.filter(consume_succeeded_at__isnull=False).count() == 6
+            assert Message.objects.filter(consume_succeeded_at__isnull=False).count() == 9
             assert FailedMessage.objects.count() == 0
             for ingress in Message.objects.all():
                 assert ingress.consume_started_at is not None
@@ -100,6 +119,7 @@ class TestDataIngressPoster:
             assert AreaMetric.objects.all().count() == 3
             assert LineMetric.objects.all().count() == 3
             assert LineMetricCount.objects.all().count() == 6
+            assert CountMetric.objects.all().count() == 3
 
     def test_parse_ingress_fail_with_wrong_input(self, client):
         # First add an ingress record which is not correct json
@@ -120,14 +140,14 @@ class TestDataIngressPoster:
             assert failed_ingress.consume_succeeded_at is None
 
     @pytest.mark.parametrize(
-        "store_all_data,expected_areas,expected_lines,expected_line_counts", [
-            (True, 3, 3, 6),
-            (False, 0, 0, 0),
+        "store_all_data,expected_areas,expected_lines,expected_line_counts,expected_counts", [
+            (True, 3, 3, 6, 3),
+            (False, 0, 0, 0, 0),
         ]
     )
     def test_data_for_inactive_sensor(
             self, client, store_all_data, expected_areas,
-            expected_lines, expected_line_counts
+            expected_lines, expected_line_counts, expected_counts
     ):
         with override_settings(STORE_ALL_DATA_CRA=store_all_data):
             # First add a couple ingress records with a non existing sensor code
@@ -135,20 +155,23 @@ class TestDataIngressPoster:
             for _ in range(3):
                 client.post(self.URL, TEST_POST_AREA, **AUTHORIZATION_HEADER, content_type='application/json')
                 client.post(self.URL, TEST_POST_LINE, **AUTHORIZATION_HEADER, content_type='application/json')
-            assert Message.objects.count() == 6
+                client.post(self.URL, TEST_POST_COUNT, **AUTHORIZATION_HEADER, content_type='application/json')
+            assert Message.objects.count() == 9
 
             # Set the sensor to inactive
             self.sensor_area.is_active = False
             self.sensor_area.save()
             self.sensor_line.is_active = False
             self.sensor_line.save()
+            self.sensor_count.is_active = False
+            self.sensor_count.save()
 
             # Then run the parser
             parser = MetricParser()
             parser.consume(end_at_empty_queue=True)
 
             # Test whether the records in the ingress queue are correctly set to parsed
-            assert Message.objects.filter(consume_succeeded_at__isnull=False).count() == 6
+            assert Message.objects.filter(consume_succeeded_at__isnull=False).count() == 9
             assert FailedMessage.objects.count() == 0
             for ingress in Message.objects.all():
                 assert ingress.consume_started_at is not None
@@ -158,41 +181,47 @@ class TestDataIngressPoster:
             assert AreaMetric.objects.all().count() == expected_areas
             assert LineMetric.objects.all().count() == expected_lines
             assert LineMetricCount.objects.all().count() == expected_line_counts
+            assert CountMetric.objects.all().count() == expected_counts
 
             # Set the sensor back to active again
             self.sensor_area.is_active = True
             self.sensor_area.save()
             self.sensor_line.is_active = True
             self.sensor_line.save()
+            self.sensor_count.is_active = True
+            self.sensor_count.save()
 
     @pytest.mark.parametrize(
-        "store_all_data,expected_areas,expected_lines,expected_line_counts", [
-            (True, 3, 3, 6),
-            (False, 0, 0, 0),
+        "store_all_data,expected_areas,expected_lines,expected_line_counts,expected_counts", [
+            (True, 3, 3, 6, 3),
+            (False, 0, 0, 0, 0),
         ]
     )
     def test_data_for_non_existing_sensor(
             self, client, store_all_data, expected_areas,
-            expected_lines, expected_line_counts
+            expected_lines, expected_line_counts, expected_counts
     ):
         with override_settings(STORE_ALL_DATA_CRA=store_all_data):
             # First add a couple ingress records with a non existing sensor code
             Message.objects.all().delete()
             post_data_area = json.loads(TEST_POST_AREA)
             post_data_line = json.loads(TEST_POST_LINE)
+            post_data_count = json.loads(TEST_POST_COUNT)
             post_data_area['source']['sensor'] = 'does not exist'
             post_data_line['source']['sensor'] = 'does not exist'
+            post_data_count['source']['sensor'] = 'does not exist'
             for _ in range(3):
                 client.post(self.URL, json.dumps(post_data_area), **AUTHORIZATION_HEADER, content_type='application/json')
                 client.post(self.URL, json.dumps(post_data_line), **AUTHORIZATION_HEADER, content_type='application/json')
-            assert Message.objects.count() == 6
+                client.post(self.URL, json.dumps(post_data_count), **AUTHORIZATION_HEADER, content_type='application/json')
+            assert Message.objects.count() == 9
 
             # Then run the parser
             parser = MetricParser()
             parser.consume(end_at_empty_queue=True)
 
             # Test whether the records in the ingress queue are correctly set to parsed
-            assert Message.objects.filter(consume_succeeded_at__isnull=False).count() == 6
+            assert Message.objects.filter(consume_succeeded_at__isnull=False).count() == 9
             assert FailedMessage.objects.count() == 0
             for ingress in Message.objects.all():
                 assert ingress.consume_started_at is not None
@@ -202,3 +231,4 @@ class TestDataIngressPoster:
             assert AreaMetric.objects.all().count() == expected_areas
             assert LineMetric.objects.all().count() == expected_lines
             assert LineMetricCount.objects.all().count() == expected_line_counts
+            assert CountMetric.objects.all().count() == expected_counts

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
-from centralerekenapplicatie_v1.models import (AreaMetric, LineMetric,
-                                               LineMetricCount)
+from centralerekenapplicatie_v1.models import (AreaMetric, CountMetric,
+                                               LineMetric, LineMetricCount)
 
 
 class LineMetricCountSerializer(serializers.ModelSerializer):
@@ -55,4 +55,17 @@ class AreaMetricSerializer(serializers.ModelSerializer):
             'total_distance',
             'total_time',
             'speed',
+        ]
+
+class CountMetricSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CountMetric
+        fields = [
+            'message_id',
+            'sensor',
+            'timestamp',
+            'original_id',
+            'admin_id',
+            'count',
+            'interval',
         ]
