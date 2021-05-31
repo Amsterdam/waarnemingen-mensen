@@ -6,7 +6,7 @@
 #
 asgiref==3.3.4
     # via django
-certifi==2020.12.5
+certifi==2021.5.30
     # via
     #   requests
     #   sentry-sdk
@@ -103,7 +103,7 @@ requests==2.25.1
     #   datapunt-authorization-django
 ruamel.yaml.clib==0.2.2
     # via ruamel.yaml
-ruamel.yaml==0.17.4
+ruamel.yaml==0.17.6
     # via drf-yasg
 sentry-sdk==1.1.0
     # via -r requirements.in
@@ -121,7 +121,7 @@ uritemplate==3.0.1
     # via
     #   coreapi
     #   drf-yasg
-urllib3==1.26.4
+urllib3==1.26.5
     # via
     #   requests
     #   sentry-sdk
