@@ -12,7 +12,7 @@ attrs==21.2.0
     # via pytest
 backcall==0.2.0
     # via ipython
-certifi==2020.12.5
+certifi==2021.5.30
     # via
     #   -r ./requirements.txt
     #   geventhttpclient
@@ -108,7 +108,7 @@ factory-boy==3.2.0
     # via
     #   -r requirements_dev.in
     #   pytest-factoryboy
-faker==8.2.0
+faker==8.4.0
     # via factory-boy
 flask-basicauth==0.2.0
     # via locust
@@ -137,7 +137,7 @@ iniconfig==1.1.1
     # via pytest
 ipython-genutils==0.2.0
     # via traitlets
-ipython==7.23.1
+ipython==7.24.0
     # via -r requirements_dev.in
 itsdangerous==2.0.1
     # via flask
@@ -227,7 +227,7 @@ pytz==2021.1
     # via
     #   -r ./requirements.txt
     #   django
-pyzmq==22.0.3
+pyzmq==22.1.0
     # via locust
 requests==2.25.1
     # via
@@ -239,7 +239,7 @@ ruamel.yaml.clib==0.2.2
     # via
     #   -r ./requirements.txt
     #   ruamel.yaml
-ruamel.yaml==0.17.4
+ruamel.yaml==0.17.6
     # via
     #   -r ./requirements.txt
     #   drf-yasg
@@ -278,7 +278,7 @@ uritemplate==3.0.1
     #   -r ./requirements.txt
     #   coreapi
     #   drf-yasg
-urllib3==1.26.4
+urllib3==1.26.5
     # via
     #   -r ./requirements.txt
     #   requests
