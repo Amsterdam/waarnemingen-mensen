@@ -2,7 +2,7 @@ from django import forms
 from django.contrib import admin
 from django.contrib.gis.db import models as geomodels
 from django.contrib.gis.geos import Point
-
+from import_export.admin import ImportExportModelAdmin
 from peoplemeasurement.models import (Area, Line, Sensors, Servicelevel,
                                       VoorspelCoefficient, VoorspelIntercept)
 
@@ -35,31 +35,31 @@ class LatLongWidget(forms.MultiWidget):
 
 
 @admin.register(Sensors)
-class SensorAdmin(admin.ModelAdmin):
+class SensorAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     list_display = ['id', 'objectnummer', 'soort']
     formfield_overrides = {geomodels.PointField: {'widget': LatLongWidget}}
 
 
 @admin.register(Servicelevel)
-class ServicelevelAdmin(admin.ModelAdmin):
+class ServicelevelAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     list_display = ['type_parameter', 'type_gebied', 'type_tijd', 'level_nr', 'level_label', 'lowerlimit', 'upperlimit']
 
 
 @admin.register(VoorspelCoefficient)
-class VoorspelCoefficientAdmin(admin.ModelAdmin):
+class VoorspelCoefficientAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     list_display = ['sensor', 'bron_kwartier_volgnummer', 'toepassings_kwartier_volgnummer', 'coefficient_waarde']
 
 
 @admin.register(VoorspelIntercept)
-class VoorspelInterceptAdmin(admin.ModelAdmin):
+class VoorspelInterceptAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     list_display = ['sensor', 'toepassings_kwartier_volgnummer', 'intercept_waarde']
 
 
 @admin.register(Area)
-class AreaAdmin(admin.ModelAdmin):
+class AreaAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     list_display = ['sensor', 'name', 'geom', 'area']
 
 
 @admin.register(Line)
-class LineAdmin(admin.ModelAdmin):
+class LineAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     list_display = ['sensor', 'name', 'geom', 'azimuth']
