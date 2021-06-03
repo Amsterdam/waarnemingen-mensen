@@ -14,7 +14,7 @@ class Observation(models.Model):
     latitude = models.DecimalField(max_digits=16, decimal_places=13)
     longitude = models.DecimalField(max_digits=16, decimal_places=13)
     interval = models.SmallIntegerField()                   # e.g. 60     # seconds that this message spans
-    density = models.FloatField()
+    density = models.FloatField(null=True)
 
 
 class GroupAggregate(models.Model):
@@ -24,9 +24,9 @@ class GroupAggregate(models.Model):
     azimuth = models.SmallIntegerField()
     count = models.SmallIntegerField()
     count_scrambled = models.SmallIntegerField(null=True)  # This is meant to use a slightly scrambled version of the count with a +1 or -1 for privacy reasons
-    cumulative_distance = models.FloatField()
-    cumulative_time = models.FloatField()
-    median_speed = models.FloatField()
+    cumulative_distance = models.FloatField(null=True)
+    cumulative_time = models.FloatField(null=True)
+    median_speed = models.FloatField(null=True)
 
 
 class Person(models.Model):

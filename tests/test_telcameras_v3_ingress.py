@@ -103,6 +103,37 @@ TEST_POST = """
 """
 
 
+TEST_POST_PRORAIL = """
+{
+    "id": 1,
+    "timestamp": "2021-02-16T13:37:00Z",
+    "sensor": "CMSA-GAWW-13",
+    "sensor_type": "3D sensor",
+    "status": "operational",
+    "version": "prorail",
+    "latitude": 52.394632,
+    "longitude": 4.950445,
+    "interval": 60,
+    "density": null,
+    "direction": [
+        {
+            "azimuth": 120,
+            "count": 0,
+            "cumulative_distance": null,
+            "cumulative_time": null,
+            "median_speed": null
+        },
+        {
+            "cumulative_time": null,
+            "median_speed": null,
+            "count": 0,
+            "azimuth": 300,
+            "cumulative_distance": null
+        }
+    ]
+}
+"""
+
 @pytest.mark.django_db
 class TestDataIngressPoster:
     """ Test the third iteration of the api with the ingress queue"""
@@ -123,7 +154,7 @@ class TestDataIngressPoster:
     )
     def test_parse_ingress(self, client, store_all_data):
         with override_settings(STORE_ALL_DATA_TELCAMERAS_V3=store_all_data):
-            # First add a couple ingress records with a non existing sensor code
+            # First add a couple ingress records
             Message.objects.all().delete()
             for _ in range(3):
                 client.post(self.URL, TEST_POST, **AUTHORIZATION_HEADER, content_type='application/json')
@@ -140,10 +171,35 @@ class TestDataIngressPoster:
                 assert ingress.consume_started_at is not None
                 assert ingress.consume_succeeded_at is not None
 
-            # Test whether the records were indeed not added to the database
+            # Test whether the records were indeed added to the database
             assert Observation.objects.all().count() == 3
             assert GroupAggregate.objects.all().count() == 9
             assert Person.objects.all().count() == 15
+
+
+    def test_parse_ingress_prorail(self, client):
+        # First add a couple ingress records
+        Message.objects.all().delete()
+        for _ in range(3):
+            client.post(self.URL, TEST_POST_PRORAIL, **AUTHORIZATION_HEADER, content_type='application/json')
+        assert Message.objects.count() == 3
+
+        # Then run the parser
+        parser = TelcameraParser()
+        parser.consume(end_at_empty_queue=True)
+
+        # Test whether the records in the ingress queue are correctly set to parsed
+        assert Message.objects.filter(consume_succeeded_at__isnull=False).count() == 3
+        assert FailedMessage.objects.count() == 0
+        for ingress in Message.objects.all():
+            assert ingress.consume_started_at is not None
+            assert ingress.consume_succeeded_at is not None
+
+        # Test whether the records were indeed added to the database
+        assert Observation.objects.all().count() == 3
+        assert GroupAggregate.objects.all().count() == 6
+        assert Person.objects.all().count() == 0
+
 
     def test_parse_ingress_fail_with_wrong_input(self, client):
         # First add an ingress record which is not correct json
