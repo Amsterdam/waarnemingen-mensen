@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "django_filters",
     "django_extensions",
     "django.contrib.gis",
+    'import_export',
     "datapunt_api",
     "rest_framework",
     "rest_framework_gis",
@@ -137,6 +138,7 @@ INGRESS_CONSUMER_CLASSES = [
 INGRESS_AUTHENTICATION_CLASSES = ['auth.TokenAuthentication']
 INGRESS_PERMISSION_CLASSES = ['rest_framework.permissions.IsAuthenticated']
 
+IMPORT_EXPORT_USE_TRANSACTIONS = True
 
 if DEBUG:
     INSTALLED_APPS += ('debug_toolbar',)
