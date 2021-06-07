@@ -1273,10 +1273,14 @@ VIEW_STRINGS = {
       ORDER BY s.sensor, s.timestamp_rounded;
     """,
 
-
     'cmsa_15min_view_v8': r"""
       CREATE VIEW cmsa_15min_view_v8 AS
-        with v2_feed_start_date as (
+        with period_of_time as (
+		    select 
+		      current_date - '1 month'::interval	as start_date
+		    , current_date							as end_date
+		)
+        , v2_feed_start_date as (
             select
             sensor
             , min(timestamp_start)  as start_of_feed
@@ -1356,7 +1360,11 @@ VIEW_STRINGS = {
             from telcameras_v2_observation  as o
             left join v2_zone_sensor        as zs   on  left(o.sensor, 4) in ('GADM', 'GAMM')
                                                     and o.sensor = zs.sensor
-            where (
+            where
+                o.timestamp_start >= (select start_date from period_of_time)
+            and o.timestamp_start <  (select end_date	from period_of_time)
+            and o.timestamp_start <  (now() - '00:18:00'::interval)
+            and (
                 o.id in (
                     select
                       t.id
@@ -1373,12 +1381,13 @@ VIEW_STRINGS = {
                                 , timestamp_message desc
                         ) as row_num
                         from telcameras_v2_observation
+                        where 
+                            timestamp_start >= (select start_date	from period_of_time)
+                        and timestamp_start <  (select end_date		from period_of_time)
                     ) as t
                     where t.row_num = 1
                 )
             )
-            and o.timestamp_start > (now() - '1 year'::interval)
-            and o.timestamp_start < (now() - '00:18:00'::interval) 
         )
         , v2_sensor_15min_sel as (
             select
@@ -1403,11 +1412,15 @@ VIEW_STRINGS = {
                 from telcameras_v2_personaggregate    as pa
                 join v2_selectie                      as sel    on  pa.observation_id = sel.id
                                                                 and pa.observation_timestamp_start = sel.timestamp_start
-                where 1=1
+                where
+                    pa.observation_timestamp >= (select start_date  from period_of_time)
+            	and pa.observation_timestamp <  (select end_date	from period_of_time)
                 and pa.speed is not null
                 and pa.geom is not null
                 and pa.geom <> ''::text
+
                 union all
+                
                 select
                   sel2.sensor
                 , sel2.timestamp_rounded
@@ -1416,7 +1429,9 @@ VIEW_STRINGS = {
                 from telcameras_v2_personaggregate      as pa
                 join v2_selectie                        as sel2     on  pa.observation_id = sel2.id
                                                                     and pa.observation_timestamp_start = sel2.timestamp_start
-                where 1=1
+                where
+                    pa.observation_timestamp >= (select start_date  from period_of_time)
+            	and pa.observation_timestamp <  (select end_date	from period_of_time)
                 and pa.speed is not null
                 and (
                     pa.geom is null
@@ -1456,7 +1471,9 @@ VIEW_STRINGS = {
             group by
               sel.sensor
             , sel.timestamp_rounded
+            
             union all
+            
             -- For zone sensors (beginning with 'GADM', 'GAMM') use a extra join argument on external_id to get the correct count values. Needed because one observation (observation_id) consist both area count values. 
             select
               sel.sensor
@@ -1481,8 +1498,8 @@ VIEW_STRINGS = {
             select
               sel3.sensor
             , sel3.timestamp_rounded
-            , case
-                when left(sel3.sensor, 4) in ('GADM', 'GAMM')           -- This filter applies to zone sensors for wich only the area_count is filled 
+            , case      
+                when left(replace(sel3.sensor, 'CMSA-', ''), 4) in ('GADM', 'GAMM', 'GAAB')         -- This filter applies to zone sensors for wich only the area_count is filled
                 then coalesce(oc.area_count::integer, 0)
                 else coalesce(oc.total_count::integer, 0)
               end                                   as total_count
@@ -1880,7 +1897,9 @@ VIEW_STRINGS = {
             group by
               sel.sensor
             , sel.timestamp_rounded
+            
             union all
+            
             -- For zone sensors (beginning with 'GADM', 'GAMM') use a extra join argument on external_id to get the correct count values. Needed because one observation (observation_id) consist both area count values. 
             select
               sel.sensor
