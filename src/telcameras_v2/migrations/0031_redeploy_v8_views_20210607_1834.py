@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
         ('telcameras_v2', '0030_deploy_v9_views_20210316_1040'),
     ]
 
-    # This deploys a fix in the view 'cmsa_15min_view_v8' which flipped up and down counts
+    # This script redeploys the 'cmsa_15min_view_v8' views which contain new functionality to add 4 sensors beginning with "GAAB"
 
     # NOTE: Simply remove the views and redeploy them. Because the materialized view
     # depends on the view, and the realtime view depends on the materialized view, I need
