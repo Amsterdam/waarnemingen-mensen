@@ -1277,7 +1277,7 @@ VIEW_STRINGS = {
       CREATE VIEW cmsa_15min_view_v8 AS
         with period_of_time as (
 		    select 
-		      current_date - '1 month'::interval	as start_date
+		      current_date - '1 year'::interval     as start_date
 		    , current_date							as end_date
 		)
         , v2_feed_start_date as (
@@ -2046,7 +2046,7 @@ VIEW_STRINGS = {
               sel3.sensor
             , sel3.timestamp_rounded
             , case
-                when left(sel3.sensor, 4) in ('GADM', 'GAMM')           -- This filter applies to zone sensors for wich only the area_count is filled  
+                when left(replace(sel3.sensor, 'CMSA-', ''), 4) in ('GADM', 'GAMM', 'GAAB')     -- This filter applies to zone sensors for wich only the area_count is filled
                 then coalesce(oc.area_count::integer, 0)
                 else coalesce(oc.total_count::integer, 0)
             end                                   as total_count
@@ -2420,7 +2420,9 @@ VIEW_STRINGS = {
             group by
               sel.sensor
             , sel.timestamp_rounded
+
             union all
+            
             -- For zone sensors (beginning with 'GADM', 'GAMM') use a extra join argument on external_id to get the correct count values. Needed because one observation (observation_id) consist both area count values. 
             select
               sel.sensor
@@ -2567,7 +2569,7 @@ VIEW_STRINGS = {
               sel3.sensor
             , sel3.timestamp_rounded
             , case
-                when left(sel3.sensor, 4) in ('GADM', 'GAMM')           -- This filter applies to zone sensors for wich only the area_count is filled  
+                when left(replace(sel3.sensor, 'CMSA-', ''), 4) in ('GADM', 'GAMM', 'GAAB')     -- This filter applies to zone sensors for wich only the area_count is filled
                 then coalesce(oc.area_count::integer, 0)
                 else coalesce(oc.total_count::integer, 0)
             end                                   as total_count
@@ -3021,7 +3023,7 @@ VIEW_STRINGS = {
               sel3.sensor
             , sel3.timestamp_rounded
             , case
-                when left(sel3.sensor, 4) in ('GADM', 'GAMM')           -- This filter applies to zone sensors for wich only the area_count is filled 
+                when left(replace(sel3.sensor, 'CMSA-', ''), 4) in ('GADM', 'GAMM', 'GAAB')     -- This filter applies to zone sensors for wich only the area_count is filled
                 then coalesce(oc.area_count::integer, 0)
                 else coalesce(oc.total_count::integer, 0)
               end                                   as total_count
@@ -3593,7 +3595,7 @@ VIEW_STRINGS = {
               sel3.sensor
             , sel3.timestamp_rounded
             , case
-                when left(sel3.sensor, 4) in ('GADM', 'GAMM')           -- This filter applies to zone sensors for wich only the area_count is filled  
+                when left(replace(sel3.sensor, 'CMSA-', ''), 4) in ('GADM', 'GAMM', 'GAAB')     -- This filter applies to zone sensors for wich only the area_count is filled
                 then coalesce(oc.area_count::integer, 0)
                 else coalesce(oc.total_count::integer, 0)
             end                                   as total_count
@@ -4138,7 +4140,7 @@ VIEW_STRINGS = {
               sel3.sensor
             , sel3.timestamp_rounded
             , case
-                when left(sel3.sensor, 4) in ('GADM', 'GAMM')           -- This filter applies to zone sensors for wich only the area_count is filled  
+                when left(replace(sel3.sensor, 'CMSA-', ''), 4) in ('GADM', 'GAMM', 'GAAB')     -- This filter applies to zone sensors for wich only the area_count is filled 
                 then coalesce(oc.area_count::integer, 0)
                 else coalesce(oc.total_count::integer, 0)
             end                                   as total_count
