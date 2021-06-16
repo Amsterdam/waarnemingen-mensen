@@ -7,7 +7,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from contrib.rest_framework.authentication import SimpleGetTokenAuthentication
-from . import serializers
+from peoplemeasurement import serializers
+from peoplemeasurement.models import Area, Line, Sensors, Servicelevel
+from peoplemeasurement.serializers import (AreaSerializer, LineSerializer,
+                                           SensorSerializer,
+                                           ServicelevelSerializer)
 
 logger = logging.getLogger(__name__)
 
@@ -31,3 +35,20 @@ class Today15minAggregationViewSet(mixins.ListModelMixin, viewsets.GenericViewSe
             queryset = self.dictfetchall(cursor)
         serializer = serializers.Today15minAggregationSerializer(queryset, many=True)
         return Response(serializer.data)
+
+
+class SensorsDataViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Sensors.objects.all()
+    serializer_class = SensorSerializer
+
+class ServicelevelDataViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Servicelevel.objects.all()
+    serializer_class = ServicelevelSerializer
+
+class AreaDataViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Area.objects.all()
+    serializer_class = AreaSerializer
+
+class LineDataViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Line.objects.all()
+    serializer_class = LineSerializer
