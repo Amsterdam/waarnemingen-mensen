@@ -4,9 +4,10 @@ from datetime import datetime
 
 import pytz
 from django.conf import settings
+from django.contrib.gis.geos import LineString, Polygon
 from rest_framework.test import APITestCase
 
-from peoplemeasurement.models import (PeopleMeasurement, Sensors, Servicelevel,
+from peoplemeasurement.models import (Area, Line, Sensors, Servicelevel,
                                       VoorspelCoefficient, VoorspelIntercept)
 from tests.test_telcameras_v2_ingress import TEST_POST
 from tests.tools_for_testing import call_man_command
@@ -129,6 +130,49 @@ class PeopleMeasurementTestSetSensorIsActiveStatus(APITestCase):
             out.strip(),
             f"The sensor '{self.objectnummer}'.is_active is already True. Nothing has changed."
         )
+
+class PeopleMeasurementTestPublicSensorsEndpoint(APITestCase):
+    def setUp(self):
+        self.URL_SENSOR = '/telcameras/v1/sensor/'
+        self.URL_SERVICELEVEL = '/telcameras/v1/servicelevel/'
+        self.URL_AREA = '/telcameras/v1/area/'
+        self.URL_LINE = '/telcameras/v1/line/'
+        polygon = Polygon(((0, 0), (0, 1), (1, 1), (0, 0)), ((0.4, 0.4), (0.4, 0.6), (0.6, 0.6), (0.4, 0.4)))
+        linestring = LineString((0, 0), (1, 1))
+        for i in range(3):
+            sensor = Sensors.objects.create(objectnummer=f'ABC-{i}')
+            Servicelevel.objects.create(
+                type_parameter=str(i), type_gebied=str(i), type_tijd=str(i), level_nr=i, level_label=str(i))
+            Area.objects.create(sensor=sensor, name=str(i), geom=polygon, area=i)
+            Line.objects.create(sensor=sensor, name=str(i), geom=linestring, azimuth=i)
+
+    def test_list_sensors(self):
+        response = self.client.get(self.URL_SENSOR, content_type='application/json')
+        results = json.loads(response.content)['results']
+        self.assertEqual(len(results), 3)
+        for i, result in enumerate(results):
+            self.assertEqual(result['objectnummer'], f'ABC-{i}')
+
+    def test_list_servicelevel(self):
+        response = self.client.get(self.URL_SERVICELEVEL, content_type='application/json')
+        results = json.loads(response.content)['results']
+        self.assertEqual(len(results), 3)
+        for i, result in enumerate(results):
+            self.assertEqual(result['type_parameter'], str(i))
+
+    def test_list_area(self):
+        response = self.client.get(self.URL_AREA, content_type='application/json')
+        results = json.loads(response.content)['results']
+        self.assertEqual(len(results), 3)
+        for i, result in enumerate(results):
+            self.assertEqual(result['name'], str(i))
+
+    def test_list_Line(self):
+        response = self.client.get(self.URL_LINE, content_type='application/json')
+        results = json.loads(response.content)['results']
+        self.assertEqual(len(results), 3)
+        for i, result in enumerate(results):
+            self.assertEqual(result['name'], str(i))
 
 
 class PeopleMeasurementTestCSVImporters(APITestCase):

@@ -172,7 +172,7 @@ REST_FRAMEWORK = dict(
     DEFAULT_AUTHENTICATION_CLASSES=(
         'contrib.rest_framework.authentication.SimpleTokenAuthentication',
     ),
-    DEFAULT_PAGINATION_CLASS=("datapunt_api.pagination.HALPagination",),
+    DEFAULT_PAGINATION_CLASS="datapunt_api.pagination.HALPagination",
     DEFAULT_RENDERER_CLASSES=(
         "rest_framework.renderers.JSONRenderer",
         "datapunt_api.renderers.PaginatedCSVRenderer",
@@ -182,7 +182,7 @@ REST_FRAMEWORK = dict(
     DEFAULT_FILTER_BACKENDS=(
         # 'rest_framework.filters.SearchFilter',
         # 'rest_framework.filters.OrderingFilter',
-        "django_filters.rest_framework.DjangoFilterBackend"
+        "django_filters.rest_framework.DjangoFilterBackend",
     ),
     DEFAULT_VERSIONING_CLASS='rest_framework.versioning.NamespaceVersioning',
     COERCE_DECIMAL_TO_STRING=True,

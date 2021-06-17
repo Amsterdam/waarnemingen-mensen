@@ -1,9 +1,8 @@
 import logging
 
-from datapunt_api.rest import HALSerializer
 from rest_framework import serializers
 
-from .models import PeopleMeasurement
+from .models import Area, Line, Sensors, Servicelevel
 
 log = logging.getLogger(__name__)
 
@@ -38,3 +37,27 @@ class Today15minAggregationSerializer(serializers.Serializer):
     speed_avg_p20 = serializers.FloatField()
     speed_avg_p50 = serializers.FloatField()
     speed_avg_p80 = serializers.FloatField()
+
+
+class SensorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Sensors
+        fields = '__all__'
+
+
+class ServicelevelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Servicelevel
+        fields = '__all__'
+
+
+class AreaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Area
+        fields = '__all__'
+
+
+class LineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Line
+        fields = '__all__'
