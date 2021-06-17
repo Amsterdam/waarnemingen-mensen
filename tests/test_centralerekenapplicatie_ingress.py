@@ -126,7 +126,7 @@ class TestDataIngressPoster:
         Message.objects.all().delete()
         area_dict = json.loads(TEST_POST_AREA)
         area_dict['count'] = None
-        del area_dict['count']
+        del area_dict['area']
 
         for _ in range(3):
             client.post(self.URL, json.dumps(area_dict), **AUTHORIZATION_HEADER, content_type='application/json')
