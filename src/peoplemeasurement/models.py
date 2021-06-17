@@ -24,6 +24,7 @@ class PeopleMeasurement(models.Model):
 
 
 class Sensors(models.Model):
+    gid = models.IntegerField(null=True)  # Used for reference in external applications
     geom = models.PointField(null=True)
     objectnummer = models.CharField(max_length=255, null=True)
     soort = models.CharField(max_length=255, null=True)

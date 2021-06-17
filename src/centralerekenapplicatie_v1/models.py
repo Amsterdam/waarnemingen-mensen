@@ -16,8 +16,8 @@ class CRAMetric(models.Model):
 
 
 class AreaMetric(CRAMetric):
-    area = models.FloatField()
-    count = models.IntegerField()
+    area = models.FloatField(null=True)
+    count = models.IntegerField(null=True)
     density = models.FloatField()
     total_distance = models.FloatField(null=True)
     total_time = models.FloatField(null=True)

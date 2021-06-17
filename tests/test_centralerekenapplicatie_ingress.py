@@ -121,6 +121,34 @@ class TestDataIngressPoster:
             assert LineMetricCount.objects.all().count() == 6
             assert CountMetric.objects.all().count() == 3
 
+    def test_parse_ingress_empty_count_and_dict(self, client):
+        # First add a couple ingress records
+        Message.objects.all().delete()
+        area_dict = json.loads(TEST_POST_AREA)
+        area_dict['count'] = None
+        del area_dict['area']
+
+        for _ in range(3):
+            client.post(self.URL, json.dumps(area_dict), **AUTHORIZATION_HEADER, content_type='application/json')
+        assert Message.objects.count() == 3
+
+        # Then run the parse_ingress script
+        parser = MetricParser()
+        parser.consume(end_at_empty_queue=True)
+
+        # Test whether the records in the ingress queue are correctly set to parsed
+        assert Message.objects.filter(consume_succeeded_at__isnull=False).count() == 3
+        assert FailedMessage.objects.count() == 0
+        for ingress in Message.objects.all():
+            assert ingress.consume_started_at is not None
+            assert ingress.consume_succeeded_at is not None
+
+        # Test whether the records were added to the database
+        assert AreaMetric.objects.all().count() == 3
+        assert LineMetric.objects.all().count() == 0
+        assert LineMetricCount.objects.all().count() == 0
+        assert CountMetric.objects.all().count() == 0
+
     def test_parse_ingress_fail_with_wrong_input(self, client):
         # First add an ingress record which is not correct json
         Message.objects.all().delete()

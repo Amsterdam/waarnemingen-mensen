@@ -36,7 +36,7 @@ class LatLongWidget(forms.MultiWidget):
 
 @admin.register(Sensors)
 class SensorAdmin(ImportExportModelAdmin, admin.ModelAdmin):
-    list_display = ['id', 'objectnummer', 'soort']
+    list_display = ['id', 'gid', 'objectnummer', 'soort']
     formfield_overrides = {geomodels.PointField: {'widget': LatLongWidget}}
 
 
