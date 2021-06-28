@@ -140,6 +140,13 @@ INGRESS_PERMISSION_CLASSES = ['rest_framework.permissions.IsAuthenticated']
 
 IMPORT_EXPORT_USE_TRANSACTIONS = True
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'django_cache',
+    }
+}
+
 if DEBUG:
     INSTALLED_APPS += ('debug_toolbar',)
     MIDDLEWARE += (
