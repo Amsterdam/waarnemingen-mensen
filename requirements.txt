@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements.txt requirements.in
 #
-asgiref==3.3.4
+asgiref==3.4.0
     # via django
 certifi==2021.5.30
     # via
@@ -89,7 +89,7 @@ itypes==1.2.0
     # via coreapi
 jinja2==3.0.1
     # via coreschema
-jwcrypto==0.9
+jwcrypto==0.9.1
     # via datapunt-authorization-django
 markuppy==1.14
     # via tablib
@@ -101,7 +101,7 @@ openpyxl==3.0.7
     # via tablib
 packaging==20.9
     # via drf-yasg
-psycopg2-binary==2.8.6
+psycopg2-binary==2.9.1
     # via -r requirements.in
 pycparser==2.20
     # via cffi
@@ -120,9 +120,9 @@ requests==2.25.1
     #   -r requirements.in
     #   coreapi
     #   datapunt-authorization-django
-ruamel.yaml.clib==0.2.2
+ruamel.yaml.clib==0.2.4
     # via ruamel.yaml
-ruamel.yaml==0.17.7
+ruamel.yaml==0.17.10
     # via drf-yasg
 sentry-sdk==1.1.0
     # via -r requirements.in
@@ -143,7 +143,7 @@ uritemplate==3.0.1
     # via
     #   coreapi
     #   drf-yasg
-urllib3==1.26.5
+urllib3==1.26.6
     # via
     #   requests
     #   sentry-sdk
