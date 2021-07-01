@@ -41,6 +41,8 @@ class SensorAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     list_display = ['id', 'gid', 'objectnummer', 'soort']
     formfield_overrides = {geomodels.PointField: {'widget': LatLongWidget}}
     tmp_storage_class = CacheStorage
+    exclude = ('id',)
+    import_id_fields = ('objectnummer',)
 
 
 @admin.register(Servicelevel)
