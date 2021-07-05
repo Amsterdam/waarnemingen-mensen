@@ -26,16 +26,16 @@ class PeopleMeasurement(models.Model):
 class Sensors(models.Model):
     gid = models.IntegerField(null=True)  # Used for reference in external applications
     geom = models.PointField(null=True)
-    objectnummer = models.CharField(max_length=255, null=True)
-    soort = models.CharField(max_length=255, null=True)
-    voeding = models.CharField(max_length=255, null=True)
-    rotatie = models.IntegerField(null=True)
-    actief = models.CharField(max_length=255, null=True)
-    privacyverklaring = models.CharField(max_length=255, null=True)
-    location_name = models.CharField(max_length=255, null=True)
-    width = models.FloatField(null=True)
-    gebiedstype = models.CharField(max_length=255, null=True)
-    gebied = models.CharField(max_length=255, null=True)
+    objectnummer = models.CharField(max_length=255, unique=True)
+    soort = models.CharField(max_length=255, null=True, blank=True)
+    voeding = models.CharField(max_length=255, null=True, blank=True)
+    rotatie = models.IntegerField(null=True, blank=True)
+    actief = models.CharField(max_length=255, null=True, blank=True)
+    privacyverklaring = models.CharField(max_length=255, null=True, blank=True)
+    location_name = models.CharField(max_length=255, null=True, blank=True)
+    width = models.FloatField(null=True, blank=True)
+    gebiedstype = models.CharField(max_length=255, null=True, blank=True)
+    gebied = models.CharField(max_length=255, null=True, blank=True)
     imported_at = models.DateTimeField(null=True, auto_now_add=True)
     is_active = models.BooleanField(default=True)  # To decide if the received data from this sensor should be stored
 
