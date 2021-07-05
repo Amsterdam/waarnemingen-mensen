@@ -75,3 +75,23 @@ class Line(models.Model):
     name = models.CharField(max_length=255)  # Naam van de tellijn
     geom = models.LineStringField()  # Lijn die de tellijn definieert
     azimuth = models.FloatField()  # Azimuth van de looprichting van de passage
+
+"""
+#class V1Data(models.Model):
+    table: peoplemeasurement_v1_data
+
+    This model is an aggreated table which contains materialized data 
+    based on the CMSA source code (see view_definitions). This can be 
+    done because the v1 data flow is outdated and therefore no new data 
+    is comming in. This gives us a huge performance boost when loading/
+    querying the cmsa data.
+    
+    sensor = models.CharField(max_length=255)                               # Naam van de sensor
+    timestamp_rounded = models.DateTimeField(db_index=True)                 # Tijdstip (per kwartier) waarop de telling van toepassing is
+    basedonxmessages = models.IntegerField()                                # Het aantal binnengekomen berichten (in betreffende kwartier) op basis waarvan deze telling tot stand is gekomen 
+    total_count = models.IntegerField()                                     # Het toaal aantal tellingen van passanten 
+    count_down = models.IntegerField()                                      # Het aantal getelde passanten in richting 1 (afhankelijk van de azimuth) 
+    count_up = models.IntegerField()                                        # Het aantal getelde passanten in richting 2 (afhankelijk van de azimuth)
+    density_avg = models.DecimalField(max_digits=14, decimal_places=11)     # De dichtheid over het betreffende kwartier
+    speed_avg = models.DecimalField(max_digits=14, decimal_places=11)       # De gemiddelde snelheid over het betreffende kwartier
+"""
