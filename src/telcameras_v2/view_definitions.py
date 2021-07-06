@@ -5203,7 +5203,7 @@ VIEW_STRINGS = {
         */
         with use_date as (
             select 
-                now() - interval '00:02:30' as use_date  -- PROD, let op dat dit inteval korter is dan de wachttijd die gebruikt wordt na het afsluiten van het kwartier
+                now() - interval '00:02:30' as use_date -- Let op dat dit inteval korter is dan de wachttijd die gebruikt wordt na het afsluiten van het kwartier
         )
         
         , use_date_kw as (
@@ -5371,7 +5371,6 @@ VIEW_STRINGS = {
         )
         
         /*
-        * PROD
         * Per sensor de te voorspellen curve uitrekenen
         * Variable de juist naam geven
         */
