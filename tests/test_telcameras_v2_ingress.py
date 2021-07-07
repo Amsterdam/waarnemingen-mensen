@@ -260,7 +260,7 @@ class TestDataIngressPoster:
             assert Message.objects.count() == 3
 
             # Set the sensor to inactive
-            self.sensor.is_active = False
+            self.sensor.drop_incoming_data = True
             self.sensor.save()
 
             # Then run the parser
@@ -278,7 +278,7 @@ class TestDataIngressPoster:
             assert Observation.objects.all().count() == expected_observations
 
             # Set the sensor back to active again
-            self.sensor.is_active = True
+            self.sensor.drop_incoming_data = False
             self.sensor.save()
 
     def test_post_new_record_with_double_zone(self, client):
