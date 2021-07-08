@@ -251,7 +251,7 @@ class TestDataIngressPoster:
         (True, 3),
         (False, 0)
     ])
-    def test_data_for_inactive_sensor(self, client, store_all_data, expected_observations):
+    def test_data_for_with_drop_incoming_data(self, client, store_all_data, expected_observations):
         with override_settings(STORE_ALL_DATA_TELCAMERAS_V2=store_all_data):
             # First add a couple ingress records with a non existing sensor code
             Message.objects.all().delete()
