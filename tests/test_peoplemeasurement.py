@@ -109,23 +109,23 @@ class PeopleMeasurementTestSetSensorIsActiveStatus(APITestCase):
         self.sensor = Sensors.objects.create(objectnummer=self.objectnummer)
 
     def test_changing_is_active_to_false_and_back_to_true(self):
-        out = call_man_command('set_sensor_is_active_status', self.objectnummer, 'false')
+        out = call_man_command('set_bool_field', self.objectnummer, 'is_active', 'false')
         self.assertEqual(out.strip(), f"The sensor '{self.objectnummer}'.is_active was successfully changed to False.")
         sensor = Sensors.objects.get(objectnummer=self.objectnummer)
         self.assertEqual(sensor.is_active, False)
 
-        out = call_man_command('set_sensor_is_active_status', self.objectnummer, 'true')
+        out = call_man_command('set_bool_field', self.objectnummer, 'is_active', 'true')
         self.assertEqual(out.strip(), f"The sensor '{self.objectnummer}'.is_active was successfully changed to True.")
         sensor = Sensors.objects.get(objectnummer=self.objectnummer)
         self.assertEqual(sensor.is_active, True)
 
     def test_changing_non_existing_sensor_fails(self):
-        out = call_man_command('set_sensor_is_active_status', 'does not exist', 'false')
+        out = call_man_command('set_bool_field', 'does not exist', 'is_active', 'false')
         self.assertEqual(out.strip(), f"No sensor exists for the objectnummer 'does not exist'")
 
     def test_changing_is_active_to_existing_status(self):
         # The sensor is already active. Now try to set it to active again.
-        out = call_man_command('set_sensor_is_active_status', self.objectnummer, 'true')
+        out = call_man_command('set_bool_field', self.objectnummer, 'is_active', 'true')
         self.assertEqual(
             out.strip(),
             f"The sensor '{self.objectnummer}'.is_active is already True. Nothing has changed."

@@ -173,7 +173,7 @@ class TestDataIngressPoster:
             (False, 0, 0, 0, 0),
         ]
     )
-    def test_data_for_inactive_sensor(
+    def test_data_with_drop_incoming_data(
             self, client, store_all_data, expected_areas,
             expected_lines, expected_line_counts, expected_counts
     ):
@@ -187,11 +187,11 @@ class TestDataIngressPoster:
             assert Message.objects.count() == 9
 
             # Set the sensor to inactive
-            self.sensor_area.is_active = False
+            self.sensor_area.drop_incoming_data = True
             self.sensor_area.save()
-            self.sensor_line.is_active = False
+            self.sensor_line.drop_incoming_data = True
             self.sensor_line.save()
-            self.sensor_count.is_active = False
+            self.sensor_count.drop_incoming_data = True
             self.sensor_count.save()
 
             # Then run the parser
@@ -212,11 +212,11 @@ class TestDataIngressPoster:
             assert CountMetric.objects.all().count() == expected_counts
 
             # Set the sensor back to active again
-            self.sensor_area.is_active = True
+            self.sensor_area.drop_incoming_data = False
             self.sensor_area.save()
-            self.sensor_line.is_active = True
+            self.sensor_line.drop_incoming_data = False
             self.sensor_line.save()
-            self.sensor_count.is_active = True
+            self.sensor_count.drop_incoming_data = False
             self.sensor_count.save()
 
     @pytest.mark.parametrize(

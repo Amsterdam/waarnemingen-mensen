@@ -260,7 +260,7 @@ class TestDataIngressPoster:
             (False, 0, 0, 0)
         ]
     )
-    def test_data_for_inactive_sensor(
+    def test_data_with_drop_incoming_data(
             self, client, store_all_data, expected_observations,
             expected_groups, expected_persons
     ):
@@ -272,7 +272,7 @@ class TestDataIngressPoster:
             assert Message.objects.count() == 3
 
             # Set the sensor to inactive
-            self.sensor.is_active = False
+            self.sensor.drop_incoming_data = True
             self.sensor.save()
 
             # Then run the parser
@@ -292,7 +292,7 @@ class TestDataIngressPoster:
             assert Person.objects.all().count() == expected_persons
 
             # Set the sensor back to active again
-            self.sensor.is_active = True
+            self.sensor.drop_incoming_data = False
             self.sensor.save()
 
 

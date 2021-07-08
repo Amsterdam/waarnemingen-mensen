@@ -37,7 +37,9 @@ class Sensors(models.Model):
     gebiedstype = models.CharField(max_length=255, null=True, blank=True)
     gebied = models.CharField(max_length=255, null=True, blank=True)
     imported_at = models.DateTimeField(null=True, auto_now_add=True)
-    is_active = models.BooleanField(default=True)  # To decide if the received data from this sensor should be stored
+    is_active = models.BooleanField(default=True)  # Can be used by the dashboard to display or hide sensors
+    drop_incoming_data = models.BooleanField(default=False)  # If set to true, all incoming data is thrown away. It does not drop already stored data.
+    is_public = models.BooleanField(default=True)  # Defines whether the record can be displayed in publications
 
 
 class Servicelevel(models.Model):
@@ -50,6 +52,7 @@ class Servicelevel(models.Model):
     upperlimit = models.FloatField(blank=True, null=True)
 
 
+# TODO: remove this model when the v8 view is not in use anymore
 class VoorspelCoefficient(models.Model):
     sensor = models.CharField(max_length=255)
     bron_kwartier_volgnummer = models.IntegerField()
@@ -57,6 +60,7 @@ class VoorspelCoefficient(models.Model):
     coefficient_waarde = models.FloatField()
 
 
+# TODO: remove this model when the v8 view is not in use anymore
 class VoorspelIntercept(models.Model):
     sensor = models.CharField(max_length=255)
     toepassings_kwartier_volgnummer = models.IntegerField()

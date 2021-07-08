@@ -41,13 +41,16 @@ class SensorsDataViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Sensors.objects.all()
     serializer_class = SensorSerializer
 
+
 class ServicelevelDataViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Servicelevel.objects.all()
     serializer_class = ServicelevelSerializer
 
+
 class AreaDataViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Area.objects.all()
     serializer_class = AreaSerializer
+
 
 class LineDataViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Line.objects.all()

@@ -53,13 +53,13 @@ class SensorError(Exception):
 
 
 def get_sensor_for_data(data):
-    # Does the sensor exist and is it active
+    # Does the sensor exist and is drop_incoming_data set to False
     try:
         sensor = Sensors.objects.get(objectnummer=data.get('sensor', ''))
     except Sensors.DoesNotExist:
         raise SensorError(f"The sensor '{data['sensor']}' was not found, so the data is not stored.")
-    if not sensor.is_active:
-        raise SensorError(f"The sensor '{data['sensor']}' exists but is not active.")
+    if sensor.drop_incoming_data:
+        raise SensorError(f"The sensor '{data['sensor']}' exists but drop_incoming_data is set to True.")
     return sensor
 
 
