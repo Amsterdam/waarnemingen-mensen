@@ -4806,16 +4806,16 @@ VIEW_STRINGS = {
         ;
     """,
 
-    'cmsa_15min_view_v10_realtime_30d': r"""
-      CREATE VIEW cmsa_15min_view_v10_realtime_30d AS
+    'cmsa_15min_view_v10_realtime': r"""
+      CREATE VIEW cmsa_15min_view_v10_realtime AS
 
         with period_of_time as (
             select
-              cast(current_date - '1 month'::interval as date)	as start_date		-- Retreive only data from the last year (based on current timestamp)
-            , current_date										as end_date			-- Retreive data till yesterday and use v10 realtimeview to get data only for current day		
+              cast(current_date - '10 weeks'::interval as date)	as start_date		-- Retreive only data from the last 10 weeks (based on current timestamp)
+            , current_date										                  as end_date			-- Retreive data including current day		
         )
         , mat_view_updated as (
-            -- Get data over the last 30 days from the materialized view till yesterday (current day is not in the materialized view)
+            -- Get data over the last 10 weeks from the materialized view till yesterday (current day is not in the materialized view)
             select
               sensor
             , min(timestamp_rounded) as start_datetime
@@ -5242,7 +5242,7 @@ VIEW_STRINGS = {
         , sensor_list as (
             select sensor
             from use_date
-            left join public.cmsa_15min_view_v10_realtime_30d_materialized	as ts on (
+            left join public.cmsa_15min_view_v10_realtime_materialized	as ts on (
                     ts.timestamp_rounded > use_date.use_date - '2 weeks'::interval    	
                 and ts.total_count > 0)
             where 1=1
@@ -5272,12 +5272,12 @@ VIEW_STRINGS = {
             , dsp.order_nr
             , percentile_cont(0.5) within group (order by coalesce(total_count, 0)) as count_mediaan -- Mediaan van de 8 (of minder als niet beschikbaar) waarde voor het betreffende tijdstip en weekdag nemen.
             from date_serie_prediction_sensor 					            as dsp
-            left join public.cmsa_15min_view_v10_realtime_30d_materialized	as ts 	on (
+            left join public.cmsa_15min_view_v10_realtime_materialized	as ts 	on (
                         dsp.sensor = ts.sensor
-                    and	extract(ISODOW from ts.timestamp_rounded) = dsp.weekdag								-- Juiste dag van de week koppelen
-                    and ts.timestamp_rounded::time = dsp.tijd												-- Juiste tijd koppelen
+                    and	extract(ISODOW from ts.timestamp_rounded) = dsp.weekdag								              -- Juiste dag van de week koppelen
+                    and ts.timestamp_rounded::time = dsp.tijd												                        -- Juiste tijd koppelen
                     and	dsp.use_date_kw - '8 weeks'::interval - '2 days'::interval < ts.timestamp_rounded  	-- Zorgen date data van de afgelopen 8 weken wordt mee genomen,  
-                    and ts.timestamp_rounded <  dsp.use_date_kw - '2 days'::interval						-- maar niet de dag waarvoor de voorspelling gemaakt wordt of de voorgaande dag
+                    and ts.timestamp_rounded <  dsp.use_date_kw - '2 days'::interval						            -- maar niet de dag waarvoor de voorspelling gemaakt wordt of de voorgaande dag
                     --and (dsp.sensor not in ('CMSA-GAWW-15', 'CMSA-GAWW-16') or ts.timestamp_rounded > '2021-04-09 00:00:00') --resetten van de sensor in not in list vanaf gegeven datum. Dit kan handig zijn bij grote veranderingen
                     --and (dsp.sensor not in ('CMSA-GAWW-17', 'CMSA-GAWW-19') or ts.timestamp_rounded > '2021-04-02 00:00:00') --resetten van de sensor in not in list vanaf gegeven datum. Dit kan handig zijn bij grote veranderingen
             )
@@ -5324,9 +5324,9 @@ VIEW_STRINGS = {
                 else 1		--maak de ophoogfactor 1 de total_count null is																
               end as ophoog_fact_kw
             , rt.total_count
-            from prediction_historical_curve_ruff_smooth							as time_curve
-            left join public.cmsa_15min_view_v10_realtime_30d_materialized	as rt			on  time_curve.sensor = rt.sensor
-                                                                                                    and time_curve.use_date_kw = rt.timestamp_rounded
+            from prediction_historical_curve_ruff_smooth							  as time_curve
+            left join public.cmsa_15min_view_v10_realtime_materialized	as rt			on      time_curve.sensor = rt.sensor
+                                                                                      and time_curve.use_date_kw = rt.timestamp_rounded
             order by
               time_curve.sensor
             , time_curve.use_date_kw
@@ -5399,6 +5399,7 @@ VIEW_STRINGS = {
             when pdt.prediction is not null then pdt.prediction
             else rt.total_count
           end                     as total_count
+        , pdt.prediction          as total_count_forcast
         , rt.count_down
         , rt.count_up
         , rt.density_avg
@@ -5421,8 +5422,8 @@ VIEW_STRINGS = {
         , rt.density_avg_p20
         , rt.density_avg_p50
         , rt.density_avg_p80
-        from cmsa_15min_view_v10_realtime_30d_materialized  as rt 
-        left join cmsa_15min_view_v10_predict			    as pdt      on  rt.sensor = pdt.sensor
+        from cmsa_15min_view_v10_realtime_materialized  as rt 
+        left join cmsa_15min_view_v10_predict			      as pdt      on      rt.sensor = pdt.sensor
                                                                         and rt.timestamp_rounded = pdt.timestamp_rounded
                                                                         and pdt.timestamp_rounded >= (now() - '00:18:00'::interval)
       ;

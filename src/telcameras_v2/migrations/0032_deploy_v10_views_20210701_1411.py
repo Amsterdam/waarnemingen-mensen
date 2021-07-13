@@ -21,11 +21,11 @@ class Migration(migrations.Migration):
     _VIEW_NAME = "cmsa_15min_view_v10"
     _view_strings = get_view_strings(VIEW_STRINGS, _VIEW_NAME, indexes=[('sensor', 'timestamp_rounded')])
 
-    _REALTIME_30D_VIEW_NAME = "cmsa_15min_view_v10_realtime_30d"
-    _realtime_30d_view_strings = get_view_strings(VIEW_STRINGS, _REALTIME_30D_VIEW_NAME, indexes=[('sensor', 'timestamp_rounded')])
+    _REALTIME_VIEW_NAME = "cmsa_15min_view_v10_realtime"
+    _realtime_view_strings = get_view_strings(VIEW_STRINGS, _REALTIME_VIEW_NAME, indexes=[('sensor', 'timestamp_rounded')])
 
     _PREDICT_VIEW_NAME = "cmsa_15min_view_v10_predict"
-    _predict_view_strings = get_view_strings(VIEW_STRINGS, _PREDICT_VIEW_NAME, indexes=[('sensor', 'timestamp_rounded')])
+    _predict_view_strings = get_view_strings(VIEW_STRINGS, _PREDICT_VIEW_NAME)
 
     _REALTIME_PREDICT_VIEW_NAME = "cmsa_15min_view_v10_realtime_predict"
     _realtime_predict_view_strings = get_view_strings(VIEW_STRINGS, _REALTIME_PREDICT_VIEW_NAME)
@@ -51,27 +51,20 @@ class Migration(migrations.Migration):
         ),
 
         migrations.RunSQL(
-            sql=_realtime_30d_view_strings['sql'],
-            reverse_sql=_realtime_30d_view_strings['reverse_sql']
+            sql=_realtime_view_strings['sql'],
+            reverse_sql=_realtime_view_strings['reverse_sql']
         ),
         migrations.RunSQL(
-            sql=_realtime_30d_view_strings['sql_materialized'],
-            reverse_sql=_realtime_30d_view_strings['reverse_sql_materialized']
+            sql=_realtime_view_strings['sql_materialized'],
+            reverse_sql=_realtime_view_strings['reverse_sql_materialized']
         ),
         migrations.RunSQL(
-            sql=_realtime_30d_view_strings['indexes'][0]
+            sql=_realtime_view_strings['indexes'][0]
         ),
 
         migrations.RunSQL(
             sql=_predict_view_strings['sql'],
             reverse_sql=_predict_view_strings['reverse_sql']
-        ),
-        migrations.RunSQL(
-            sql=_predict_view_strings['sql_materialized'],
-            reverse_sql=_predict_view_strings['reverse_sql_materialized']
-        ),
-        migrations.RunSQL(
-            sql=_predict_view_strings['indexes'][0]
         ),
 
         migrations.RunSQL(
