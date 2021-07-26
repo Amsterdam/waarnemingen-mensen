@@ -31,7 +31,7 @@ class Today15minAggregationViewSet(mixins.ListModelMixin, viewsets.GenericViewSe
 
     def list(self, request, *args, **kwargs):
         with connection.cursor() as cursor:
-            cursor.execute("SELECT * FROM cmsa_15min_view_v8_realtime_predict;")
+            cursor.execute("SELECT * FROM cmsa_15min_view_v10_realtime_predict;")
             queryset = self.dictfetchall(cursor)
         serializer = serializers.Today15minAggregationSerializer(queryset, many=True)
         return Response(serializer.data)
