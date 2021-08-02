@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements_dev.txt requirements_dev.in
 #
-asgiref==3.4.0
+asgiref==3.4.1
     # via
     #   -r ./requirements.txt
     #   django
@@ -18,11 +18,11 @@ certifi==2021.5.30
     #   geventhttpclient
     #   requests
     #   sentry-sdk
-cffi==1.14.5
+cffi==1.14.6
     # via
     #   -r ./requirements.txt
     #   cryptography
-chardet==4.0.0
+charset-normalizer==2.0.4
     # via
     #   -r ./requirements.txt
     #   requests
@@ -30,7 +30,7 @@ click==8.0.1
     # via
     #   flask
     #   pip-tools
-configargparse==1.5
+configargparse==1.5.1
     # via locust
 coreapi==2.3.3
     # via
@@ -76,7 +76,7 @@ django-filter==2.4.0
     # via -r ./requirements.txt
 django-import-export==2.5.0
     # via -r ./requirements.txt
-django==3.2.4
+django==3.2.6
     # via
     #   -r ./requirements.txt
     #   datapunt-authorization-django
@@ -110,7 +110,7 @@ djangorestframework==3.12.4
     #   drf-yasg
 drf-amsterdam==0.4.1
     # via -r ./requirements.txt
-drf-extensions==0.7.0
+drf-extensions==0.7.1
     # via
     #   -r ./requirements.txt
     #   drf-amsterdam
@@ -124,13 +124,13 @@ factory-boy==3.2.0
     # via
     #   -r requirements_dev.in
     #   pytest-factoryboy
-faker==8.8.2
+faker==8.10.3
     # via factory-boy
 flask-basicauth==0.2.0
     # via locust
 flask-cors==3.0.10
     # via locust
-flask==1.1.2
+flask==2.0.1
     # via
     #   flask-basicauth
     #   flask-cors
@@ -143,7 +143,7 @@ geventhttpclient==1.4.4
     # via locust
 greenlet==1.1.0
     # via gevent
-idna==2.10
+idna==3.2
     # via
     #   -r ./requirements.txt
     #   requests
@@ -156,7 +156,7 @@ iniconfig==1.1.1
     # via pytest
 ipython-genutils==0.2.0
     # via traitlets
-ipython==7.25.0
+ipython==7.26.0
     # via -r requirements_dev.in
 itsdangerous==2.0.1
     # via flask
@@ -175,7 +175,7 @@ jwcrypto==0.9.1
     # via
     #   -r ./requirements.txt
     #   datapunt-authorization-django
-locust==1.6.0
+locust==2.0.0
     # via -r requirements_dev.in
 markuppy==1.14
     # via
@@ -199,14 +199,14 @@ openpyxl==3.0.7
     # via
     #   -r ./requirements.txt
     #   tablib
-packaging==20.9
+packaging==21.0
     # via
     #   -r ./requirements.txt
     #   drf-yasg
     #   pytest
 parso==0.8.2
     # via jedi
-pep517==0.10.0
+pep517==0.11.0
     # via pip-tools
 pexpect==4.8.0
     # via ipython
@@ -248,7 +248,7 @@ pytest==6.2.4
     #   pytest-cov
     #   pytest-django
     #   pytest-factoryboy
-python-dateutil==2.8.1
+python-dateutil==2.8.2
     # via
     #   -r ./requirements.txt
     #   django-datetime-utc
@@ -264,13 +264,15 @@ pyyaml==5.4.1
     #   tablib
 pyzmq==22.1.0
     # via locust
-requests==2.25.1
+requests==2.26.0
     # via
     #   -r ./requirements.txt
     #   coreapi
     #   datapunt-authorization-django
     #   locust
-ruamel.yaml.clib==0.2.4
+roundrobin==0.0.2
+    # via locust
+ruamel.yaml.clib==0.2.6
     # via
     #   -r ./requirements.txt
     #   ruamel.yaml
@@ -278,7 +280,7 @@ ruamel.yaml==0.17.10
     # via
     #   -r ./requirements.txt
     #   drf-yasg
-sentry-sdk==1.1.0
+sentry-sdk==1.3.1
     # via -r ./requirements.txt
 six==1.16.0
     # via
@@ -299,13 +301,14 @@ tablib[html,ods,xls,xlsx,yaml]==3.0.0
     #   django-import-export
 text-unidecode==1.3
     # via faker
-time-machine==2.1.0
+time-machine==2.3.1
     # via -r requirements_dev.in
 toml==0.10.2
     # via
-    #   pep517
     #   pytest
     #   pytest-cov
+tomli==1.2.0
+    # via pep517
 traitlets==5.0.5
     # via
     #   ipython
