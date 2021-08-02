@@ -49,7 +49,7 @@ cryptography==3.4.7
     #   jwcrypto
 datapunt-authorization-django==1.3.1
     # via -r ./requirements.txt
-datapunt-data-ingress==2.1.0
+datapunt-data-ingress==2.2.0
     # via -r ./requirements.txt
 decorator==5.0.9
     # via ipython
@@ -171,7 +171,7 @@ jinja2==3.0.1
     #   -r ./requirements.txt
     #   coreschema
     #   flask
-jwcrypto==0.9.1
+jwcrypto==1.0
     # via
     #   -r ./requirements.txt
     #   datapunt-authorization-django
@@ -288,7 +288,6 @@ six==1.16.0
     #   djangorestframework-csv
     #   flask-cors
     #   geventhttpclient
-    #   jwcrypto
     #   python-dateutil
 sqlparse==0.4.1
     # via
