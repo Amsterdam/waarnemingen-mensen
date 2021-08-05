@@ -14,7 +14,6 @@ class Today15minAggregationSerializer(serializers.Serializer):
     count_down = serializers.IntegerField()
     count_up = serializers.IntegerField()
     density_avg = serializers.FloatField()
-    speed_avg = serializers.FloatField()
     basedonxmessages = serializers.IntegerField()
     total_count_p10 = serializers.IntegerField()
     total_count_p20 = serializers.IntegerField()
@@ -34,9 +33,6 @@ class Today15minAggregationSerializer(serializers.Serializer):
     density_avg_p20 = serializers.FloatField()
     density_avg_p50 = serializers.FloatField()
     density_avg_p80 = serializers.FloatField()
-    speed_avg_p20 = serializers.FloatField()
-    speed_avg_p50 = serializers.FloatField()
-    speed_avg_p80 = serializers.FloatField()
 
 
 class SensorSerializer(serializers.ModelSerializer):

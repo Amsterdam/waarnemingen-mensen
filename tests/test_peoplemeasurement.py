@@ -5,10 +5,12 @@ from datetime import datetime
 import pytz
 from django.conf import settings
 from django.contrib.gis.geos import LineString, Polygon
+from ingress.models import Collection
 from rest_framework.test import APITestCase
 
 from peoplemeasurement.models import (Area, Line, Sensors, Servicelevel,
                                       VoorspelCoefficient, VoorspelIntercept)
+from telcameras_v2.ingress_parser import TelcameraParser
 from tests.test_telcameras_v2_ingress import TEST_POST
 from tests.tools_for_testing import call_man_command
 
@@ -37,8 +39,13 @@ class PeopleMeasurementTestGetV1(APITestCase):
 
     def setUp(self):
         self.URL = '/telcameras/v1/15minaggregate/'
-        self.POST_URL_V2 = '/telcameras/v2/'
+        self.collection_name = 'telcameras_v2'
+        self.POST_URL_V2 = f'/ingress/{self.collection_name}/'
 
+        # Create an endpoint
+        self.collection_obj = Collection.objects.create(name=self.collection_name, consumer_enabled=True)
+
+        # Create the sensor in the database
         self.sensor = Sensors.objects.create(objectnummer='GAVM-01-Vondelstraat')
 
     # NOTE: The test below fails because older data from the v1 view isn't loaded. This is because the v5 view
@@ -75,24 +82,32 @@ class PeopleMeasurementTestGetV1(APITestCase):
     #     self.assertEqual(len(response.data), 26)
 
     def test_get_15min_aggregation_timezone_with_both_v1_and_v2_records(self):
+        # Insert some v2 records for each hour
         for i in range(0, 24):
             timestamp_str = datetime.now().replace(hour=i, minute=0, second=0).astimezone().replace(
                 microsecond=0).isoformat()
 
-            # Insert some v2 records for each hour
-            self.client.post(
+            response = self.client.post(
                 self.POST_URL_V2,
-                json.loads(create_new_v2_json(timestamp_str=timestamp_str)),
+                create_new_v2_json(timestamp_str=timestamp_str),
                 **POST_AUTHORIZATION_HEADER,
-                format='json'
+                content_type='application/json'
             )
 
-        # Refresh cmsa_15min_view_v7_materialized because the query in the endpoint depends on it
-        call_man_command('refresh_materialized_view', 'cmsa_15min_view_v7_materialized')
+            self.assertEqual(response.status_code, 200)
+
+        # Then run the parse_ingress script
+        parser = TelcameraParser()
+        parser.consume(end_at_empty_queue=True)
+
+        # Refresh the materialized views because the query in the endpoint depends on them
+        call_man_command('refresh_materialized_view', 'cmsa_15min_view_v10_materialized')
+        call_man_command('refresh_materialized_view', 'cmsa_15min_view_v10_realtime_materialized')
 
         # test whether the endpoint responds correctly
         response = self.client.get(self.URL, **GET_AUTHORIZATION_HEADER)
         self.assertEqual(response.status_code, 200)
+        self.assertGreater(len(json.loads(response.content)), 0)
 
     def test_get_15min_aggregation_records_fails_without_token(self):
         response = self.client.get(self.URL)
