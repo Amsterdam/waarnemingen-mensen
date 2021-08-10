@@ -56,4 +56,4 @@ class PersonAggregate(models.Model):
     speed = models.FloatField(null=True)
     geom = models.TextField(null=True)
     quality = models.IntegerField()
-    distances = postgres_fields.JSONField()
+    distances = postgres_fields.JSONField(null=True)
