@@ -389,3 +389,48 @@ class TestDataIngressPoster:
         parser.consume(end_at_empty_queue=True)
 
         assert Observation.objects.all().count() == 1
+
+    def test_empty_distances_array(self, client):
+        post_data = json.loads(TEST_POST)
+        post_data['data'][1]['aggregate'][0]['distances'] = []
+        post_data['data'][1]['aggregate'][1]['distances'] = []
+
+        Message.objects.all().delete()
+        client.post(self.URL, json.dumps(post_data), **AUTHORIZATION_HEADER, content_type='application/json')
+        assert Message.objects.count() == 1
+
+        # Then run the parser
+        parser = TelcameraParser()
+        parser.consume(end_at_empty_queue=True)
+
+        assert Observation.objects.all().count() == 1
+
+    def test_distances_is_null(self, client):
+        post_data = json.loads(TEST_POST)
+        post_data['data'][1]['aggregate'][0]['distances'] = None
+        post_data['data'][1]['aggregate'][1]['distances'] = None
+
+        Message.objects.all().delete()
+        client.post(self.URL, json.dumps(post_data), **AUTHORIZATION_HEADER, content_type='application/json')
+        assert Message.objects.count() == 1
+
+        # Then run the parser
+        parser = TelcameraParser()
+        parser.consume(end_at_empty_queue=True)
+
+        assert Observation.objects.all().count() == 1
+
+    def test_no_distances_key(self, client):
+        post_data = json.loads(TEST_POST)
+        del post_data['data'][1]['aggregate'][0]['distances']
+        del post_data['data'][1]['aggregate'][1]['distances']
+
+        Message.objects.all().delete()
+        client.post(self.URL, json.dumps(post_data), **AUTHORIZATION_HEADER, content_type='application/json')
+        assert Message.objects.count() == 1
+
+        # Then run the parser
+        parser = TelcameraParser()
+        parser.consume(end_at_empty_queue=True)
+
+        assert Observation.objects.all().count() == 1
