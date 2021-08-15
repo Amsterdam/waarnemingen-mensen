@@ -188,25 +188,3 @@ class PeopleMeasurementTestPublicSensorsEndpoint(APITestCase):
         self.assertEqual(len(results), 3)
         for i, result in enumerate(results):
             self.assertEqual(result['name'], str(i))
-
-
-class PeopleMeasurementTestCSVImporters(APITestCase):
-    def test_import_sensors(self):
-        self.assertEqual(Sensors.objects.count(), 0)
-        call_man_command('import_from_csv', 'sensors')
-        self.assertEqual(Sensors.objects.count(), 86)
-
-    def test_import_servicelevels(self):
-        self.assertEqual(Servicelevel.objects.count(), 0)
-        call_man_command('import_from_csv', 'servicelevels')
-        self.assertEqual(Servicelevel.objects.count(), 104)
-
-    def test_import_voorspelcoefficients(self):
-        self.assertEqual(VoorspelCoefficient.objects.count(), 0)
-        call_man_command('import_from_csv', 'voorspelcoefficients')
-        self.assertEqual(VoorspelCoefficient.objects.count(), 448)
-
-    def test_import_voorspelintercepts(self):
-        self.assertEqual(VoorspelIntercept.objects.count(), 0)
-        call_man_command('import_from_csv', 'voorspelintercepts')
-        self.assertEqual(VoorspelIntercept.objects.count(), 56)
