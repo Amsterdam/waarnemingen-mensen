@@ -46,7 +46,7 @@ class PeopleMeasurementTestGetV1(APITestCase):
         self.collection_obj = Collection.objects.create(name=self.collection_name, consumer_enabled=True)
 
         # Create the sensor in the database
-        self.sensor = Sensors.objects.create(objectnummer='GAVM-01-Vondelstraat')
+        self.sensor = Sensors.objects.create(objectnummer='GAVM-01-Vondelstraat', gid=1)
 
     # NOTE: The test below fails because older data from the v1 view isn't loaded. This is because the v5 view
     # apparently doesn't work correctly yet. For this endpoint that doesn't matter though, since it only serves the
@@ -121,7 +121,7 @@ class PeopleMeasurementTestGetV1(APITestCase):
 class PeopleMeasurementTestSetSensorIsActiveStatus(APITestCase):
     def setUp(self):
         self.objectnummer = 'GAVM-01-Vondelstraat'
-        self.sensor = Sensors.objects.create(objectnummer=self.objectnummer)
+        self.sensor = Sensors.objects.create(objectnummer=self.objectnummer, gid=1)
 
     def test_changing_is_active_to_false_and_back_to_true(self):
         out = call_man_command('set_bool_field', self.objectnummer, 'is_active', 'false')
@@ -155,7 +155,7 @@ class PeopleMeasurementTestPublicSensorsEndpoint(APITestCase):
         polygon = Polygon(((0, 0), (0, 1), (1, 1), (0, 0)), ((0.4, 0.4), (0.4, 0.6), (0.6, 0.6), (0.4, 0.4)))
         linestring = LineString((0, 0), (1, 1))
         for i in range(3):
-            sensor = Sensors.objects.create(objectnummer=f'ABC-{i}')
+            sensor = Sensors.objects.create(objectnummer=f'ABC-{i}', gid=i)
             Servicelevel.objects.create(
                 type_parameter=str(i), type_gebied=str(i), type_tijd=str(i), level_nr=i, level_label=str(i))
             Area.objects.create(sensor=sensor, name=str(i), geom=polygon, area=i)

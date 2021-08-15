@@ -171,7 +171,7 @@ class TestDataIngressPoster:
         self.collection_obj = Collection.objects.create(name=self.collection_name, consumer_enabled=True)
 
         # Create the sensor in the database
-        self.sensor = Sensors.objects.create(objectnummer='GAVM-01-Vondelstraat')
+        self.sensor = Sensors.objects.create(objectnummer='GAVM-01-Vondelstraat', gid=1)
 
     @pytest.mark.parametrize(
         "store_all_data", [True, False]
