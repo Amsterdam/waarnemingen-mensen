@@ -16,7 +16,7 @@ class Command(BaseCommand):
         parser.add_argument(
             'field',
             help="The field to set.",
-            choices=['is_active', 'drop_incoming_data', 'is_public'])
+            choices=['is_active', 'is_public'])
 
         parser.add_argument('value', choices=['true', 'True', 'false', 'False'])
 
