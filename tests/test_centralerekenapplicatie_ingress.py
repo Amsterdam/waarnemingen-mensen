@@ -87,9 +87,9 @@ class TestDataIngressPoster:
         self.collection_obj = Collection.objects.create(name=self.collection_name, consumer_enabled=True)
 
         # Create the sensors in the database
-        self.sensor_area = Sensors.objects.create(objectnummer=json.loads(TEST_POST_AREA)['source']['sensor'])
-        self.sensor_line = Sensors.objects.create(objectnummer=json.loads(TEST_POST_LINE)['source']['sensor'])
-        self.sensor_count = Sensors.objects.create(objectnummer=json.loads(TEST_POST_COUNT)['source']['sensor'])
+        self.sensor_area = Sensors.objects.create(objectnummer=json.loads(TEST_POST_AREA)['source']['sensor'], gid=1)
+        self.sensor_line = Sensors.objects.create(objectnummer=json.loads(TEST_POST_LINE)['source']['sensor'], gid=2)
+        self.sensor_count = Sensors.objects.create(objectnummer=json.loads(TEST_POST_COUNT)['source']['sensor'], gid=3)
 
     @pytest.mark.parametrize(
         "store_all_data", [True, False]
