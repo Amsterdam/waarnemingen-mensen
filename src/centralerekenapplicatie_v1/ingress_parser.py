@@ -43,18 +43,6 @@ class MetricParser(BaseConsumer):
             record['interval'] = source['interval']
         del record['source']
 
-        if not settings.STORE_ALL_DATA_CRA:
-            # Does the sensor exist and is it active
-            try:
-                # We're not actually doing anything with the sensor, but by getting it we just make
-                # sure it exists and it's active
-                sensor = get_sensor_for_data(record)
-            except SensorError as e:
-                logger.info(str(e))
-                # We don't want to store this message, but we don't want to throw an error either.
-                # For that reason we simply return so that the parser will mark it as parsed successfully
-                return
-
         if record['type'] == 'areaMetrics':
             # CamelCase to snake_case
             record['total_distance'] = record['totalDistance']

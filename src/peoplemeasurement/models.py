@@ -38,7 +38,6 @@ class Sensors(models.Model):
     gebied = models.CharField(max_length=255, null=True, blank=True)
     imported_at = models.DateTimeField(null=True, auto_now_add=True)
     is_active = models.BooleanField(default=True)  # Can be used by the dashboard to display or hide sensors
-    drop_incoming_data = models.BooleanField(default=False)  # If set to true, all incoming data is thrown away. It does not drop already stored data.
     is_public = models.BooleanField(default=True)  # Defines whether the record can be displayed in publications
 
 
