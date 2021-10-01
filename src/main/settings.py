@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     'telcameras_v2',
     'telcameras_v3',
     'centralerekenapplicatie_v1',
+    'continuous_aggregate'
 ]
 
 TEMPLATES = [
