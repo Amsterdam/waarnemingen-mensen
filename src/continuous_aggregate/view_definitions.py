@@ -131,7 +131,7 @@ VIEW_STRINGS = {
               sel3.sensor
             , sel3.timestamp_rounded
             , case
-                when left(replace(sel3.sensor, 'CMSA-', ''), 4) in ('GADM', 'GAMM', 'GAAB', 'GABW')         -- This filter applies to zone sensors for wich only the area_count is filled
+                when left(replace(sel3.sensor, 'CMSA-', ''), 4) in ('GADM', 'GAMM', 'GAAB', 'GABW', 'GACT')         -- This filter applies to zone sensors for wich only the area_count is filled
                 then coalesce(oc.area_count::integer, 0)
                 else coalesce(oc.total_count::integer, 0)
             end                                   as total_count
