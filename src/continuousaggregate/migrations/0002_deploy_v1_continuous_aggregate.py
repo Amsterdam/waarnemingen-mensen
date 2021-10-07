@@ -1,12 +1,15 @@
 from django.db import migrations
 
-from continuous_aggregate.view_definitions import VIEW_STRINGS, get_view_strings
+from continuousaggregate.view_definitions import VIEW_STRINGS, get_view_strings
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('continuous_aggregate', '0001_initial'),
+        ('continuousaggregate', '0001_initial'),
+        ('peoplemeasurement', '0025_remove_sensors_drop_incoming_data'),
+        ('telcameras_v2', '0033_alter_personaggregate_distances'),
+        ('telcameras_v3', '0004_auto_20210603_1542'),
     ]
 
     _LOG_SCHEMA_NAME        = "log"
@@ -20,12 +23,12 @@ class Migration(migrations.Migration):
     _sql_log_schema              = f"CREATE SCHEMA IF NOT EXISTS {_LOG_SCHEMA_NAME}"
     _reverse_sql_log_schema      = f"DROP SCHEMA IF EXISTS {_LOG_SCHEMA_NAME}"
 
-    _sql_process_schema          = f"CREATE SCHEMA IF NOT EXISTS{_PROCESS_SCHEMA_NAME}"
+    _sql_process_schema          = f"CREATE SCHEMA IF NOT EXISTS {_PROCESS_SCHEMA_NAME}"
     _reverse_sql_process_schema  = f"DROP SCHEMA IF EXISTS {_PROCESS_SCHEMA_NAME}"
 
     _sql_create_table = f"""
 CREATE TABLE IF NOT EXISTS {_LOG_SCHEMA_NAME}.{_LOG_TABLE_NAME} (
-    component                     varchar(250)    NULL
+  component                     varchar(250)    NULL
 , component_type                varchar(50)     NULL
 , parent_component              varchar(250)    NULL
 , ultimate_parent_component     varchar(250)    NULL
@@ -41,7 +44,7 @@ CREATE TABLE IF NOT EXISTS {_LOG_SCHEMA_NAME}.{_LOG_TABLE_NAME} (
 , description                   varchar(2000)   NULL
 , execution_parameters          json            NULL
 );
-    """
+"""
     _reverse_sql_create_table  = f"DROP TABLE IF EXISTS {_LOG_SCHEMA_NAME}.{_LOG_TABLE_NAME}"
 
     _sql_log_function = f"""
@@ -102,8 +105,8 @@ $procedure$
     _reverse_sql_log_function = f"DROP PROCEDURE IF EXISTS {_PROCESS_SCHEMA_NAME}.{_LOG_FUNCTION_NAME}"
 
 
-    _sql_process_function = f"""
-CREATE OR REPLACE PROCEDURE {_PROCESS_SCHEMA_NAME}.{_PROCESS_FUNCTION_NAME}(source_schema text, source_table text, process_schema text, target_schema text, target_table text, process_type text, implicit_deletes boolean, run_id integer, parent_component text, ultimate_parent_component text, logfromlevel integer DEFAULT 2, skip_prc_prepare boolean DEFAULT false, rebuild_spatial_index boolean DEFAULT false, run_start_datetime text DEFAULT to_char(now(), 'YYYY-MM-DD HH24:MI:SS'::text))
+    _sql_process_function = r"""
+CREATE OR REPLACE PROCEDURE """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""(source_schema text, source_table text, process_schema text, target_schema text, target_table text, process_type text, implicit_deletes boolean, run_id integer, parent_component text, ultimate_parent_component text, logfromlevel integer DEFAULT 2, skip_prc_prepare boolean DEFAULT false, rebuild_spatial_index boolean DEFAULT false, run_start_datetime text DEFAULT to_char(now(), 'YYYY-MM-DD HH24:MI:SS'::text))
  LANGUAGE plpgsql
 AS $procedure$ 
 
@@ -163,10 +166,10 @@ v_params_json :=  (select to_json(sub)
 
 IF  process_type not in ('HH','PRE','TI','IU','SC')
     then 
-    call {_PROCESS_SCHEMA_NAME}.{_LOG_FUNCTION_NAME} 
+    call """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".""" + f"""{_LOG_FUNCTION_NAME}""" + r""" 
         (
-            component := '{_PROCESS_FUNCTION_NAME}_'||process_type,
-            component_type := '{_PROCESS_FUNCTION_NAME}',
+            component := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""_'||process_type,
+            component_type := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""',
             parent_component :=  parent_component,
             ultimate_parent_component :=  ultimate_parent_component,
             component_tree := '',
@@ -177,19 +180,19 @@ IF  process_type not in ('HH','PRE','TI','IU','SC')
             component_log_datetime := now()::timestamp ,
             loglevel := 4    ,
             summary := 'invalid parameters',
-            description := '{_PROCESS_FUNCTION_NAME} called with invalid process parameters ',
+            description := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r""" called with invalid process parameters ',
             execution_parameters := v_params_json 
             );
-    raise exception '{_PROCESS_FUNCTION_NAME} called with invalid process parameters: %',v_params_json;
+    raise exception '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r""" called with invalid process parameters: %',v_params_json;
 end if;
 
 
 if logfromlevel <= 2
     then
-    call {_PROCESS_SCHEMA_NAME}.{_LOG_FUNCTION_NAME} 
+    call """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".""" + f"""{_LOG_FUNCTION_NAME}""" + r""" 
         (
-            component := '{_PROCESS_FUNCTION_NAME}_'||process_type,
-            component_type := '{_PROCESS_FUNCTION_NAME}',
+            component := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""_'||process_type,
+            component_type := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""',
             parent_component :=  parent_component,
             ultimate_parent_component :=  ultimate_parent_component,
             component_tree := '',
@@ -208,29 +211,29 @@ end if;
 
 
 v_source_exists := (select 
-					case when count(0) >= 1 then true else false end
-					from information_schema.columns
-					where 1=1
-					and table_schema=source_schema
-					and table_name=source_table);
+                    case when count(0) >= 1 then true else false end
+                    from information_schema.columns
+                    where 1=1
+                    and table_schema=source_schema
+                    and table_name=source_table);
 
-if v_source_exists=false and lower(source_schema)<>'{_PROCESS_SCHEMA_NAME}'
-	then
-		raise exception 'source table  %.% could not be found, check source_schema and source_table parameters',source_schema,source_table;
+if v_source_exists=false and lower(source_schema)<>'""" + f"""{_PROCESS_SCHEMA_NAME}""" + r"""'
+    then
+        raise exception 'source table  %.% could not be found, check source_schema and source_table parameters',source_schema,source_table;
 end if;
 
 
 
 v_target_exists := (select 
-					case when count(0) >= 1 then true else false end
-					from information_schema.columns
-					where 1=1
-					and table_schema=target_schema
-					and table_name=target_table);
+                    case when count(0) >= 1 then true else false end
+                    from information_schema.columns
+                    where 1=1
+                    and table_schema=target_schema
+                    and table_name=target_table);
 
-if v_target_exists=false and lower(target_schema)<>'{_PROCESS_SCHEMA_NAME}'
-	then
-		raise exception 'target table %.% could not be found, check target_schema and target_table parameters ',target_schema,target_table ;
+if v_target_exists=false and lower(target_schema)<>'""" + f"""{_PROCESS_SCHEMA_NAME}""" + r"""'
+    then
+        raise exception 'target table %.% could not be found, check target_schema and target_table parameters ',target_schema,target_table ;
 end if;
 
 
@@ -362,10 +365,10 @@ IF  process_type in ('HH','IU','TI') and skip_prc_prepare = false
                 then
                 GET DIAGNOSTICS v_sysrowcount := ROW_COUNT;
                 v_rowcount := v_sysrowcount;
-                call {_PROCESS_SCHEMA_NAME}.{_LOG_FUNCTION_NAME} 
+                call """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".""" + f"""{_LOG_FUNCTION_NAME}""" + r""" 
                 (
-                    component := '{_PROCESS_FUNCTION_NAME}_'||process_type,
-                    component_type := '{_PROCESS_FUNCTION_NAME}',
+                    component := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""_'||process_type,
+                    component_type := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""',
                     parent_component :=  parent_component,
                     ultimate_parent_component :=  ultimate_parent_component,
                     component_tree := '',
@@ -445,10 +448,10 @@ if process_type in ('HH','IU') and implicit_deletes = true
             then
             GET DIAGNOSTICS v_sysrowcount :=  ROW_COUNT;
             v_rowcount = v_sysrowcount;
-            call {_PROCESS_SCHEMA_NAME}.{_LOG_FUNCTION_NAME} 
+            call """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".""" + f"""{_LOG_FUNCTION_NAME}""" + r""" 
                 (
-                    component := '{_PROCESS_FUNCTION_NAME}_'||process_type,
-                    component_type := '{_PROCESS_FUNCTION_NAME}',
+                    component := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""_'||process_type,
+                    component_type := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""',
                     parent_component :=  parent_component,
                     ultimate_parent_component :=  ultimate_parent_component,
                     component_tree := '',
@@ -471,11 +474,11 @@ end if;
 IF  process_type in ('HH','IU')
     then
     
-    execute 'CREATE INDEX if not exists idx_{_PROCESS_SCHEMA_NAME}_'||v_sql_bk_column||' ON  '|| process_schema||'.'||target_schema||'_'||target_table ||' ('||v_sql_bk_column||');';
+    execute 'CREATE INDEX if not exists idx_""" + f"""{_PROCESS_SCHEMA_NAME}""" + r"""_'||v_sql_bk_column||' ON  '|| process_schema||'.'||target_schema||'_'||target_table ||' ('||v_sql_bk_column||');';
 
     commit;
 
-    raise notice 'index created on {_PROCESS_SCHEMA_NAME} table';  
+    raise notice 'index created on """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""" table';  
 
 end if;
 
@@ -504,7 +507,7 @@ end if;
 IF  process_type in ('HH')
     THEN
        
-        execute 'update ' || process_schema||'.'||target_schema||'_'||target_table ||' as prc set prc_row_status = -1 from '||target_schema||'.'||target_table||' as tgt where tgt.'||v_sql_bk_column||'={_PROCESS_SCHEMA_NAME}.'||v_sql_bk_column||' and {_PROCESS_SCHEMA_NAME}.mf_dp_available_datetime = tgt.mf_dp_available_datetime and {_PROCESS_SCHEMA_NAME}.mf_row_hash = tgt.mf_row_hash and {_PROCESS_SCHEMA_NAME}.prc_row_status <> -1';
+        execute 'update ' || process_schema||'.'||target_schema||'_'||target_table ||' as prc set prc_row_status = -1 from '||target_schema||'.'||target_table||' as tgt where tgt.'||v_sql_bk_column||'=""" + f"""{_PROCESS_SCHEMA_NAME}""" + r""".'||v_sql_bk_column||' and """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".mf_dp_available_datetime = tgt.mf_dp_available_datetime and """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".mf_row_hash = tgt.mf_row_hash and """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".prc_row_status <> -1';
 
         GET DIAGNOSTICS v_sysrowcount := ROW_COUNT;
         v_rowcount = v_sysrowcount;
@@ -519,20 +522,20 @@ IF  process_type in ('HH')
                             ,case when lag(mf_row_hash) over (partition by '||v_sql_bk_column||' order by mf_dp_available_datetime) = mf_row_hash then true else false end  as duplicate
                         from '|| process_schema||'.'||target_schema||'_'||target_table ||'
                     ) as dedup 
-                where dedup.'||v_sql_bk_column||' = {_PROCESS_SCHEMA_NAME}.'||v_sql_bk_column||' and dedup.mf_dp_available_datetime  = {_PROCESS_SCHEMA_NAME}.mf_dp_available_datetime and {_PROCESS_SCHEMA_NAME}.prc_row_status<>-1  and dedup.duplicate=true';
+                where dedup.'||v_sql_bk_column||' = """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".'||v_sql_bk_column||' and dedup.mf_dp_available_datetime  = """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".mf_dp_available_datetime and """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".prc_row_status<>-1  and dedup.duplicate=true';
 
        GET DIAGNOSTICS v_sysrowcount := ROW_COUNT;
         v_rowcount = v_sysrowcount;
         
         
-        execute 'update ' || process_schema||'.'||target_schema||'_'||target_table ||' as {_PROCESS_SCHEMA_NAME} set prc_row_status = -1 
+        execute 'update ' || process_schema||'.'||target_schema||'_'||target_table ||' as """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""" set prc_row_status = -1 
                 from ( 
                         select distinct '||v_sql_bk_column||'
                             , first_value (mf_dp_available_datetime) over(partition by '||v_sql_bk_column||' order by mf_dp_available_datetime desc, mf_insert_datetime desc) mf_dp_available_datetime_latest 
                             ,  first_value (mf_row_hash) over(partition by '||v_sql_bk_column||' order by mf_dp_available_datetime desc, mf_insert_datetime desc) mf_row_hash_latest 
                         from '||target_schema||'.'||target_table||'
                     ) as tgt 
-                where tgt.'||v_sql_bk_column||'={_PROCESS_SCHEMA_NAME}.'||v_sql_bk_column||' and {_PROCESS_SCHEMA_NAME}.mf_dp_available_datetime > tgt.mf_dp_available_datetime_latest and {_PROCESS_SCHEMA_NAME}.mf_row_hash = tgt.mf_row_hash_latest and {_PROCESS_SCHEMA_NAME}.prc_row_status <> -1';
+                where tgt.'||v_sql_bk_column||'=""" + f"""{_PROCESS_SCHEMA_NAME}""" + r""".'||v_sql_bk_column||' and """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".mf_dp_available_datetime > tgt.mf_dp_available_datetime_latest and """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".mf_row_hash = tgt.mf_row_hash_latest and """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".prc_row_status <> -1';
 
     GET DIAGNOSTICS v_sysrowcount :=  ROW_COUNT;
     v_rowcount = v_rowcount + v_sysrowcount;
@@ -540,10 +543,10 @@ IF  process_type in ('HH')
     
     if logfromlevel <=  2
         then
-        call {_PROCESS_SCHEMA_NAME}.{_LOG_FUNCTION_NAME} 
+        call """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".""" + f"""{_LOG_FUNCTION_NAME}""" + r""" 
             (
-                component := '{_PROCESS_FUNCTION_NAME}_'||process_type,
-                component_type := '{_PROCESS_FUNCTION_NAME}',
+                component := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""_'||process_type,
+                component_type := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""',
                 parent_component :=  parent_component,
                 ultimate_parent_component :=  ultimate_parent_component,
                 component_tree := '',
@@ -579,10 +582,10 @@ IF  process_type in ('IU')
     
     if logfromlevel <=  2
         then
-        call prc.{_LOG_FUNCTION_NAME} 
+        call prc.""" + f"""{_LOG_FUNCTION_NAME}""" + r""" 
             (
-                component := '{_PROCESS_FUNCTION_NAME}_'||process_type,
-                component_type := '{_PROCESS_FUNCTION_NAME}',
+                component := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""_'||process_type,
+                component_type := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""',
                 parent_component :=  parent_component,
                 ultimate_parent_component :=  ultimate_parent_component,
                 component_tree := '',
@@ -615,12 +618,12 @@ if process_type in ('IU','HH') and upper(target_schema) = 'INT'
             tgt_surrogate_keys as ( select distinct '||v_sql_bk_column||',' ||v_sql_s1_column||' from '||target_schema||'.'||target_table||')
             update '|| process_schema||'.'||target_schema||'_'||target_table ||' prc set '||v_sql_s1_column||' = tgt.'||v_sql_s1_column||
             ' from tgt_surrogate_keys tgt
-            where {_PROCESS_SCHEMA_NAME}.'||v_sql_bk_column||' = tgt.'||v_sql_bk_column||' and {_PROCESS_SCHEMA_NAME}.prc_row_status in (0,1,2);'; 
+            where """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".'||v_sql_bk_column||' = tgt.'||v_sql_bk_column||' and """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".prc_row_status in (0,1,2);'; 
     execute 'update '|| process_schema||'.'||target_schema||'_'||target_table||' prc set '||v_sql_s1_column||' = seq_s1.seq_s1_waarde
             from ( select '|| v_sql_bk_column||', nextval('||''''||'int.seq_'||v_sql_s1_column||''''||') seq_s1_waarde
                     from (select distinct '|| v_sql_bk_column||' from '|| process_schema||'.'||target_schema||'_'||target_table|| ' where '||v_sql_s1_column||' is null and prc_row_status in (0,1)) unieke_bk
                 ) seq_s1
-            where 1=1 and {_PROCESS_SCHEMA_NAME}.'|| v_sql_bk_column||'=seq_s1.'|| v_sql_bk_column||';' ;
+            where 1=1 and """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".'|| v_sql_bk_column||'=seq_s1.'|| v_sql_bk_column||';' ;
 end if;
 
 
@@ -697,10 +700,10 @@ if  process_type in ('HH','IU','TI')
         then
         GET DIAGNOSTICS v_sysrowcount := ROW_COUNT;
         v_rowcount := v_sysrowcount;
-        call {_PROCESS_SCHEMA_NAME}.{_LOG_FUNCTION_NAME} 
+        call """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".""" + f"""{_LOG_FUNCTION_NAME}""" + r""" 
                 (
-                    component := '{_PROCESS_FUNCTION_NAME}_'||process_type,
-                    component_type := '{_PROCESS_FUNCTION_NAME}',
+                    component := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""_'||process_type,
+                    component_type := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""',
                     parent_component :=  parent_component,
                     ultimate_parent_component :=  ultimate_parent_component,
                     component_tree := '',
@@ -740,10 +743,10 @@ IF  process_type in ('IU')
         then
         GET DIAGNOSTICS v_sysrowcount := ROW_COUNT;
         v_rowcount := v_sysrowcount;
-        call {_PROCESS_SCHEMA_NAME}.{_LOG_FUNCTION_NAME} 
+        call """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".""" + f"""{_LOG_FUNCTION_NAME}""" + r""" 
                 (
-                    component := '{_PROCESS_FUNCTION_NAME}_'||process_type,
-                    component_type := '{_PROCESS_FUNCTION_NAME}',
+                    component := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""_'||process_type,
+                    component_type := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""',
                     parent_component :=  parent_component,
                     ultimate_parent_component :=  ultimate_parent_component,
                     component_tree := '',
@@ -810,10 +813,10 @@ IF process_type in ('HH','IU','TI') and rebuild_spatial_index = true
     
     IF  v_sql_spatial_index is null
     then 
-    call {_PROCESS_SCHEMA_NAME}.{_LOG_FUNCTION_NAME} 
+    call """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".""" + f"""{_LOG_FUNCTION_NAME}""" + r""" 
         (
-            component := '{_PROCESS_FUNCTION_NAME}_'||process_type,
-            component_type := '{_PROCESS_FUNCTION_NAME}',
+            component := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""_'||process_type,
+            component_type := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""',
             parent_component :=  parent_component,
             ultimate_parent_component :=  ultimate_parent_component,
             component_tree := '',
@@ -903,10 +906,10 @@ end if;
 
 if logfromlevel <=  2
     then
-    call {_PROCESS_SCHEMA_NAME}.{_LOG_FUNCTION_NAME} 
+    call """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".""" + f"""{_LOG_FUNCTION_NAME}""" + r""" 
             (
-                component := '{_PROCESS_FUNCTION_NAME}_'||process_type,
-                component_type := '{_PROCESS_FUNCTION_NAME}',
+                component := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""_'||process_type,
+                component_type := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""',
                 parent_component :=  parent_component,
                 ultimate_parent_component :=  ultimate_parent_component,
                 component_tree := '',

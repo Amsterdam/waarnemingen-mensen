@@ -6,16 +6,16 @@ VIEW_STRINGS = {
         WITH period_of_time AS (
             select
               case
-                when max(cmsa_15min_aggregate.timestamp_rounded) is null then (current_date - '1 year'::interval)::date
-                when max(cmsa_15min_aggregate.timestamp_rounded)::date < (current_date - '5 days'::interval)::date then max(cmsa_15min_aggregate.timestamp_rounded)::date
-                else (max(cmsa_15min_aggregate.timestamp_rounded) - '1 day'::interval)::date
+                when max(timestamp_rounded) is null then (current_date - '1 year'::interval)::date
+                when max(timestamp_rounded)::date < (current_date - '5 days'::interval)::date then max(timestamp_rounded)::date
+                else (max(timestamp_rounded) - '1 day'::interval)::date
               end as start_date
             , case
-                when max(cmsa_15min_aggregate.timestamp_rounded) is null then (current_date - '1 year'::interval + '2 month'::interval)::date
-                when (max(cmsa_15min_aggregate.timestamp_rounded) + '2 month'::interval)::date < current_date then (max(cmsa_15min_aggregate.timestamp_rounded) + '2 month'::interval)::date
+                when max(timestamp_rounded) is null then (current_date - '1 year'::interval + '2 month'::interval)::date
+                when (max(timestamp_rounded) + '2 month'::interval)::date < current_date then (max(timestamp_rounded) + '2 month'::interval)::date
                 else current_date
               end as end_date
-            from public.continuousaggregate_cmsa_15_min
+            from continuousaggregate_cmsa15min
         )
         , v2_zone_sensor as (
             -- Zone sensors give 2 count values (one per area) but in the observation table there is only 1 sensorname. This piece of code generates a new sensorname which contains the area because we want to know the count value per area.
@@ -23,7 +23,7 @@ VIEW_STRINGS = {
             select 
               external_id
             , substring(external_id, 0, length(external_id) -5) as sensor
-            from public.telcameras_v2_countaggregate
+            from telcameras_v2_countaggregate
             where 1=1
             and left(external_id, 4) in ('GADM', 'GAMM')
             and observation_timestamp_start::date > (select end_date from period_of_time)
@@ -333,7 +333,7 @@ VIEW_STRINGS = {
             , percentile_disc(0.2::double precision) within group (order by density_avg)      as density_avg_p20
             , percentile_disc(0.5::double precision) within group (order by density_avg)      as density_avg_p50
             , percentile_disc(0.8::double precision) within group (order by density_avg)      as density_avg_p80
-            from v1_v2_en_v3_data_15min
+            from continuousaggregate_cmsa15min
             where 1=1
             and timestamp_rounded >= ((select now() - '1 year'::interval))
             group by 
@@ -427,7 +427,7 @@ VIEW_STRINGS = {
         , sensor_list as (
             select sensor
             from use_date
-            left join public.continuousaggregate_cmsa_15_min	as ts on (
+            left join continuousaggregate_cmsa15min	as ts on (
                     ts.timestamp_rounded > use_date.use_date - '2 weeks'::interval    	
                 and ts.total_count > 0)
             where 1=1
@@ -457,7 +457,7 @@ VIEW_STRINGS = {
             , dsp.order_nr
             , percentile_cont(0.5) within group (order by coalesce(total_count, 0)) as count_mediaan -- Mediaan van de 8 (of minder als niet beschikbaar) waarde voor het betreffende tijdstip en weekdag nemen.
             from date_serie_prediction_sensor 					            as dsp
-            left join public.continuousaggregate_cmsa_15_min	as ts 	on (
+            left join continuousaggregate_cmsa15min	as ts 	on (
                         dsp.sensor = ts.sensor
                     and	extract(ISODOW from ts.timestamp_rounded) = dsp.weekdag								              -- Juiste dag van de week koppelen
                     and ts.timestamp_rounded::time = dsp.tijd												                        -- Juiste tijd koppelen
@@ -510,7 +510,7 @@ VIEW_STRINGS = {
               end as ophoog_fact_kw
             , rt.total_count
             from prediction_historical_curve_ruff_smooth				as time_curve
-            left join public.continuousaggregate_cmsa_15_min	  as rt			      on  time_curve.sensor = rt.sensor
+            left join continuousaggregate_cmsa15min	  as rt			      on  time_curve.sensor = rt.sensor
                                                                                 and time_curve.use_date_kw = rt.timestamp_rounded
             order by
               time_curve.sensor
@@ -607,7 +607,7 @@ VIEW_STRINGS = {
         , rt.density_avg_p20
         , rt.density_avg_p50
         , rt.density_avg_p80
-        from public.continuousaggregate_cmsa_15_min    as rt 
+        from continuousaggregate_cmsa15min    as rt 
         left join vw_cmsa_15min_v01_predict			       as pdt   on  rt.sensor = pdt.sensor
                                                                 and rt.timestamp_rounded = pdt.timestamp_rounded
                                                                 and pdt.timestamp_rounded >= (now() - '00:18:00'::interval)
