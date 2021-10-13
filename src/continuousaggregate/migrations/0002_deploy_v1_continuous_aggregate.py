@@ -969,10 +969,6 @@ $procedure$
         ),
 
         migrations.RunSQL(
-            sql=_view_strings['indexes'][0]
-        ),
-
-        migrations.RunSQL(
             sql=_predict_view_strings['sql'],
             reverse_sql=_predict_view_strings['reverse_sql']
         ),

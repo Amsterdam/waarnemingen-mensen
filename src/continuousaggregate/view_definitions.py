@@ -633,21 +633,7 @@ def get_view_strings(view_strings, view_name, indexes=None):
 
     reverse_sql = f"DROP VIEW IF EXISTS {view_name};"
 
-    index_definitions = []
-    if indexes:
-        for index in indexes:
-            if not isinstance(index, tuple):
-                error_message = "Indexes should be defined as indexes=[('sensor', 'timestamp_rounded'), ('timestamp')]"
-                raise WrongIndexException(error_message)
-
-            index_definition = f"""
-                CREATE UNIQUE INDEX {view_name}_materialized_{"_".join(index)}_idx 
-                ON public.{view_name}_materialized USING btree ({", ".join(index)});
-                """
-            index_definitions.append(index_definition)
-
     return {
         'sql': view_strings[view_name],
-        'reverse_sql': reverse_sql,
-        'indexes': index_definitions
+        'reverse_sql': reverse_sql
     }
