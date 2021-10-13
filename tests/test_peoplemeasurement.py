@@ -6,8 +6,9 @@ import pytz
 from django.conf import settings
 from django.contrib.gis.geos import LineString, Polygon
 from ingress.models import Collection
-from peoplemeasurement.models import Area, Line, Sensors, Servicelevel
 from rest_framework.test import APITestCase
+
+from peoplemeasurement.models import Area, Line, Sensors, Servicelevel
 from telcameras_v2.ingress_parser import TelcameraParser
 from tests.test_telcameras_v2_ingress import TEST_POST
 from tests.tools_for_testing import call_man_command

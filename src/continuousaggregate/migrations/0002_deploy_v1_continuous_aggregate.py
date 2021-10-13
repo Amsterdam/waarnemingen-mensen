@@ -7,9 +7,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('continuousaggregate', '0001_initial'),
-        ('peoplemeasurement', '0025_remove_sensors_drop_incoming_data'),
         ('telcameras_v2', '0033_alter_personaggregate_distances'),
-        ('telcameras_v3', '0004_auto_20210603_1542'),
     ]
 
     _LOG_SCHEMA_NAME        = "log"
@@ -66,7 +64,7 @@ v_sql_insert :=  '
                                                     component_tree,
                                                     regarding_object,
                                                     run_id,
-                                                    eventtype, 
+                                                    eventtype,
                                                     rowcount,
                                                     component_log_datetime,
                                                     log_insert_datetime,
@@ -92,7 +90,7 @@ v_sql_insert :=  '
                                                     ||''''||execution_parameters ||''''
                                             ||');';
 
---execute insert query                                       
+--execute insert query
 execute v_sql_insert;
 
 commit;
@@ -108,9 +106,9 @@ $procedure$
     _sql_process_function = r"""
 CREATE OR REPLACE PROCEDURE """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""(source_schema text, source_table text, process_schema text, target_schema text, target_table text, process_type text, implicit_deletes boolean, run_id integer, parent_component text, ultimate_parent_component text, logfromlevel integer DEFAULT 2, skip_prc_prepare boolean DEFAULT false, rebuild_spatial_index boolean DEFAULT false, run_start_datetime text DEFAULT to_char(now(), 'YYYY-MM-DD HH24:MI:SS'::text))
  LANGUAGE plpgsql
-AS $procedure$ 
+AS $procedure$
 
-declare 
+declare
 v_sql_bk_column varchar;
 v_sql_pk_column varchar;
 v_sql_s1_column varchar;
@@ -162,11 +160,11 @@ v_params_json :=  (select to_json(sub)
                             , skip_prc_prepare as skip_p_prepare
                             , rebuild_spatial_index as rebuild_spatial_index
                             , run_start_datetime as run_start_datetime
-                ) sub);         
+                ) sub);
 
 IF  process_type not in ('HH','PRE','TI','IU','SC')
-    then 
-    call """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".""" + f"""{_LOG_FUNCTION_NAME}""" + r""" 
+    then
+    call """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".""" + f"""{_LOG_FUNCTION_NAME}""" + r"""
         (
             component := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""_'||process_type,
             component_type := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""',
@@ -181,7 +179,7 @@ IF  process_type not in ('HH','PRE','TI','IU','SC')
             loglevel := 4    ,
             summary := 'invalid parameters',
             description := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r""" called with invalid process parameters ',
-            execution_parameters := v_params_json 
+            execution_parameters := v_params_json
             );
     raise exception '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r""" called with invalid process parameters: %',v_params_json;
 end if;
@@ -189,7 +187,7 @@ end if;
 
 if logfromlevel <= 2
     then
-    call """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".""" + f"""{_LOG_FUNCTION_NAME}""" + r""" 
+    call """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".""" + f"""{_LOG_FUNCTION_NAME}""" + r"""
         (
             component := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""_'||process_type,
             component_type := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""',
@@ -204,13 +202,13 @@ if logfromlevel <= 2
             loglevel := 2    ,
             summary := '',
             description := '',
-            execution_parameters := v_params_json 
+            execution_parameters := v_params_json
         );
 end if;
 
 
 
-v_source_exists := (select 
+v_source_exists := (select
                     case when count(0) >= 1 then true else false end
                     from information_schema.columns
                     where 1=1
@@ -224,7 +222,7 @@ end if;
 
 
 
-v_target_exists := (select 
+v_target_exists := (select
                     case when count(0) >= 1 then true else false end
                     from information_schema.columns
                     where 1=1
@@ -239,16 +237,16 @@ end if;
 
 
 
-if  process_type in ('HH','IU') 
+if  process_type in ('HH','IU')
     then
-        
+
         v_sql_bk_column := (select  c_tgt.column_name from information_schema.columns c_tgt
                                     where       c_tgt.table_schema = target_schema
                                             and c_tgt.table_name = target_table
                                             and c_tgt.column_name = 'bk_'||target_table
                             );
-        
-        if v_sql_bk_column is null 
+
+        if v_sql_bk_column is null
         then
             raise exception 'bk_column wrong or undefined, should be formed as bk_[tablename]';
         end if;
@@ -258,13 +256,13 @@ end if;
 
 if  process_type in ('HH','IU','TI') and upper(target_schema) = 'INT'
     then
-        
+
         v_sql_s1_column := (select  c_tgt.column_name from information_schema.columns c_tgt
                                     where       c_tgt.table_schema = target_schema
                                             and c_tgt.table_name = target_table
                                             and c_tgt.column_name = 's1_'||target_table
                             );
-    
+
     if v_sql_s1_column is null and process_type in ('HH','IU')
     THEN
         raise exception 's1_column wrong or undefined, should be formed as s1_[tablename]';
@@ -273,26 +271,26 @@ end if;
 
 
 
-if  process_type in ('SC') 
+if  process_type in ('SC')
     then
-        
+
         v_sql_pk_column := (select  c.column_name from information_schema.table_constraints tc
                                         join information_schema.constraint_column_usage as ccu using ( constraint_schema,constraint_name)
-                                        join information_schema.columns as c on ( c.table_schema = tc.constraint_schema and tc.table_name = c.table_name and ccu.column_name=c.column_name ) 
+                                        join information_schema.columns as c on ( c.table_schema = tc.constraint_schema and tc.table_name = c.table_name and ccu.column_name=c.column_name )
                                         where       tc.constraint_type = 'PRIMARY KEY'
                                             and tc.table_name = source_table
                                             and tc.table_schema = source_schema
                             );
     raise notice 'pk_column: %' , v_sql_pk_column;
-    if v_sql_pk_column is null 
+    if v_sql_pk_column is null
     then
         raise exception 'pk_column not defined';
     end if;
 end if;
 
-    
 
-if  process_type = ('TI') 
+
+if  process_type = ('TI')
     then
     execute 'truncate table '||target_schema||'.'||target_table || ';';
 end if;
@@ -300,31 +298,31 @@ end if;
 
 if  process_type in ('HH','IU','PRE','TI') and skip_prc_prepare = false
     THEN
-    
+
     execute 'drop table if exists ' || process_schema||'.'||target_schema||'_'||target_table || ';';
-    
+
     execute 'create table ' || process_schema||'.'||target_schema||'_'||target_table || ' as select *, null ::int prc_row_status from ' || target_schema || '.' || target_table || ' where 1=0;';
     execute 'alter table ' || process_schema||'.'||target_schema||'_'||target_table || ' alter column prc_row_status SET DEFAULT 0 ;';
     raise notice 'processing table created';
-    
+
 end if;
 
 
-IF  ( process_type in ('HH','IU','TI') and skip_prc_prepare = false ) or implicit_deletes = true 
-    THEN 
+IF  ( process_type in ('HH','IU','TI') and skip_prc_prepare = false ) or implicit_deletes = true
+    THEN
     v_sql_insert_columns_prc:= (
-                                select 
-                                    string_agg(text('"' ||c_tgt.column_name|| '"'), ',' ) 
+                                select
+                                    string_agg(text('"' ||c_tgt.column_name|| '"'), ',' )
                                     ||',prc_row_status'
                                     from information_schema.columns c_tgt
                                 left join information_schema.columns c_src on (c_src.table_schema = source_schema and c_src.table_name = source_table and c_src.column_name = c_tgt.column_name)
                                 where c_tgt.table_schema = target_schema
                                 and c_tgt.table_name = target_table
-                                
+
                                 and c_tgt.column_name not like 'S2_%'
                                 group by c_tgt.table_schema,c_tgt.table_name
                                 );
-    
+
 end if;
 
 
@@ -338,15 +336,15 @@ IF  process_type in ('HH','IU','TI') and skip_prc_prepare = false
                                     when c_tgt.column_name = 'mf_update_datetime' then 'null::timestamp '||'"'||c_tgt.column_name||'"'
                                     when c_tgt.column_name = 'mf_row_hash' then 'null::uuid mf_row_hash'
                                     when c_tgt.column_name = 'mf_run_id' then run_id ||' "'||c_tgt.column_name||'"'
-                                    
+
                                     when c_src.column_name = c_tgt.column_name then '"'||c_tgt.column_name||'"'
-                                    
+
                                     when c_tgt.column_name = 'mf_dp_available_datetime' then ''''||run_start_datetime||''''||'::timestamp '||'"'||c_tgt.column_name||'"'
                                     when c_tgt.column_name = 'mf_deleted_ind' then 'false '||'"'||c_tgt.column_name||'"'
-                                    else 
+                                    else
                                     'null::'||c_tgt.data_type||' ' ||'"'||c_tgt.column_name||'"'
                                     end
-                                        ), ',' ) 
+                                        ), ',' )
                                 ||
                                 ',0 prc_row_status  from '||source_schema||'.'||source_table||';'
                         from    information_schema.columns c_tgt
@@ -356,16 +354,16 @@ IF  process_type in ('HH','IU','TI') and skip_prc_prepare = false
                             and c_tgt.column_name not like 'S2_%'
                         group by c_tgt.table_schema,c_tgt.table_name
                         );
-    
-    
+
+
     execute 'insert into '|| process_schema||'.'||target_schema||'_'||target_table ||'('||v_sql_insert_columns_prc||')'||v_sql_select_src;
 
-            
+
             if logfromlevel <=  2
                 then
                 GET DIAGNOSTICS v_sysrowcount := ROW_COUNT;
                 v_rowcount := v_sysrowcount;
-                call """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".""" + f"""{_LOG_FUNCTION_NAME}""" + r""" 
+                call """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".""" + f"""{_LOG_FUNCTION_NAME}""" + r"""
                 (
                     component := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""_'||process_type,
                     component_type := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""',
@@ -380,22 +378,22 @@ IF  process_type in ('HH','IU','TI') and skip_prc_prepare = false
                     loglevel := 2    ,
                     summary := 'job insert',
                     description := 'description',
-                    execution_parameters := v_params_json 
+                    execution_parameters := v_params_json
                 );
             end if;
-        
-else raise notice 'insert into prc table skipped';  
+
+else raise notice 'insert into prc table skipped';
 end if;
 
 
 
-if process_type in ('HH','IU') and implicit_deletes = true 
+if process_type in ('HH','IU') and implicit_deletes = true
     then
     execute 'update '|| process_schema||'.'||target_schema||'_'||target_table ||' set mf_deleted_ind = false where mf_deleted_ind is null;';
 end if;
 
 
-if process_type in ('HH','IU') and implicit_deletes = true 
+if process_type in ('HH','IU') and implicit_deletes = true
     then
     if process_type = 'IU' then v_prc_row_status_del := 2;
        else v_prc_row_status_del :=1;
@@ -411,12 +409,12 @@ if process_type in ('HH','IU') and implicit_deletes = true
                                     when c_tgt.column_name = 'mf_dp_changed_datetime' then 'null::timestamp '||'"'||c_tgt.column_name||'"'
                                     when c_tgt.column_name = 'mf_deleted_ind' then 'true '||'"'||c_tgt.column_name||'"'
                                     when c_tgt.column_name = 'mf_dp_latest_int' then 'null::bool '||'"'||c_tgt.column_name||'"'
-                                    
+
                                     when c_src.column_name = c_tgt.column_name then '"'||c_tgt.column_name||'"'
-                                    else 
+                                    else
                                     'null::'||c_tgt.data_type||' ' ||'"'||c_tgt.column_name||'"'
                                     end
-                                        ), ',' ) 
+                                        ), ',' )
                                 ||
                                 ','||v_prc_row_status_del||' prc_row_status '
                         from    information_schema.columns c_tgt
@@ -426,29 +424,29 @@ if process_type in ('HH','IU') and implicit_deletes = true
                             and c_tgt.column_name not like 'S2_%'
                         group by c_tgt.table_schema,c_tgt.table_name
                         );
-    
-    
+
+
     if  process_type = ('HH')
         then v_sql_where_tgt_del := ' and mf_dp_latest_ind = true and mf_deleted_ind = false ' ;
     else v_sql_where_tgt_del := ' and mf_deleted_ind = false ';
     end if;
-    
-    
-    execute ' with 
+
+
+    execute ' with
              tgt as ( '||v_sql_select_tgt_del||' from  ' ||target_schema||'.'||target_table||' where 1=1 '||v_sql_where_tgt_del||')
-            ,src_keys as ( select distinct '||v_sql_bk_column||' from '|| process_schema||'.'||target_schema||'_'||target_table ||') 
+            ,src_keys as ( select distinct '||v_sql_bk_column||' from '|| process_schema||'.'||target_schema||'_'||target_table ||')
             insert into '|| process_schema||'.'||target_schema||'_'||target_table ||' ('||v_sql_insert_columns_prc||')
             select '||v_sql_insert_columns_prc||'
-            from tgt 
-            left join src_keys using ('||v_sql_bk_column|| ') 
-            where src_keys.'||v_sql_bk_column||' is null;'; 
-    
-        
+            from tgt
+            left join src_keys using ('||v_sql_bk_column|| ')
+            where src_keys.'||v_sql_bk_column||' is null;';
+
+
         if logfromlevel <=  2
             then
             GET DIAGNOSTICS v_sysrowcount :=  ROW_COUNT;
             v_rowcount = v_sysrowcount;
-            call """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".""" + f"""{_LOG_FUNCTION_NAME}""" + r""" 
+            call """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".""" + f"""{_LOG_FUNCTION_NAME}""" + r"""
                 (
                     component := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""_'||process_type,
                     component_type := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""',
@@ -463,22 +461,22 @@ if process_type in ('HH','IU') and implicit_deletes = true
                     loglevel := 2    ,
                     summary := '',
                     description := '',
-                    execution_parameters := v_params_json 
+                    execution_parameters := v_params_json
                 );
             end if;
     commit;
-    
+
 end if;
 
 
 IF  process_type in ('HH','IU')
     then
-    
+
     execute 'CREATE INDEX if not exists idx_""" + f"""{_PROCESS_SCHEMA_NAME}""" + r"""_'||v_sql_bk_column||' ON  '|| process_schema||'.'||target_schema||'_'||target_table ||' ('||v_sql_bk_column||');';
 
     commit;
 
-    raise notice 'index created on """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""" table';  
+    raise notice 'index created on """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""" table';
 
 end if;
 
@@ -486,19 +484,19 @@ end if;
 IF  process_type in ('HH','IU')
     THEN
         v_sql_calc_hash :=  (
-                                 select  
+                                 select
                                 'MD5(row('||string_agg(text('"' ||c_tgt.column_name|| '"::text'), ',' )||')::text)::uuid' as row_hash
                                 from information_schema.columns c_tgt
                                 where c_tgt.table_schema = target_schema
                                     and c_tgt.table_name = target_table
-                                    
+
                                     and ( c_tgt.column_name not like 'mf_%' or c_tgt.column_name = 'mf_deleted_ind' )
                                     and c_tgt.column_name <> 's1_'||target_table
                                     and c_tgt.column_name <> 's2_'||target_table
                                 group by c_tgt.table_schema,c_tgt.table_name
                             );
-        
-        
+
+
         execute 'update '|| process_schema||'.'||target_schema||'_'||target_table ||' set mf_row_hash = '||v_sql_calc_hash||' where mf_row_hash is null';
         raise notice 'hash update succeeded';
 end if;
@@ -506,44 +504,44 @@ end if;
 
 IF  process_type in ('HH')
     THEN
-       
+
         execute 'update ' || process_schema||'.'||target_schema||'_'||target_table ||' as prc set prc_row_status = -1 from '||target_schema||'.'||target_table||' as tgt where tgt.'||v_sql_bk_column||'=""" + f"""{_PROCESS_SCHEMA_NAME}""" + r""".'||v_sql_bk_column||' and """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".mf_dp_available_datetime = tgt.mf_dp_available_datetime and """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".mf_row_hash = tgt.mf_row_hash and """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".prc_row_status <> -1';
 
         GET DIAGNOSTICS v_sysrowcount := ROW_COUNT;
         v_rowcount = v_sysrowcount;
 
-        
-        
-        execute 'update ' || process_schema||'.'||target_schema||'_'||target_table ||' as prc set prc_row_status = -1 
-                from ( 
+
+
+        execute 'update ' || process_schema||'.'||target_schema||'_'||target_table ||' as prc set prc_row_status = -1
+                from (
                         select distinct '||v_sql_bk_column||'
                             , mf_dp_available_datetime
                             , mf_row_hash
                             ,case when lag(mf_row_hash) over (partition by '||v_sql_bk_column||' order by mf_dp_available_datetime) = mf_row_hash then true else false end  as duplicate
                         from '|| process_schema||'.'||target_schema||'_'||target_table ||'
-                    ) as dedup 
+                    ) as dedup
                 where dedup.'||v_sql_bk_column||' = """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".'||v_sql_bk_column||' and dedup.mf_dp_available_datetime  = """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".mf_dp_available_datetime and """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".prc_row_status<>-1  and dedup.duplicate=true';
 
        GET DIAGNOSTICS v_sysrowcount := ROW_COUNT;
         v_rowcount = v_sysrowcount;
-        
-        
-        execute 'update ' || process_schema||'.'||target_schema||'_'||target_table ||' as """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""" set prc_row_status = -1 
-                from ( 
+
+
+        execute 'update ' || process_schema||'.'||target_schema||'_'||target_table ||' as """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""" set prc_row_status = -1
+                from (
                         select distinct '||v_sql_bk_column||'
-                            , first_value (mf_dp_available_datetime) over(partition by '||v_sql_bk_column||' order by mf_dp_available_datetime desc, mf_insert_datetime desc) mf_dp_available_datetime_latest 
-                            ,  first_value (mf_row_hash) over(partition by '||v_sql_bk_column||' order by mf_dp_available_datetime desc, mf_insert_datetime desc) mf_row_hash_latest 
+                            , first_value (mf_dp_available_datetime) over(partition by '||v_sql_bk_column||' order by mf_dp_available_datetime desc, mf_insert_datetime desc) mf_dp_available_datetime_latest
+                            ,  first_value (mf_row_hash) over(partition by '||v_sql_bk_column||' order by mf_dp_available_datetime desc, mf_insert_datetime desc) mf_row_hash_latest
                         from '||target_schema||'.'||target_table||'
-                    ) as tgt 
+                    ) as tgt
                 where tgt.'||v_sql_bk_column||'=""" + f"""{_PROCESS_SCHEMA_NAME}""" + r""".'||v_sql_bk_column||' and """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".mf_dp_available_datetime > tgt.mf_dp_available_datetime_latest and """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".mf_row_hash = tgt.mf_row_hash_latest and """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".prc_row_status <> -1';
 
     GET DIAGNOSTICS v_sysrowcount :=  ROW_COUNT;
     v_rowcount = v_rowcount + v_sysrowcount;
 
-    
+
     if logfromlevel <=  2
         then
-        call """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".""" + f"""{_LOG_FUNCTION_NAME}""" + r""" 
+        call """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".""" + f"""{_LOG_FUNCTION_NAME}""" + r"""
             (
                 component := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""_'||process_type,
                 component_type := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""',
@@ -558,10 +556,10 @@ IF  process_type in ('HH')
                 loglevel := 2    ,
                 summary := '',
                 description := '',
-                execution_parameters := v_params_json 
+                execution_parameters := v_params_json
             );
     end if;
-            
+
     commit;
 
 end if;
@@ -570,19 +568,19 @@ end if;
 
 IF  process_type in ('IU')
     then
-    
-    execute  'update '|| process_schema||'.'||target_schema||'_'||target_table || ' prc set prc_row_status = -1 from '|| 
-                                target_schema||'.'|| target_table ||' tgt where 1=1 and prc.'||v_sql_bk_column|| 
+
+    execute  'update '|| process_schema||'.'||target_schema||'_'||target_table || ' prc set prc_row_status = -1 from '||
+                                target_schema||'.'|| target_table ||' tgt where 1=1 and prc.'||v_sql_bk_column||
                                 '= tgt.'||v_sql_bk_column||
                                 ' and prc.prc_row_status = 0 and prc.mf_row_hash = tgt.mf_row_hash; '
-                                ;   
+                                ;
     GET DIAGNOSTICS v_sysrowcount :=  ROW_COUNT;
     v_rowcount = v_sysrowcount;
 
-    
+
     if logfromlevel <=  2
         then
-        call prc.""" + f"""{_LOG_FUNCTION_NAME}""" + r""" 
+        call prc.""" + f"""{_LOG_FUNCTION_NAME}""" + r"""
             (
                 component := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""_'||process_type,
                 component_type := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""',
@@ -597,28 +595,28 @@ IF  process_type in ('IU')
                 loglevel := 2    ,
                 summary := '',
                 description := '',
-                execution_parameters := v_params_json 
+                execution_parameters := v_params_json
             );
-    end if;                         
-                                
-    
-    execute  'update '|| process_schema||'.'||target_schema||'_'||target_table || ' prc set prc_row_status = 2, mf_run_id = '||run_id||' from '|| 
-                                target_schema||'.'|| target_table ||' tgt where 1=1 and prc.'||v_sql_bk_column|| 
+    end if;
+
+
+    execute  'update '|| process_schema||'.'||target_schema||'_'||target_table || ' prc set prc_row_status = 2, mf_run_id = '||run_id||' from '||
+                                target_schema||'.'|| target_table ||' tgt where 1=1 and prc.'||v_sql_bk_column||
                                 '= tgt.'||v_sql_bk_column||
                                 ' and prc.prc_row_status in (0,1) and prc.mf_row_hash <> tgt.mf_row_hash; '
-                                ;               
+                                ;
 end if;
 
 
 
 
 if process_type in ('IU','HH') and upper(target_schema) = 'INT'
-    then 
-    execute ' with 
+    then
+    execute ' with
             tgt_surrogate_keys as ( select distinct '||v_sql_bk_column||',' ||v_sql_s1_column||' from '||target_schema||'.'||target_table||')
             update '|| process_schema||'.'||target_schema||'_'||target_table ||' prc set '||v_sql_s1_column||' = tgt.'||v_sql_s1_column||
             ' from tgt_surrogate_keys tgt
-            where """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".'||v_sql_bk_column||' = tgt.'||v_sql_bk_column||' and """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".prc_row_status in (0,1,2);'; 
+            where """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".'||v_sql_bk_column||' = tgt.'||v_sql_bk_column||' and """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".prc_row_status in (0,1,2);';
     execute 'update '|| process_schema||'.'||target_schema||'_'||target_table||' prc set '||v_sql_s1_column||' = seq_s1.seq_s1_waarde
             from ( select '|| v_sql_bk_column||', nextval('||''''||'int.seq_'||v_sql_s1_column||''''||') seq_s1_waarde
                     from (select distinct '|| v_sql_bk_column||' from '|| process_schema||'.'||target_schema||'_'||target_table|| ' where '||v_sql_s1_column||' is null and prc_row_status in (0,1)) unieke_bk
@@ -628,52 +626,52 @@ end if;
 
 
 
-if process_type in ('TI') and upper(target_schema) = 'INT' and v_sql_s1_column is not null 
-    then 
-    execute 'update '|| process_schema||'.'||target_schema||'_'||target_table||' prc set '||v_sql_s1_column||' =  nextval('||''''||'int.seq_'||v_sql_s1_column||''''||') where '||v_sql_s1_column||' is null and prc_row_status in (0,1);'; 
+if process_type in ('TI') and upper(target_schema) = 'INT' and v_sql_s1_column is not null
+    then
+    execute 'update '|| process_schema||'.'||target_schema||'_'||target_table||' prc set '||v_sql_s1_column||' =  nextval('||''''||'int.seq_'||v_sql_s1_column||''''||') where '||v_sql_s1_column||' is null and prc_row_status in (0,1);';
 end if;
 
 
 IF process_type in ('HH','IU') and rebuild_spatial_index = true
-    then    
-    
-    v_sql_drop_spatial_index := 
+    then
+
+    v_sql_drop_spatial_index :=
                             (
-                                select 
+                                select
                                 string_agg(
-                                distinct 
+                                distinct
                                             ' drop index if exists '||table_schema||'.'||table_name||'_sidx_geo_'||column_name||';','' )
                                 from information_schema.columns c_tgt
                                 where       c_tgt.table_schema = target_schema
                                 and c_tgt.table_name = target_table
                                 and c_tgt.udt_name = 'geometry'
                             );
-    
+
     IF  v_sql_drop_spatial_index is not null
-        then 
+        then
         execute v_sql_drop_spatial_index;
     end if;
 end if;
 
 commit;
 
-if  process_type in ('HH','IU','TI') 
+if  process_type in ('HH','IU','TI')
     then
-    
+
     v_sql_insert_columns_tgt:= (
-                                select 
+                                select
                                     '('||
-                                     string_agg(text('"' ||c_tgt.column_name|| '"'), ',' ) 
+                                     string_agg(text('"' ||c_tgt.column_name|| '"'), ',' )
                                     ||')'
                                 from information_schema.columns c_tgt
                                 where c_tgt.table_schema = target_schema
                                 and c_tgt.table_name = target_table
                                 and c_tgt.column_name <> 's2_'||c_tgt.table_name
                                 group by c_tgt.table_schema,c_tgt.table_name
-                                );      
-    
+                                );
 
-    
+
+
     v_sql_select_prc := (   select ' select '||
                              string_agg(text(
                                     case
@@ -683,24 +681,24 @@ if  process_type in ('HH','IU','TI')
                                     when c_tgt.column_name = 'mf_run_id' then run_id ||' "'||c_tgt.column_name||'"'
                                     else '"'||c_tgt.column_name||'"'
                                     end
-                                        ), ',' ) 
+                                        ), ',' )
                                 ||' from '|| process_schema||'.'||target_schema||'_'||target_table ||' where prc_row_status in (0,1);'
                         from    information_schema.columns c_tgt
                         where c_tgt.table_schema = target_schema
                             and c_tgt.table_name = target_table
                             and c_tgt.column_name <> 's2_'||c_tgt.table_name
                         group by c_tgt.table_schema,c_tgt.table_name
-                        );   
-    
-    
+                        );
+
+
     execute 'insert into '||target_schema||'.'||target_table||v_sql_insert_columns_tgt||v_sql_select_prc;
 
-    
+
     if logfromlevel <=  2
         then
         GET DIAGNOSTICS v_sysrowcount := ROW_COUNT;
         v_rowcount := v_sysrowcount;
-        call """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".""" + f"""{_LOG_FUNCTION_NAME}""" + r""" 
+        call """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".""" + f"""{_LOG_FUNCTION_NAME}""" + r"""
                 (
                     component := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""_'||process_type,
                     component_type := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""',
@@ -715,7 +713,7 @@ if  process_type in ('HH','IU','TI')
                     loglevel := 2    ,
                     summary := '',
                     description := '',
-                    execution_parameters := v_params_json 
+                    execution_parameters := v_params_json
                 );
        end if;
 
@@ -724,11 +722,11 @@ end if;
 
 
 IF  process_type in ('IU')
-    then 
-    v_sql_update_tgt :=  ( 
-                            select  ' update '|| target_schema||'.'||target_table ||' tgt set '|| 
+    then
+    v_sql_update_tgt :=  (
+                            select  ' update '|| target_schema||'.'||target_table ||' tgt set '||
                              string_agg(
-                                     '"'||c_tgt.column_name||'"'||' = src.'||'"'||c_tgt.column_name||'"' 
+                                     '"'||c_tgt.column_name||'"'||' = src.'||'"'||c_tgt.column_name||'"'
                                         , ',' ) ||
                          ', mf_update_datetime = now()::timestamp   from '|| process_schema||'.'||target_schema||'_'||target_table || ' src where src.prc_row_status in (2) and src.'||v_sql_bk_column||' = tgt.'||v_sql_bk_column||';'
                          from   information_schema.columns c_tgt
@@ -736,14 +734,14 @@ IF  process_type in ('IU')
                             and c_tgt.table_name = target_table
                             and c_tgt.column_name not in ('mf_insert_datetime','mf_update_datetime', 's1_'||target_table , v_sql_bk_column)
                            group by c_tgt.table_schema, c_tgt.table_name
-                            );      
-    
-    execute v_sql_update_tgt;   
+                            );
+
+    execute v_sql_update_tgt;
     if logfromlevel <=  2
         then
         GET DIAGNOSTICS v_sysrowcount := ROW_COUNT;
         v_rowcount := v_sysrowcount;
-        call """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".""" + f"""{_LOG_FUNCTION_NAME}""" + r""" 
+        call """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".""" + f"""{_LOG_FUNCTION_NAME}""" + r"""
                 (
                     component := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""_'||process_type,
                     component_type := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""',
@@ -758,7 +756,7 @@ IF  process_type in ('IU')
                     loglevel := 2    ,
                     summary := '',
                     description := '',
-                    execution_parameters := v_params_json 
+                    execution_parameters := v_params_json
                 );
     end if;
 
@@ -767,7 +765,7 @@ end if;
 
 IF  process_type in ('HH')
     then
-    execute 
+    execute
                 '
                         with
                         tgt_values as (
@@ -797,23 +795,23 @@ end if;
 
 
 IF process_type in ('HH','IU','TI') and rebuild_spatial_index = true
-    then    
-    
-    v_sql_spatial_index :=  
+    then
+
+    v_sql_spatial_index :=
                             (
-                                select 
+                                select
                                 string_agg(
-                                            ' create index if not exists '||table_name||'_sidx_geo_'||column_name||' on '||table_schema||'.'||table_name||' using gist ('||column_name||')',';' ) 
+                                            ' create index if not exists '||table_name||'_sidx_geo_'||column_name||' on '||table_schema||'.'||table_name||' using gist ('||column_name||')',';' )
                                 from information_schema.columns c_tgt
                                 where       c_tgt.table_schema = target_schema
                                 and c_tgt.table_name = target_table
                                 and c_tgt.udt_name = 'geometry'
                                 group by table_schema,table_name
                             );
-    
+
     IF  v_sql_spatial_index is null
-    then 
-    call """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".""" + f"""{_LOG_FUNCTION_NAME}""" + r""" 
+    then
+    call """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".""" + f"""{_LOG_FUNCTION_NAME}""" + r"""
         (
             component := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""_'||process_type,
             component_type := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""',
@@ -828,11 +826,11 @@ IF process_type in ('HH','IU','TI') and rebuild_spatial_index = true
             loglevel := 3    ,
             summary := 'spatial index not (re)built',
             description := 'no geo column found, spatial index not (re)built',
-            execution_parameters := v_params_json 
+            execution_parameters := v_params_json
             );
-            
+
      else execute v_sql_spatial_index;
-     end if;            
+     end if;
 end if;
 
 
@@ -840,19 +838,19 @@ end if;
 IF  process_type in ('SC')
     then
     v_sql_tmp_tgt_key_hash := (
-                                'drop table if exists tmp_tgt_key_hash; create temp table tmp_tgt_key_hash as select '||v_sql_pk_column||', md5(tgt.*::TEXT) rij_hash 
-                                from '||target_schema||'.'||target_table||' tgt; 
+                                'drop table if exists tmp_tgt_key_hash; create temp table tmp_tgt_key_hash as select '||v_sql_pk_column||', md5(tgt.*::TEXT) rij_hash
+                                from '||target_schema||'.'||target_table||' tgt;
                                 alter table tmp_tgt_key_hash add primary key ('||v_sql_pk_column||');'
                                 );
-    
+
     execute v_sql_tmp_tgt_key_hash;
     v_sql_tmp_src_key_hash := (
-                                'drop table if exists tmp_src_key_hash; create temp table tmp_src_key_hash as select '||v_sql_pk_column||', md5(src.*::TEXT) rij_hash 
-                                from '||source_schema||'.'||source_table||' src; 
+                                'drop table if exists tmp_src_key_hash; create temp table tmp_src_key_hash as select '||v_sql_pk_column||', md5(src.*::TEXT) rij_hash
+                                from '||source_schema||'.'||source_table||' src;
                                 alter table tmp_src_key_hash add primary key ('||v_sql_pk_column||');'
                             );
-    
-    execute v_sql_tmp_src_key_hash; 
+
+    execute v_sql_tmp_src_key_hash;
     v_sql_tmp_src_tgt_action := (
                                 'drop table if exists tmp_src_tgt_action; create temp table tmp_src_tgt_action as select coalesce(src.'||v_sql_pk_column||', tgt.'||v_sql_pk_column||') '||v_sql_pk_column||
                                 ', case when src.'||v_sql_pk_column||' is null then '||'''delete'''||
@@ -861,25 +859,25 @@ IF  process_type in ('SC')
                                        ' when src.rij_hash<>tgt.rij_hash then '||'''update'''||
                                 ' end as db_action from tmp_src_key_hash src full outer join tmp_tgt_key_hash tgt using('||v_sql_pk_column||');'
                                 );
-    
+
     execute v_sql_tmp_src_tgt_action;
-    
+
     v_sql_insert_tgt_sc := (
                                 select ' insert into '|| target_schema||'.'||target_table ||'('||
                                   string_agg( '"'||c_src.column_name||'"',',')||') select '||
                                   string_agg( '"'||c_src.column_name||'"',',')||
-                                  ' from '|| 'pte' ||'.'||source_table|| ' inner join tmp_src_tgt_action using ('||v_sql_pk_column||') where db_action= ''insert'' ' 
+                                  ' from '|| 'pte' ||'.'||source_table|| ' inner join tmp_src_tgt_action using ('||v_sql_pk_column||') where db_action= ''insert'' '
                                   from information_schema.columns c_src
                                   where table_schema= source_schema and table_name= source_table
                                   );
-    
+
     execute v_sql_insert_tgt_sc;
-   
-    
-    v_sql_update_tgt_sc :=  ( 
-                            select  ' update '|| target_schema||'.'||target_table ||' tgt set '|| 
+
+
+    v_sql_update_tgt_sc :=  (
+                            select  ' update '|| target_schema||'.'||target_table ||' tgt set '||
                              string_agg(
-                                     '"'||c_tgt.column_name||'"'||' = src.'||'"'||c_tgt.column_name||'"' 
+                                     '"'||c_tgt.column_name||'"'||' = src.'||'"'||c_tgt.column_name||'"'
                                         , ',' ) ||
                          ' from '|| source_schema||'.'||source_table|| ' src where 1=1 and src.'||v_sql_pk_column||' = tgt.'||v_sql_pk_column||' and tgt.'||v_sql_pk_column||' in (select '||  v_sql_pk_column||' from tmp_src_tgt_action where db_action = '||
                          '''update''' ||');'
@@ -888,17 +886,17 @@ IF  process_type in ('SC')
                             and c_tgt.table_name = target_table
                             and c_tgt.column_name <> v_sql_pk_column
                            group by c_tgt.table_schema, c_tgt.table_name
-                            ); 
-    
+                            );
+
     execute v_sql_update_tgt_sc;
 
     v_sql_delete_tgt_sc := (
-                            'delete from '||target_schema||'.'||target_table 
+                            'delete from '||target_schema||'.'||target_table
                             || ' where 1=1 and '||v_sql_pk_column||' in (select '||  v_sql_pk_column||' from tmp_src_tgt_action where db_action = '||
                             '''delete''' ||');'
                             );
-    
-    execute v_sql_delete_tgt_sc;                      
+
+    execute v_sql_delete_tgt_sc;
 end if;
 
 
@@ -906,7 +904,7 @@ end if;
 
 if logfromlevel <=  2
     then
-    call """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".""" + f"""{_LOG_FUNCTION_NAME}""" + r""" 
+    call """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".""" + f"""{_LOG_FUNCTION_NAME}""" + r"""
             (
                 component := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""_'||process_type,
                 component_type := '""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""',
@@ -921,7 +919,7 @@ if logfromlevel <=  2
                 loglevel := 2    ,
                 summary := '',
                 description := '',
-                execution_parameters := v_params_json 
+                execution_parameters := v_params_json
             );
 end if;
 
@@ -949,12 +947,12 @@ $procedure$
             sql=_sql_log_schema,
             reverse_sql=_reverse_sql_log_schema
         ),
-        
+
         migrations.RunSQL(
             sql=_sql_process_schema,
             reverse_sql=_reverse_sql_process_schema
         ),
-        
+
         migrations.RunSQL(
             sql=_sql_log_function,
             reverse_sql=_reverse_sql_log_function
@@ -972,8 +970,8 @@ $procedure$
 
         migrations.RunSQL(
             sql=_view_strings['indexes'][0]
-        ),        
-        
+        ),
+
         migrations.RunSQL(
             sql=_predict_view_strings['sql'],
             reverse_sql=_predict_view_strings['reverse_sql']

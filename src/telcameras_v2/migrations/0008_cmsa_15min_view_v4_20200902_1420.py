@@ -6,6 +6,7 @@ from telcameras_v2.view_definitions import VIEW_STRINGS, get_view_strings
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('peoplemeasurement', '0001_initial'),
         ('telcameras_v2', '0007_auto_20200803_1902'),
         ('peoplemeasurement', '0002_peoplemeasurementcsv_peoplemeasurementcsvtemp'),
     ]
