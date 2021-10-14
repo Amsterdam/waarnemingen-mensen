@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
             name='Cmsa15Min',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('bk_continuousaggregate_cmsa_15_min', models.CharField(max_length=255)),
+                ('bk_continuousaggregate_cmsa15min', models.CharField(max_length=255)),
                 ('sensor', models.CharField(max_length=255)),
                 ('timestamp_rounded', contrib.timescale.fields.TimescaleDateTimeField(interval='1 day')),
                 ('total_count', models.IntegerField()),

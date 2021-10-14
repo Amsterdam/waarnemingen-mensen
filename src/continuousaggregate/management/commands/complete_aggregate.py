@@ -1,4 +1,5 @@
 import logging
+import time
 from datetime import datetime
 
 from django.core.management.base import BaseCommand
@@ -25,6 +26,7 @@ class Command(BaseCommand):
             Cmsa15Min.objects.all().delete()
             self.stdout.write(f"Finished deleting full aggregation table {Cmsa15Min._meta.db_table}")
 
+        run_id = int(time.time())   # unique number based on the unix time stamp
         # target_table := 'continuousaggregate_cmsa15min',
         complete_query = \
         f"""call prc.proc_pre_post_process (
@@ -35,7 +37,7 @@ class Command(BaseCommand):
                 target_table := '{table_name}',
                 process_type := 'IU',
                 implicit_deletes := false,
-                run_id := null,
+                run_id := {run_id},
                 parent_component := '' ,
                 ultimate_parent_component := '',
                 logfromlevel := 2,

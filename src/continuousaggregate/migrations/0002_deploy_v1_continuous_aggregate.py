@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
     _sql_process_schema          = f"CREATE SCHEMA IF NOT EXISTS {_PROCESS_SCHEMA_NAME}"
     _reverse_sql_process_schema  = f"DROP SCHEMA IF EXISTS {_PROCESS_SCHEMA_NAME}"
 
-    _sql_create_table = f"""
+    _sql_create_log_table = f"""
 CREATE TABLE IF NOT EXISTS {_LOG_SCHEMA_NAME}.{_LOG_TABLE_NAME} (
   component                     varchar(250)    NULL
 , component_type                varchar(50)     NULL
@@ -32,9 +32,9 @@ CREATE TABLE IF NOT EXISTS {_LOG_SCHEMA_NAME}.{_LOG_TABLE_NAME} (
 , ultimate_parent_component     varchar(250)    NULL
 , component_tree                varchar(500)    NULL
 , regarding_object              varchar(250)    NULL
-, run_id                        int4            NULL
+, run_id                        bigint          NULL
 , eventtype                     varchar(250)    NULL
-, rowcount                      int4            NULL
+, rowcount                      bigint          NULL
 , component_log_datetime        timestamp       NULL
 , log_insert_datetime           timestamp       NULL
 , loglevel                      int4            NULL
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS {_LOG_SCHEMA_NAME}.{_LOG_TABLE_NAME} (
 , execution_parameters          json            NULL
 );
 """
-    _reverse_sql_create_table  = f"DROP TABLE IF EXISTS {_LOG_SCHEMA_NAME}.{_LOG_TABLE_NAME}"
+    _reverse_sql_create_log_table  = f"DROP TABLE IF EXISTS {_LOG_SCHEMA_NAME}.{_LOG_TABLE_NAME}"
 
     _sql_log_function = f"""
 CREATE OR REPLACE PROCEDURE {_PROCESS_SCHEMA_NAME}.{_LOG_FUNCTION_NAME}(component text, component_type text, parent_component text, ultimate_parent_component text, component_tree text, regarding_object text, run_id integer, eventtype text, rowcount integer, component_log_datetime timestamp without time zone, loglevel integer, summary text, description text, execution_parameters json)
@@ -157,7 +157,7 @@ v_params_json :=  (select to_json(sub)
                             , implicit_deletes as implicit_deletes
                             , run_id as run_id
                             , logfromlevel as logfromlevel
-                            , skip_prc_prepare as skip_p_prepare
+                            , skip_prc_prepare as skip_prc_prepare
                             , rebuild_spatial_index as rebuild_spatial_index
                             , run_start_datetime as run_start_datetime
                 ) sub);
@@ -376,8 +376,8 @@ IF  process_type in ('HH','IU','TI') and skip_prc_prepare = false
                     rowcount := v_rowcount ,
                     component_log_datetime := now()::timestamp ,
                     loglevel := 2    ,
-                    summary := 'job insert',
-                    description := 'description',
+                    summary := '',
+                    description := '',
                     execution_parameters := v_params_json
                 );
             end if;
@@ -951,6 +951,11 @@ $procedure$
         migrations.RunSQL(
             sql=_sql_process_schema,
             reverse_sql=_reverse_sql_process_schema
+        ),
+
+        migrations.RunSQL(
+            sql=_sql_create_log_table,
+            reverse_sql=_reverse_sql_create_log_table
         ),
 
         migrations.RunSQL(

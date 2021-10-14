@@ -343,7 +343,7 @@ VIEW_STRINGS = {
         )
         
         select
-          concat(aq.sensor, '~', aq.timestamp_rounded)  as bk_continuousaggregate_cmsa_15_min
+          concat(aq.sensor, '~', aq.timestamp_rounded)  as bk_continuousaggregate_cmsa15min
         , aq.sensor
         , aq.timestamp_rounded
         , aq.total_count

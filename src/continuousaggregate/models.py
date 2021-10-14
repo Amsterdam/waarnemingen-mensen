@@ -4,7 +4,7 @@ from contrib.timescale.fields import TimescaleDateTimeField
 
 
 class Cmsa15Min(models.Model):
-    bk_continuousaggregate_cmsa_15_min  = models.CharField(max_length=255) 
+    bk_continuousaggregate_cmsa15min    = models.CharField(max_length=255) 
     sensor                              = models.CharField(max_length=255) 
     timestamp_rounded                   = TimescaleDateTimeField(interval="1 day")  # Timestamp of when the data was recorded in the camera
     total_count                         = models.IntegerField()
