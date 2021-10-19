@@ -3,15 +3,19 @@ VIEW_STRINGS = {
     # For this reason we use a rawstring for these queries
     'vw_cmsa_15min_v01_aggregate': r"""
       CREATE VIEW vw_cmsa_15min_v01_aggregate AS
-        WITH period_of_time AS (
+        WITH startdate_per_flow AS (
+                        select min(timestamp_start::date) as startdate from public.telcameras_v2_observation   -- v2 data flow
+            union all   select min("timestamp"::date)     as startdate from public.telcameras_v3_observation   -- v3 data flow
+        )   
+        , period_of_time AS (
             select
               case
-                when max(timestamp_rounded) is null then (current_date - '1 year'::interval)::date
+                when max(timestamp_rounded) is null then (select min(startdate) from startdate_per_flow)
                 when max(timestamp_rounded)::date < (current_date - '5 days'::interval)::date then max(timestamp_rounded)::date
                 else (max(timestamp_rounded) - '1 day'::interval)::date
               end as start_date
             , case
-                when max(timestamp_rounded) is null then (current_date - '1 year'::interval + '2 month'::interval)::date
+                when max(timestamp_rounded) is null then ((select min(startdate) from startdate_per_flow) + '2 month'::interval)::date
                 when (max(timestamp_rounded) + '2 month'::interval)::date < current_date then (max(timestamp_rounded) + '2 month'::interval)::date
                 else current_date
               end as end_date
