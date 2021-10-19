@@ -6,6 +6,7 @@ from django.db import transaction
 from telcameras_v3.models import GroupAggregate
 from telcameras_v3.tools import scramble_group_aggregate
 
+# select count(id) from telcameras_v3_groupaggregate where count IS NOT NULL AND count_scrambled IS NULL;
 
 @transaction.atomic
 def scramble_n_counts(n):

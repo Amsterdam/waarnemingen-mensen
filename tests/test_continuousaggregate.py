@@ -4,10 +4,11 @@ from datetime import date, datetime, timedelta
 
 import pytest
 import pytz
+from continuousaggregate.models import Cmsa15Min
 from ingress.models import Collection, Message
-
 from peoplemeasurement.models import Sensors
 from telcameras_v2.ingress_parser import TelcameraParser
+from telcameras_v2.models import Observation
 from tests.test_telcameras_v2_ingress import AUTHORIZATION_HEADER, TEST_POST
 from tests.tools_for_testing import call_man_command
 
@@ -33,7 +34,7 @@ class TestDataIngressPoster:
     def test_vanilla(self, client):
         # Add records every 5min for multiple days
         Message.objects.all().delete()
-        test_days = 2
+        test_days = 3
         today = date.today()
         start_date = today - timedelta(days=test_days)
         the_dt = datetime(start_date.year, start_date.month, start_date.day)
@@ -50,7 +51,17 @@ class TestDataIngressPoster:
         parser = TelcameraParser()
         parser.consume(end_at_empty_queue=True)
 
+        # Make sure we've got source data
+        assert Observation.objects.all().count() > 100
+
         # Run the aggregator
         call_man_command('complete_aggregate', 'continuousaggregate_cmsa15min')
 
-        # TODO: Check whether the continuous aggragation table contains the correct records
+        # @COEN: here you can add a breakpoint, then psql into the container to check what the contents of the DB are
+
+        # Do we have any records in the continuous aggregate table?
+        assert Cmsa15Min.objects.all().count() > 0
+
+        # Check whether the records in the cont aggregate table contian correct results
+        last_record = Cmsa15Min.objects.filter(objectnummer=self.sensor_names[0]).order_by('-timestamp_rounded').first()
+        assert last_record.total_count == 123  # THIS IS OBVIOUSLY WRONG, SO IT SHOULD BE ADJUSTED TO WHAT YOU EXPECT IT TO BE

@@ -93,7 +93,7 @@ v_sql_insert :=  '
 --execute insert query
 execute v_sql_insert;
 
-commit;
+
 
 end;
 
@@ -464,7 +464,7 @@ if process_type in ('HH','IU') and implicit_deletes = true
                     execution_parameters := v_params_json
                 );
             end if;
-    commit;
+    
 
 end if;
 
@@ -474,7 +474,7 @@ IF  process_type in ('HH','IU')
 
     execute 'CREATE INDEX if not exists idx_""" + f"""{_PROCESS_SCHEMA_NAME}""" + r"""_'||v_sql_bk_column||' ON  '|| process_schema||'.'||target_schema||'_'||target_table ||' ('||v_sql_bk_column||');';
 
-    commit;
+    
 
     raise notice 'index created on """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""" table';
 
@@ -560,7 +560,7 @@ IF  process_type in ('HH')
             );
     end if;
 
-    commit;
+    
 
 end if;
 
@@ -653,7 +653,7 @@ IF process_type in ('HH','IU') and rebuild_spatial_index = true
     end if;
 end if;
 
-commit;
+
 
 if  process_type in ('HH','IU','TI')
     then
@@ -787,8 +787,6 @@ IF  process_type in ('HH')
                         where 1=1
                             and tgt_values.rowid= tgt.ctid
                         and ( tgt_values.mf_dp_changed_datetime <> tgt.mf_dp_changed_datetime or tgt.mf_dp_changed_datetime is null )  ;';
-
-    commit;
 
 end if;
 
