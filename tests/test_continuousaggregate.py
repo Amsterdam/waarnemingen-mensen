@@ -1,3 +1,4 @@
+from django.db import connection, transaction
 import json
 import logging
 from datetime import date, datetime, timedelta
@@ -16,7 +17,7 @@ log = logging.getLogger(__name__)
 timezone = pytz.timezone("UTC")
 
 
-@pytest.mark.django_db
+@pytest.mark.django_db(reset_sequences=True)
 class TestDataIngressPoster:
     @pytest.fixture(autouse=True)
     def setup(self):
@@ -34,7 +35,7 @@ class TestDataIngressPoster:
     def test_vanilla(self, client):
         # Add records every 5min for multiple days
         Message.objects.all().delete()
-        test_days = 3
+        test_days = 2
         today = date.today()
         start_date = today - timedelta(days=test_days)
         the_dt = datetime(start_date.year, start_date.month, start_date.day)
@@ -57,7 +58,7 @@ class TestDataIngressPoster:
         # Run the aggregator
         call_man_command('complete_aggregate', 'continuousaggregate_cmsa15min')
 
-        # @COEN: here you can add a breakpoint, then psql into the container to check what the contents of the DB are
+        # @COEN: here you can add "breakpoint()" and then psql into the container to check what the contents of the DB are
 
         # Do we have any records in the continuous aggregate table?
         assert Cmsa15Min.objects.all().count() > 0
