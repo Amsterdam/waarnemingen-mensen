@@ -167,6 +167,8 @@ class PeopleMeasurementTestPublicSensorsEndpoint(APITestCase):
         self.assertEqual(len(results), 3)
         for i, result in enumerate(results):
             self.assertEqual(result['objectnummer'], f'ABC-{i}')
+            self.assertEqual(len(result['areas']), 1)
+            self.assertEqual(len(result['lines']), 1)
 
     def test_list_servicelevel(self):
         response = self.client.get(self.URL_SERVICELEVEL, content_type='application/json')
@@ -174,17 +176,3 @@ class PeopleMeasurementTestPublicSensorsEndpoint(APITestCase):
         self.assertEqual(len(results), 3)
         for i, result in enumerate(results):
             self.assertEqual(result['type_parameter'], str(i))
-
-    def test_list_area(self):
-        response = self.client.get(self.URL_AREA, content_type='application/json')
-        results = json.loads(response.content)
-        self.assertEqual(len(results), 3)
-        for i, result in enumerate(results):
-            self.assertEqual(result['name'], str(i))
-
-    def test_list_Line(self):
-        response = self.client.get(self.URL_LINE, content_type='application/json')
-        results = json.loads(response.content)
-        self.assertEqual(len(results), 3)
-        for i, result in enumerate(results):
-            self.assertEqual(result['name'], str(i))

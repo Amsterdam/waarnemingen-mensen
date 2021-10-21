@@ -67,14 +67,14 @@ class VoorspelIntercept(models.Model):
 
 
 class Area(models.Model):
-    sensor = models.ForeignKey('Sensors', on_delete=models.CASCADE)
+    sensor = models.ForeignKey('Sensors', related_name='areas', on_delete=models.CASCADE)
     name = models.CharField(max_length=255)  # Naam van meetgebied
     geom = models.PolygonField()  # Polygoon dat het meetgebied omvat
     area = models.IntegerField()  # Oppervlakte van het meetgebied in m2
 
 
 class Line(models.Model):
-    sensor = models.ForeignKey('Sensors', on_delete=models.CASCADE)
+    sensor = models.ForeignKey('Sensors', related_name='lines', on_delete=models.CASCADE)
     name = models.CharField(max_length=255)  # Naam van de tellijn
     geom = models.LineStringField()  # Lijn die de tellijn definieert
     azimuth = models.FloatField()  # Azimuth van de looprichting van de passage

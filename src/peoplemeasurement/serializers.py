@@ -35,12 +35,6 @@ class Today15minAggregationSerializer(serializers.Serializer):
     density_avg_p80 = serializers.FloatField()
 
 
-class SensorSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Sensors
-        fields = '__all__'
-
-
 class ServicelevelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Servicelevel
@@ -56,4 +50,13 @@ class AreaSerializer(serializers.ModelSerializer):
 class LineSerializer(serializers.ModelSerializer):
     class Meta:
         model = Line
+        fields = '__all__'
+
+
+class SensorSerializer(serializers.ModelSerializer):
+    areas = AreaSerializer(many=True, read_only=True)
+    lines = LineSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Sensors
         fields = '__all__'
