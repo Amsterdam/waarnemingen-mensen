@@ -1,6 +1,5 @@
 import logging
 import time
-from django.db.models import Max
 from datetime import datetime
 
 from django.core.management.base import BaseCommand
@@ -27,11 +26,18 @@ class Command(BaseCommand):
             Cmsa15Min.objects.all().delete()
             self.stdout.write(f"Finished deleting full aggregation table {Cmsa15Min._meta.db_table}")
         
-        # calculate run_id based on the latest run_id from database table (continuousaggregate_cmsa15min)
-        latest_run_id = (Cmsa15Min.objects.aggregate(Max('mf_run_id')))
-        run_id = (latest_run_id["mf_run_id__max"] +1 if latest_run_id["mf_run_id__max"] is not None else 1)
-        #print(run_id)
-
+        # calculate run_id based on the latest run_id from execution_log table
+        with connection.cursor() as cursor:
+            self.stdout.write(f"Start calculate next value for run_id based on execution_log table ")
+            start = datetime.now()
+        
+            cursor.execute('select coalesce(max(run_id::int) +1, 1) from log.execution_log')
+            run_id = cursor.fetchone()[0]
+            
+            finished_message = f"Finished run_id calculation in" \
+                               f" {(datetime.now() - start).seconds} seconds"
+            self.stdout.write(finished_message)
+        
         # target_table := 'continuousaggregate_cmsa15min',
         complete_query = \
         f"""call prc.proc_pre_post_process (
@@ -49,6 +55,7 @@ class Command(BaseCommand):
                 rebuild_spatial_index := false
             );
         """
+        
         with connection.cursor() as cursor:
             self.stdout.write(f"Start completing aggregation table {Cmsa15Min._meta.db_table}")
             start = datetime.now()

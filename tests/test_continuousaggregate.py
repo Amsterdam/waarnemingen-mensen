@@ -63,4 +63,8 @@ class TestDataIngressPoster:
         # Check whether the records in the continuous aggregate table contain correct results
         last_record = Cmsa15Min.objects.filter(sensor=self.sensor_names[0]).order_by('-timestamp_rounded').first()
 
-        #assert last_record.total_count == 113 # THIS IS OBVIOUSLY WRONG, SO IT SHOULD BE ADJUSTED TO WHAT YOU EXPECT IT TO BE
+        # Run the aggregator again (test run_id and inserted/updated records)
+        call_man_command('complete_aggregate', 'continuousaggregate_cmsa15min')
+
+        # Run the aggregator again (test run_id and inserted/updated records)
+        call_man_command('complete_aggregate', 'continuousaggregate_cmsa15min')
