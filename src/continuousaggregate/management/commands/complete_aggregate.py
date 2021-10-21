@@ -1,5 +1,6 @@
 import logging
 import time
+from django.db.models import Max
 from datetime import datetime
 
 from django.core.management.base import BaseCommand
@@ -25,8 +26,12 @@ class Command(BaseCommand):
             self.stdout.write(f"Start deleting full aggregation table {Cmsa15Min._meta.db_table}")
             Cmsa15Min.objects.all().delete()
             self.stdout.write(f"Finished deleting full aggregation table {Cmsa15Min._meta.db_table}")
+        
+        # calculate run_id based on the latest run_id from database table (continuousaggregate_cmsa15min)
+        latest_run_id = (Cmsa15Min.objects.aggregate(Max('mf_run_id')))
+        run_id = (latest_run_id["mf_run_id__max"] +1 if latest_run_id["mf_run_id__max"] is not None else 1)
+        #print(run_id)
 
-        run_id = int(time.time())   # unique number based on the unix time stamp
         # target_table := 'continuousaggregate_cmsa15min',
         complete_query = \
         f"""call prc.proc_pre_post_process (
