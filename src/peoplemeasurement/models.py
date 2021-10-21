@@ -51,21 +51,6 @@ class Servicelevel(models.Model):
     upperlimit = models.FloatField(blank=True, null=True)
 
 
-# TODO: remove this model when the v8 view is not in use anymore
-class VoorspelCoefficient(models.Model):
-    sensor = models.CharField(max_length=255)
-    bron_kwartier_volgnummer = models.IntegerField()
-    toepassings_kwartier_volgnummer = models.IntegerField()
-    coefficient_waarde = models.FloatField()
-
-
-# TODO: remove this model when the v8 view is not in use anymore
-class VoorspelIntercept(models.Model):
-    sensor = models.CharField(max_length=255)
-    toepassings_kwartier_volgnummer = models.IntegerField()
-    intercept_waarde = models.FloatField()
-
-
 class Area(models.Model):
     sensor = models.ForeignKey('Sensors', related_name='areas', on_delete=models.CASCADE)
     name = models.CharField(max_length=255)  # Naam van meetgebied

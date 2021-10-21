@@ -5,8 +5,7 @@ from django.contrib.gis.geos import Point
 
 from import_export.admin import ImportExportModelAdmin
 from import_export.tmp_storages import CacheStorage
-from peoplemeasurement.models import (Area, Line, Sensors, Servicelevel,
-                                      VoorspelCoefficient, VoorspelIntercept)
+from peoplemeasurement.models import Area, Line, Sensors, Servicelevel
 
 
 class LatLongWidget(forms.MultiWidget):
@@ -48,18 +47,6 @@ class SensorAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 @admin.register(Servicelevel)
 class ServicelevelAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     list_display = ['type_parameter', 'type_gebied', 'type_tijd', 'level_nr', 'level_label', 'lowerlimit', 'upperlimit']
-    tmp_storage_class = CacheStorage
-
-
-@admin.register(VoorspelCoefficient)
-class VoorspelCoefficientAdmin(ImportExportModelAdmin, admin.ModelAdmin):
-    list_display = ['sensor', 'bron_kwartier_volgnummer', 'toepassings_kwartier_volgnummer', 'coefficient_waarde']
-    tmp_storage_class = CacheStorage
-
-
-@admin.register(VoorspelIntercept)
-class VoorspelInterceptAdmin(ImportExportModelAdmin, admin.ModelAdmin):
-    list_display = ['sensor', 'toepassings_kwartier_volgnummer', 'intercept_waarde']
     tmp_storage_class = CacheStorage
 
 
