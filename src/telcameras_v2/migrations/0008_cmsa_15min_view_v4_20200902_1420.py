@@ -7,6 +7,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('telcameras_v2', '0007_auto_20200803_1902'),
+        ('peoplemeasurement', '0002_peoplemeasurementcsv_peoplemeasurementcsvtemp'),
     ]
 
     # VIEW DESCRIPTION: This view combines the data from the peoplemeasurement data and the telcameras_v2 data

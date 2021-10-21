@@ -148,8 +148,6 @@ class PeopleMeasurementTestPublicSensorsEndpoint(APITestCase):
     def setUp(self):
         self.URL_SENSOR = '/telcameras/v1/sensor/'
         self.URL_SERVICELEVEL = '/telcameras/v1/servicelevel/'
-        self.URL_AREA = '/telcameras/v1/area/'
-        self.URL_LINE = '/telcameras/v1/line/'
         polygon = Polygon(((0, 0), (0, 1), (1, 1), (0, 0)), ((0.4, 0.4), (0.4, 0.6), (0.6, 0.6), (0.4, 0.4)))
         linestring = LineString((0, 0), (1, 1))
         for i in range(3):
