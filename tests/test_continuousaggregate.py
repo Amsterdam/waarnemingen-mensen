@@ -40,12 +40,11 @@ class TestDataIngressPoster:
         start_date = today - timedelta(days=test_days)
         the_dt = datetime(start_date.year, start_date.month, start_date.day)
         while the_dt < datetime(today.year, today.month, today.day):
-            # print(the_dt)
             for sensor_name in self.sensor_names:
-                # print(f'    {sensor_name}')
                 test_post = json.loads(TEST_POST)
                 test_post['data'][0]['sensor'] = sensor_name
-                client.post(self.URL, TEST_POST, **AUTHORIZATION_HEADER, content_type='application/json')
+                test_post['data'][0]['timestamp_message'] = the_dt.isoformat()
+                client.post(self.URL, json.dumps(test_post), **AUTHORIZATION_HEADER, content_type='application/json')
             the_dt += timedelta(minutes=15)
 
         # Then run the parse_ingress script
@@ -54,7 +53,7 @@ class TestDataIngressPoster:
 
         # Make sure we've got source data
         assert Observation.objects.all().count() > 100
-        
+
         # Run the aggregator
         call_man_command('complete_aggregate', 'continuousaggregate_cmsa15min')
 
