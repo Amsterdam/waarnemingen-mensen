@@ -31,6 +31,8 @@ services:
     build:
       context: .
       target: dev
+    environment:
+      <<: *base-app-env
     command: python manage.py runserver 0.0.0.0:8000
 
   app:
