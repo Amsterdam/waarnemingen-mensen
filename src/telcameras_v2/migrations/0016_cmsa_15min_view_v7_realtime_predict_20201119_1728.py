@@ -7,6 +7,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('telcameras_v2', '0015_cmsa_15min_view_v7_20201117_1514'),
+        ('peoplemeasurement', '0017_voorspelcoefficient_voorspelintercept'),
     ]
 
     _VIEW_NAME = "cmsa_15min_view_v7_realtime_predict"
