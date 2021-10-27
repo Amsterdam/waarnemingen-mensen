@@ -40,6 +40,8 @@ class Sensors(models.Model):
     is_active = models.BooleanField(default=True)  # Can be used by the dashboard to display or hide sensors
     is_public = models.BooleanField(default=True)  # Defines whether the record can be displayed in publications
 
+    def __str__(self):
+        return self.objectnummer
 
 class Servicelevel(models.Model):
     type_parameter = models.CharField(max_length=50)
