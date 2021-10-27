@@ -2,9 +2,9 @@ from django import forms
 from django.contrib import admin
 from django.contrib.gis.db import models as geomodels
 from django.contrib.gis.geos import Point
-
 from import_export.admin import ImportExportModelAdmin
 from import_export.tmp_storages import CacheStorage
+from leaflet.admin import LeafletGeoAdminMixin
 from peoplemeasurement.models import Area, Line, Sensors, Servicelevel
 
 
@@ -51,12 +51,12 @@ class ServicelevelAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 
 
 @admin.register(Area)
-class AreaAdmin(ImportExportModelAdmin, admin.ModelAdmin):
+class AreaAdmin(LeafletGeoAdminMixin, ImportExportModelAdmin, admin.ModelAdmin):
     list_display = ['sensor', 'name', 'geom', 'area']
     tmp_storage_class = CacheStorage
 
 
 @admin.register(Line)
-class LineAdmin(ImportExportModelAdmin, admin.ModelAdmin):
+class LineAdmin(LeafletGeoAdminMixin, ImportExportModelAdmin, admin.ModelAdmin):
     list_display = ['sensor', 'name', 'geom', 'azimuth']
     tmp_storage_class = CacheStorage

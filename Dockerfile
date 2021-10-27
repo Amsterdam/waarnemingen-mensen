@@ -1,5 +1,10 @@
-FROM amsterdam/python:3.8-buster as app
+FROM amsterdam/python:3.9-buster as app
 MAINTAINER datapunt@amsterdam.nl
+
+# GDAL is needed for leaflet, which is used in the django-admin
+RUN apt update -y && \
+    apt install -y --no-install-recommends gdal-bin && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app_install
 COPY requirements.txt requirements.txt

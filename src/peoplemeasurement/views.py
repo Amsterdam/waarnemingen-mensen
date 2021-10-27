@@ -47,15 +47,3 @@ class ServicelevelDataViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Servicelevel.objects.all()
     serializer_class = ServicelevelSerializer
     pagination_class = None
-
-
-class AreaDataViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Area.objects.all()
-    serializer_class = AreaSerializer
-    pagination_class = None
-
-
-class LineDataViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Line.objects.all()
-    serializer_class = LineSerializer
-    pagination_class = None

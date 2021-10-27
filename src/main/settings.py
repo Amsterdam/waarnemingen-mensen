@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_gis",
     "contrib.timescale",
+    'leaflet',
     'health',
     'datetimeutc',
     'peoplemeasurement',

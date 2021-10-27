@@ -18,3 +18,4 @@ sentry-sdk
 datapunt-data-ingress
 datapunt-authorization-django
 django-import-export
+django-leaflet
