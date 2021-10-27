@@ -107,6 +107,7 @@ DATABASES = {
     },
 }
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 TIME_ZONE = 'Europe/Amsterdam'
 USE_TZ = True

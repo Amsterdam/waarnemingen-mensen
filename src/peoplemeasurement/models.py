@@ -1,5 +1,4 @@
 from django.contrib.gis.db import models
-from django.contrib.postgres.fields import JSONField
 
 
 class PeopleMeasurement(models.Model):
@@ -20,7 +19,7 @@ class PeopleMeasurement(models.Model):
     density = models.FloatField(null=True)
     speed = models.FloatField(null=True)
     count = models.IntegerField(null=True)
-    details = JSONField(null=True)
+    details = models.JSONField(null=True)
 
 
 class Sensors(models.Model):

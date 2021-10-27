@@ -1,8 +1,7 @@
-from django.contrib.postgres import fields as postgres_fields
+from contrib.timescale.fields import TimescaleDateTimeField
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
-
-from contrib.timescale.fields import TimescaleDateTimeField
 
 
 class Observation(models.Model):
@@ -11,7 +10,7 @@ class Observation(models.Model):
     sensor_state = models.CharField(max_length=255)         # e.g. "operational"
     owner = models.CharField(max_length=255, null=True)     # e.g. "gemeente Amsterdam" or  "Prorail"   # Verantwoordelijke Eigenaar van de Camera
     supplier = models.CharField(max_length=255, null=True)  # e.g. "Connection Systems"            # Leverancier die de camera beheert in opdracht van de eigenaar.
-    purpose = postgres_fields.ArrayField(models.CharField(max_length=255), null=True)  # Doel van de camera
+    purpose = ArrayField(models.CharField(max_length=255), null=True)  # Doel van de camera
     latitude = models.DecimalField(max_digits=16, decimal_places=13)
     longitude = models.DecimalField(max_digits=16, decimal_places=13)
     interval = models.SmallIntegerField()                   # e.g. 60     # seconds that this message spans
@@ -56,4 +55,4 @@ class PersonAggregate(models.Model):
     speed = models.FloatField(null=True)
     geom = models.TextField(null=True)
     quality = models.IntegerField()
-    distances = postgres_fields.JSONField(null=True)
+    distances = models.JSONField(null=True)
