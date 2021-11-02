@@ -58,12 +58,19 @@ class Area(models.Model):
     geom = models.PolygonField()  # Polygoon dat het meetgebied omvat
     area = models.IntegerField()  # Oppervlakte van het meetgebied in m2
 
+    class Meta:
+        unique_together = ('sensor', 'name',)
+
 
 class Line(models.Model):
     sensor = models.ForeignKey('Sensors', related_name='lines', on_delete=models.CASCADE)
     name = models.CharField(max_length=255)  # Naam van de tellijn
     geom = models.LineStringField()  # Lijn die de tellijn definieert
     azimuth = models.FloatField()  # Azimuth van de looprichting van de passage
+
+    class Meta:
+        unique_together = ('sensor', 'name',)
+
 
 #   NOTE:
 #   We added an extra table for this model called "peoplemeasurement_v1_data"
