@@ -39,9 +39,10 @@ class LatLongWidget(forms.MultiWidget):
         return point
 
 
-
 class SensorResource(ModelResource):
     imported_rows_pks = []  # save pk's of imported rows to delete the rest
+    imported_area_pks = []
+    imported_line_pks = []
 
     class Meta:
         model = Sensors
@@ -83,10 +84,25 @@ class SensorResource(ModelResource):
         if row_result.object_id:
             self.imported_rows_pks.append(row_result.object_id)
 
+        if row['areas']:
+            for area_dict in row['areas']:
+                area_obj, created = Area.objects.get_or_create(
+                    sensor_id=row_result.object_id, **area_dict)
+                self.imported_area_pks.append(area_obj.id)
+
+        if row['lines']:
+            for line_dict in row['lines']:
+                line_obj, created = Line.objects.get_or_create(
+                    sensor_id=row_result.object_id, **line_dict)
+                self.imported_area_pks.append(line_obj.id)
+
+        # TODO: Remove redundant areas and lines
+
     def after_import(self, dataset, result, using_transactions, dry_run, **kwargs):
         # Remove all rows which were absent in the import
         Sensors.objects.exclude(pk__in=set(self.imported_rows_pks)).delete()
         ModelResource.after_import(self, dataset, result, using_transactions, dry_run, **kwargs)
+
 
 # class AreaInline(admin.StackedInline):
 #     model = Area
