@@ -42,6 +42,7 @@ class Sensors(models.Model):
     def __str__(self):
         return self.objectnummer
 
+
 class Servicelevel(models.Model):
     type_parameter = models.CharField(max_length=50)
     type_gebied = models.CharField(max_length=50)
@@ -61,6 +62,9 @@ class Area(models.Model):
     class Meta:
         unique_together = ('sensor', 'name',)
 
+    def __str__(self):
+        return f"{self.name} ({self.sensor})"
+
 
 class Line(models.Model):
     sensor = models.ForeignKey('Sensors', related_name='lines', on_delete=models.CASCADE)
@@ -71,6 +75,8 @@ class Line(models.Model):
     class Meta:
         unique_together = ('sensor', 'name',)
 
+    def __str__(self):
+        return f"{self.name} ({self.sensor})"
 
 #   NOTE:
 #   We added an extra table for this model called "peoplemeasurement_v1_data"
