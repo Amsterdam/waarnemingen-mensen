@@ -1,5 +1,4 @@
 from django.contrib.gis.db import models
-from django.contrib.postgres.fields import JSONField
 
 
 class PeopleMeasurement(models.Model):
@@ -20,7 +19,7 @@ class PeopleMeasurement(models.Model):
     density = models.FloatField(null=True)
     speed = models.FloatField(null=True)
     count = models.IntegerField(null=True)
-    details = JSONField(null=True)
+    details = models.JSONField(null=True)
 
 
 class Sensors(models.Model):
@@ -43,6 +42,7 @@ class Sensors(models.Model):
     def __str__(self):
         return self.objectnummer
 
+
 class Servicelevel(models.Model):
     type_parameter = models.CharField(max_length=50)
     type_gebied = models.CharField(max_length=50)
@@ -59,12 +59,24 @@ class Area(models.Model):
     geom = models.PolygonField()  # Polygoon dat het meetgebied omvat
     area = models.IntegerField()  # Oppervlakte van het meetgebied in m2
 
+    class Meta:
+        unique_together = ('sensor', 'name',)
+
+    def __str__(self):
+        return f"{self.name} ({self.sensor})"
+
 
 class Line(models.Model):
     sensor = models.ForeignKey('Sensors', related_name='lines', on_delete=models.CASCADE)
     name = models.CharField(max_length=255)  # Naam van de tellijn
     geom = models.LineStringField()  # Lijn die de tellijn definieert
     azimuth = models.FloatField()  # Azimuth van de looprichting van de passage
+
+    class Meta:
+        unique_together = ('sensor', 'name',)
+
+    def __str__(self):
+        return f"{self.name} ({self.sensor})"
 
 #   NOTE:
 #   We added an extra table for this model called "peoplemeasurement_v1_data"

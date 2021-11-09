@@ -43,7 +43,7 @@ coreschema==0.0.4
     #   -r ./requirements.txt
     #   coreapi
     #   drf-yasg
-coverage[toml]==6.0.2
+coverage[toml]==6.1.1
     # via pytest-cov
 cryptography==35.0.0
     # via
@@ -68,7 +68,7 @@ diff-match-patch==20200713
     # via
     #   -r ./requirements.txt
     #   django-import-export
-django==3.2.8
+django==3.2.9
     # via
     #   -r ./requirements.txt
     #   datapunt-authorization-django
@@ -125,11 +125,11 @@ et-xmlfile==1.1.0
     # via
     #   -r ./requirements.txt
     #   openpyxl
-factory-boy==3.2.0
+factory-boy==3.2.1
     # via
     #   -r requirements_dev.in
     #   pytest-factoryboy
-faker==9.6.0
+faker==9.8.0
     # via factory-boy
 flask==2.0.2
     # via
@@ -159,7 +159,7 @@ inflection==0.5.1
     #   pytest-factoryboy
 iniconfig==1.1.1
     # via pytest
-ipython==7.28.0
+ipython==7.29.0
     # via -r requirements_dev.in
 itsdangerous==2.0.1
     # via flask
@@ -178,7 +178,7 @@ jwcrypto==1.0
     # via
     #   -r ./requirements.txt
     #   datapunt-authorization-django
-locust==2.4.1
+locust==2.4.3
     # via -r requirements_dev.in
 markuppy==1.14
     # via
@@ -202,7 +202,7 @@ openpyxl==3.0.9
     # via
     #   -r ./requirements.txt
     #   tablib
-packaging==21.0
+packaging==21.2
     # via
     #   -r ./requirements.txt
     #   drf-yasg
@@ -219,7 +219,7 @@ pip-tools==6.4.0
     # via -r requirements_dev.in
 pluggy==1.0.0
     # via pytest
-prompt-toolkit==3.0.21
+prompt-toolkit==3.0.22
     # via ipython
 psutil==5.8.0
     # via locust
@@ -235,7 +235,7 @@ pycparser==2.20
     #   cffi
 pygments==2.10.0
     # via ipython
-pyparsing==3.0.1
+pyparsing==2.4.7
     # via
     #   -r ./requirements.txt
     #   packaging
@@ -275,7 +275,7 @@ requests==2.26.0
     #   locust
 roundrobin==0.0.2
     # via locust
-ruamel.yaml==0.17.16
+ruamel.yaml==0.17.17
     # via
     #   -r ./requirements.txt
     #   drf-yasg
@@ -297,7 +297,7 @@ sqlparse==0.4.2
     #   -r ./requirements.txt
     #   django
     #   django-debug-toolbar
-tablib[html,ods,xls,xlsx,yaml]==3.0.0
+tablib[html,ods,xls,xlsx,yaml]==3.1.0
     # via
     #   -r ./requirements.txt
     #   django-import-export
@@ -339,7 +339,7 @@ werkzeug==2.0.2
     #   locust
 wheel==0.37.0
     # via pip-tools
-wrapt==1.13.2
+wrapt==1.13.3
     # via
     #   -r ./requirements.txt
     #   deprecated
