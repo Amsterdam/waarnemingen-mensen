@@ -49,9 +49,6 @@ class SensorResource(ModelResource):
         model = Sensors
         exclude = ['id']
         import_id_fields = ['gid']
-        # fields = ['gid', 'objectnummer', 'soort']
-        # export_order = ('id', 'price', 'author', 'name')
-        # skip_unchanged = True
 
     def after_export(self, queryset, data, *args, **kwargs):
         areas = []
@@ -99,7 +96,7 @@ class SensorResource(ModelResource):
 
     def after_import(self, dataset, result, using_transactions, dry_run, **kwargs):
         # Remove all sensors, areas and lines which were absent in the import
-        Sensors.objects.exclude(pk__in=set(self.imported_sensor_pks)).delete()
+        Sensors.objects.exclude(pk__in=self.imported_sensor_pks).delete()
         Area.objects.exclude(pk__in=self.imported_area_pks).delete()
         Line.objects.exclude(pk__in=self.imported_line_pks).delete()
 
@@ -126,11 +123,9 @@ class ServicelevelAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 class AreaAdmin(LeafletGeoAdminMixin, admin.ModelAdmin):
     list_display = ['name', 'sensor', 'geom', 'area']
     tmp_storage_class = CacheStorage
-    # formfield_overrides = {geomodels.PolygonField: {'widget': TextInput}}
 
 
 @admin.register(Line)
 class LineAdmin(LeafletGeoAdminMixin, admin.ModelAdmin):
     list_display = ['name', 'sensor', 'geom', 'azimuth']
     tmp_storage_class = CacheStorage
-    # formfield_overrides = {geomodels.PolygonField: {'widget': TextInput}}
