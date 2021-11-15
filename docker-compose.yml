@@ -1,4 +1,22 @@
 version: "3.5"
+
+x-app: &base-app
+  build:
+    context: .
+    target: app
+  depends_on:
+    - database
+  volumes:
+    - ./src:/src
+    - ./tests:/tests
+    - ./deploy:/deploy
+  environment: &base-app-env
+    SECRET_KEY: "insecure"
+    DEBUG: "true"
+    AUTHORIZATION_TOKEN: "auth-token"
+    GET_AUTHORIZATION_TOKEN: "get-auth-token"
+  entrypoint: /deploy/wait-for-it.sh database:5432 --
+
 services:
   database:
     image: timescale/timescaledb-postgis:latest-pg11
@@ -8,24 +26,7 @@ services:
       POSTGRES_DB: waarnemingen_mensen
       POSTGRES_USER: waarnemingen_mensen
       POSTGRES_PASSWORD: insecure
-
-  x-app: &base-app
-    build:
-      context: .
-      target: app
-    depends_on:
-      - database
-    volumes:
-      - ./src:/src
-      - ./tests:/tests
-      - ./deploy:/deploy
-    environment: &base-app-env
-      SECRET_KEY: "insecure"
-      DEBUG: "true"
-      AUTHORIZATION_TOKEN: "auth-token"
-      GET_AUTHORIZATION_TOKEN: "get-auth-token"
-    entrypoint: /deploy/wait-for-it.sh database:5432 --
-
+      
   dev:
     <<: *base-app
     build:
