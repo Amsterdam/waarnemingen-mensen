@@ -1,12 +1,12 @@
-from django.db import connection, transaction
 import json
 import logging
 from datetime import date, datetime, timedelta
 
 import pytest
 import pytz
-from continuousaggregate.models import Cmsa15Min
 from ingress.models import Collection, Message
+
+from continuousaggregate.models import Cmsa15Min
 from peoplemeasurement.models import Sensors
 from telcameras_v2.ingress_parser import TelcameraParser
 from telcameras_v2.models import Observation
@@ -43,9 +43,9 @@ class TestDataIngressPoster:
             for sensor_name in self.sensor_names:
                 test_post = json.loads(TEST_POST)
                 test_post['data'][0]['sensor'] = sensor_name
-                test_post['data'][0]['timestamp_message'] = the_dt.isoformat()
+                test_post['data'][0]['timestamp_start'] = the_dt.isoformat()
                 client.post(self.URL, json.dumps(test_post), **AUTHORIZATION_HEADER, content_type='application/json')
-            the_dt += timedelta(minutes=15)
+            the_dt += timedelta(minutes=5)
 
         # Then run the parse_ingress script
         parser = TelcameraParser()
@@ -58,13 +58,13 @@ class TestDataIngressPoster:
         call_man_command('complete_aggregate', 'continuousaggregate_cmsa15min')
 
         # Do we have any records in the continuous aggregate table?
-        assert Cmsa15Min.objects.all().count() > 0
-        
-        # Check whether the records in the continuous aggregate table contain correct results
-        last_record = Cmsa15Min.objects.filter(sensor=self.sensor_names[0]).order_by('-timestamp_rounded').first()
+        assert Cmsa15Min.objects.all().count() > 500
 
-        # Run the aggregator again (test run_id and inserted/updated records)
-        call_man_command('complete_aggregate', 'continuousaggregate_cmsa15min')
-
-        # Run the aggregator again (test run_id and inserted/updated records)
-        call_man_command('complete_aggregate', 'continuousaggregate_cmsa15min')
+        # Take a record in the middle of the data in the continuous aggregate table
+        # and check whether the record is made up of exactly 3 messages (one every 5 min)
+        last_record = Cmsa15Min.objects\
+            .filter(sensor=self.sensor_names[0])\
+            .filter(timestamp_rounded__gte=(today - timedelta(days=1)).isoformat())\
+            .order_by('timestamp_rounded')\
+            .first()
+        assert last_record.basedonxmessages == 3

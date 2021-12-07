@@ -93,15 +93,13 @@ v_sql_insert :=  '
 --execute insert query
 execute v_sql_insert;
 
-
-
 end;
 
 $procedure$
 ;
     """
-    _reverse_sql_log_function = f"DROP PROCEDURE IF EXISTS {_PROCESS_SCHEMA_NAME}.{_LOG_FUNCTION_NAME}"
 
+    _reverse_sql_log_function = f"DROP PROCEDURE IF EXISTS {_PROCESS_SCHEMA_NAME}.{_LOG_FUNCTION_NAME}"
 
     _sql_process_function = r"""
 CREATE OR REPLACE PROCEDURE """ + f"""{_PROCESS_SCHEMA_NAME}""" + r""".""" + f"""{_PROCESS_FUNCTION_NAME}""" + r"""(source_schema text, source_table text, process_schema text, target_schema text, target_table text, process_type text, implicit_deletes boolean, run_id integer, parent_component text, ultimate_parent_component text, logfromlevel integer DEFAULT 2, skip_prc_prepare boolean DEFAULT false, rebuild_spatial_index boolean DEFAULT false, run_start_datetime text DEFAULT to_char(now(), 'YYYY-MM-DD HH24:MI:SS'::text))
