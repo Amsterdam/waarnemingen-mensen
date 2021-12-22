@@ -202,6 +202,7 @@ if logfromlevel <= 2
             description := '',
             execution_parameters := v_params_json
         );
+    commit;
 end if;
 
 

@@ -355,24 +355,24 @@ VIEW_STRINGS = {
         , aq.count_up
         , aq.density_avg
         , aq.basedonxmessages
-        , p.total_count_p10
-        , p.total_count_p20
-        , p.total_count_p50
-        , p.total_count_p80
-        , p.total_count_p90
-        , p.count_down_p10
-        , p.count_down_p20
-        , p.count_down_p50
-        , p.count_down_p80
-        , p.count_down_p90
-        , p.count_up_p10
-        , p.count_up_p20
-        , p.count_up_p50
-        , p.count_up_p80
-        , p.count_up_p90
-        , p.density_avg_p20
-        , p.density_avg_p50
-        , p.density_avg_p80
+        , p.total_count_p10::numeric(16,6)  as total_count_p10
+        , p.total_count_p20::numeric(16,6)  as total_count_p20
+        , p.total_count_p50::numeric(16,6)  as total_count_p50
+        , p.total_count_p80::numeric(16,6)  as total_count_p80
+        , p.total_count_p90::numeric(16,6)  as total_count_p90
+        , p.count_down_p10::numeric(16,6)   as count_down_p10
+        , p.count_down_p20::numeric(16,6)   as count_down_p20
+        , p.count_down_p50::numeric(16,6)   as count_down_p50
+        , p.count_down_p80::numeric(16,6)   as count_down_p80
+        , p.count_down_p90::numeric(16,6)   as count_down_p90
+        , p.count_up_p10::numeric(16,6)     as count_up_p10
+        , p.count_up_p20::numeric(16,6)     as count_up_p20
+        , p.count_up_p50::numeric(16,6)     as count_up_p50
+        , p.count_up_p80::numeric(16,6)     as count_up_p80
+        , p.count_up_p90::numeric(16,6)     as count_up_p90
+        , p.density_avg_p20::numeric(16,6)  as density_avg_p20
+        , p.density_avg_p50::numeric(16,6)  as density_avg_p50
+        , p.density_avg_p80::numeric(16,6)  as density_avg_p80
         from v1_v2_en_v3_data_15min     as aq
         left join percentiles           as p    on  aq.sensor::text = p.sensor::text
                                                 and date_part('dow'::text, aq.timestamp_rounded) = p.dayofweek::double precision 
