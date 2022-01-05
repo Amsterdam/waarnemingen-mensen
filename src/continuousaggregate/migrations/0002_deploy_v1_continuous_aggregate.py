@@ -93,6 +93,8 @@ v_sql_insert :=  '
 --execute insert query
 execute v_sql_insert;
 
+commit;
+
 end;
 
 $procedure$
