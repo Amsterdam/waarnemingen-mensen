@@ -4,8 +4,9 @@ VIEW_STRINGS = {
     'vw_cmsa_15min_v01_aggregate': r"""
       CREATE VIEW vw_cmsa_15min_v01_aggregate AS
         WITH startdate_per_flow AS (
-                        select min(timestamp_start::date) as startdate from public.telcameras_v2_observation   -- v2 data flow
-            union all   select min("timestamp"::date)     as startdate from public.telcameras_v3_observation   -- v3 data flow
+                        select min(timestamp_rounded::date) as startdate from public.peoplemeasurement_v1_data   -- v1 data flow
+            union all   select min(timestamp_start::date)   as startdate from public.telcameras_v2_observation   -- v2 data flow
+            union all   select min("timestamp"::date)       as startdate from public.telcameras_v3_observation   -- v3 data flow
         )   
         , period_of_time AS (
             select
@@ -30,7 +31,7 @@ VIEW_STRINGS = {
             from telcameras_v2_countaggregate
             where 1=1
             and left(external_id, 4) in ('GADM', 'GAMM')
-            and observation_timestamp_start::date > (select end_date from period_of_time)
+            and observation_timestamp_start::date >= (select end_date from period_of_time)
             group by external_id
         )
         , v2_selectie as (
@@ -46,8 +47,8 @@ VIEW_STRINGS = {
             left join v2_zone_sensor        as zs   on  left(o.sensor, 4) in ('GADM', 'GAMM')
                                                     and o.sensor = zs.sensor
             where 1=1
-            and o.timestamp_start::date >= (select start_date 	from period_of_time)
-            and o.timestamp_start::date <= (select end_date		from period_of_time) 
+            and o.timestamp_start::date >= (select start_date   from period_of_time)
+            and o.timestamp_start::date <= (select end_date     from period_of_time)
             and o.id in (
                 select
                   t.id
@@ -65,7 +66,7 @@ VIEW_STRINGS = {
                     ) as row_num
                     from telcameras_v2_observation
                     where 1=1
-                    and timestamp_start::date >= (select start_date	from period_of_time) 
+                    and timestamp_start::date >= (select start_date	from period_of_time)
                     and timestamp_start::date <= (select end_date	from period_of_time)
                 ) as t
                 where t.row_num = 1
@@ -198,8 +199,8 @@ VIEW_STRINGS = {
                         ) as row_num
                         from telcameras_v3_observation
                         where 1=1
-                        and timestamp::date >= (select start_date	from period_of_time)
-                        and timestamp::date <= (select end_date		from period_of_time)
+                        and timestamp::date >= (select start_date from period_of_time)
+                        and timestamp::date <= (select end_date   from period_of_time)
                     ) t
                     where t.row_num = 1
                 )
@@ -289,6 +290,9 @@ VIEW_STRINGS = {
             , density_avg
             , basedonxmessages
             from peoplemeasurement_v1_data
+            where 1=1
+            and timestamp_rounded::date >= (select period_of_time.start_date from period_of_time) -- only data for the given period
+            and timestamp_rounded::date <= (select period_of_time.end_date   from period_of_time) -- only data for the given period
             
             union all
             
@@ -432,7 +436,7 @@ VIEW_STRINGS = {
             select sensor
             from use_date
             left join continuousaggregate_cmsa15min	as ts on (
-                    ts.timestamp_rounded > use_date.use_date - '2 weeks'::interval    	
+                    ts.timestamp_rounded > use_date.use_date - '2 weeks'::interval
                 and ts.total_count > 0)
             where 1=1
             and sensor not like 'GVCV%'
@@ -460,20 +464,20 @@ VIEW_STRINGS = {
             , dsp.sensor
             , dsp.order_nr
             , percentile_cont(0.5) within group (order by coalesce(total_count, 0)) as count_mediaan -- Mediaan van de 8 (of minder als niet beschikbaar) waarde voor het betreffende tijdstip en weekdag nemen.
-            from date_serie_prediction_sensor 					            as dsp
-            left join continuousaggregate_cmsa15min	as ts 	on (
+            from date_serie_prediction_sensor       as dsp
+            left join continuousaggregate_cmsa15min	as ts   on (
                         dsp.sensor = ts.sensor
-                    and	extract(ISODOW from ts.timestamp_rounded) = dsp.weekdag								              -- Juiste dag van de week koppelen
-                    and ts.timestamp_rounded::time = dsp.tijd												                        -- Juiste tijd koppelen
-                    and	dsp.use_date_kw - '8 weeks'::interval - '2 days'::interval < ts.timestamp_rounded  	-- Zorgen date data van de afgelopen 8 weken wordt mee genomen,  
-                    and ts.timestamp_rounded <  dsp.use_date_kw - '2 days'::interval						            -- maar niet de dag waarvoor de voorspelling gemaakt wordt of de voorgaande dag
+                    and	extract(ISODOW from ts.timestamp_rounded) = dsp.weekdag                             -- Juiste dag van de week koppelen
+                    and ts.timestamp_rounded::time = dsp.tijd                                               -- Juiste tijd koppelen
+                    and	dsp.use_date_kw - '8 weeks'::interval - '2 days'::interval < ts.timestamp_rounded   -- Zorgen date data van de afgelopen 8 weken wordt mee genomen,
+                    and ts.timestamp_rounded <  dsp.use_date_kw - '2 days'::interval                        -- maar niet de dag waarvoor de voorspelling gemaakt wordt of de voorgaande dag
                     --and (dsp.sensor not in ('CMSA-GAWW-15', 'CMSA-GAWW-16') or ts.timestamp_rounded > '2021-04-09 00:00:00') --resetten van de sensor in not in list vanaf gegeven datum. Dit kan handig zijn bij grote veranderingen
                     --and (dsp.sensor not in ('CMSA-GAWW-17', 'CMSA-GAWW-19') or ts.timestamp_rounded > '2021-04-02 00:00:00') --resetten van de sensor in not in list vanaf gegeven datum. Dit kan handig zijn bij grote veranderingen
             )
             group by
               use_date_kw
             , order_nr
-            , dsp.sensor 
+            , dsp.sensor
         )
         
         /*
@@ -485,9 +489,9 @@ VIEW_STRINGS = {
             select
               use_date_kw
             , sensor
-            , order_nr		
+            , order_nr
             , count_mediaan
-            ,     0.5 * count_mediaan 
+            ,     0.5 * count_mediaan
                 + 0.25 * (LAG(count_mediaan,1,null) OVER (PARTITION by sensor order by order_nr) + LEAD(count_mediaan,1,null) OVER (PARTITION by sensor order by order_nr)) as count_mediaan_glad	--maken glade median op basis van 0.25 voorgaan en volgende. 0.5 * huidige
             from prediction_historical_curve
         )
@@ -507,15 +511,15 @@ VIEW_STRINGS = {
             , case
                 when time_curve.count_mediaan > 0 and rt.total_count > 0  then -- als of de mediaan of de total count niet bestaat is de ophoogfactor 1
                     case
-                        when rt.total_count/time_curve.count_mediaan > 4 then 4			
+                        when rt.total_count/time_curve.count_mediaan > 4 then 4
                         else rt.total_count/time_curve.count_mediaan
                     end
-                else 1		--maak de ophoogfactor 1 de total_count null is																
+                else 1  --maak de ophoogfactor 1 de total_count null is
               end as ophoog_fact_kw
             , rt.total_count
-            from prediction_historical_curve_ruff_smooth				as time_curve
-            left join continuousaggregate_cmsa15min	  as rt			      on  time_curve.sensor = rt.sensor
-                                                                                and time_curve.use_date_kw = rt.timestamp_rounded
+            from prediction_historical_curve_ruff_smooth  as time_curve
+            left join continuousaggregate_cmsa15min       as rt           on  time_curve.sensor = rt.sensor
+                                                                          and time_curve.use_date_kw = rt.timestamp_rounded
             order by
               time_curve.sensor
             , time_curve.use_date_kw
@@ -544,7 +548,7 @@ VIEW_STRINGS = {
                 when order_nr = 10	then 0.149 * ophoog_fact_kw
                 when order_nr = 11	then 0.215 * ophoog_fact_kw
                 when order_nr = 12	then 0.311 * ophoog_fact_kw
-            end as ophoogfactor_kw_frac		
+            end as ophoogfactor_kw_frac
             from curve_and_realtime
         )
         
@@ -564,15 +568,15 @@ VIEW_STRINGS = {
         * Variable de juist naam geven
         */
         select
-          op_sen.sensor									as sensor
-        , curve.use_date_kw								as timestamp_rounded
-        , round(count_mediaan_glad * ophoogfactor)		as prediction
-        from ophoogfactor_sensor		as op_sen 
-        left join curve_and_realtime	as curve 	on op_sen.sensor = curve.sensor
+          op_sen.sensor                   as sensor
+        , curve.use_date_kw               as timestamp_rounded
+        , round(count_mediaan_glad * ophoogfactor)    as prediction
+        from ophoogfactor_sensor      as op_sen 
+        left join curve_and_realtime  as curve  on op_sen.sensor = curve.sensor
         where 1=1
         and 12 < order_nr 
         and order_nr < 21
-        order by 
+        order by
           sensor
         , timestamp_rounded
         ;
@@ -581,41 +585,109 @@ VIEW_STRINGS = {
     'vw_cmsa_15min_v01_realtime_predict': r"""
       CREATE VIEW vw_cmsa_15min_v01_realtime_predict AS
 
+        with use_date as (
+            select now() - interval '00:02:30' as use_date -- Let op dat dit inteval korter is dan de wachttijd die gebruikt wordt na het afsluiten van het kwartier
+        )
+    
+        , use_date_kw as (
+            select date_trunc('hour', use_date) + interval  '15 minute' * floor(extract(minute from (use_date))/15)  as use_date_kw_0
+            from use_date
+        )
+    
         select
-          rt.sensor
-        , rt.timestamp_rounded
-        , case
-            when pdt.prediction is not null then pdt.prediction
-            else rt.total_count
-          end                     as total_count
-        , pdt.prediction          as total_count_forecast
-        , rt.count_down
-        , rt.count_up
-        , rt.density_avg
-        , rt.basedonxmessages
-        , rt.total_count_p10
-        , rt.total_count_p20
-        , rt.total_count_p50
-        , rt.total_count_p80
-        , rt.total_count_p90
-        , rt.count_down_p10
-        , rt.count_down_p20
-        , rt.count_down_p50
-        , rt.count_down_p80
-        , rt.count_down_p90
-        , rt.count_up_p10
-        , rt.count_up_p20
-        , rt.count_up_p50
-        , rt.count_up_p80
-        , rt.count_up_p90
-        , rt.density_avg_p20
-        , rt.density_avg_p50
-        , rt.density_avg_p80
-        from continuousaggregate_cmsa15min    as rt 
-        left join vw_cmsa_15min_v01_predict			       as pdt   on  rt.sensor = pdt.sensor
-                                                                and rt.timestamp_rounded = pdt.timestamp_rounded
-                                                                and pdt.timestamp_rounded >= (now() - '00:18:00'::interval)
-      ;
+          sensor
+        , timestamp_rounded
+        , case 
+            when total_count_forecast is not null then total_count_forecast
+            else total_count
+          end       as total_count
+        , total_count_forecast
+        , count_down
+        , count_up
+        , density_avg
+        , basedonxmessages
+        , total_count_p10
+        , total_count_p20
+        , total_count_p50
+        , total_count_p80
+        , total_count_p90
+        , count_down_p10
+        , count_down_p20
+        , count_down_p50
+        , count_down_p80
+        , count_down_p90
+        , count_up_p10
+        , count_up_p20
+        , count_up_p50
+        , count_up_p80
+        , count_up_p90
+        , density_avg_p20
+        , density_avg_p50
+        , density_avg_p80
+        from (
+            select
+              rt.sensor
+            , rt.timestamp_rounded
+            , null as total_count_forecast
+            , rt.total_count
+            , rt.count_down
+            , rt.count_up
+            , rt.density_avg
+            , rt.basedonxmessages
+            , rt.total_count_p10
+            , rt.total_count_p20
+            , rt.total_count_p50
+            , rt.total_count_p80
+            , rt.total_count_p90
+            , rt.count_down_p10
+            , rt.count_down_p20
+            , rt.count_down_p50
+            , rt.count_down_p80
+            , rt.count_down_p90
+            , rt.count_up_p10
+            , rt.count_up_p20
+            , rt.count_up_p50
+            , rt.count_up_p80
+            , rt.count_up_p90
+            , rt.density_avg_p20
+            , rt.density_avg_p50
+            , rt.density_avg_p80
+            from continuousaggregate_cmsa15min    as rt
+            where 1=1
+            and rt.timestamp_rounded < (select use_date_kw_0 from use_date_kw)
+            
+            union all 
+            
+            select
+              sensor
+            , timestamp_rounded
+            , prediction            as total_count_forecast
+            , null as total_count
+            , null as count_down
+            , null as count_up
+            , null as density_avg
+            , null as basedonxmessages
+            , null as total_count_p10
+            , null as total_count_p20
+            , null as total_count_p50
+            , null as total_count_p80
+            , null as total_count_p90
+            , null as count_down_p10
+            , null as count_down_p20
+            , null as count_down_p50
+            , null as count_down_p80
+            , null as count_down_p90
+            , null as count_up_p10
+            , null as count_up_p20
+            , null as count_up_p50
+            , null as count_up_p80
+            , null as count_up_p90
+            , null as density_avg_p20
+            , null as density_avg_p50
+            , null as density_avg_p80
+            from vw_cmsa_15min_v01_predict
+        ) sq
+        ;
     """,
     
 }
