@@ -976,10 +976,12 @@ $procedure$
             sql=_predict_view_strings['sql'],
             reverse_sql=_predict_view_strings['reverse_sql']
         ),
-
         migrations.RunSQL(
             sql=_predict_view_strings['sql_materialized'],
             reverse_sql=_predict_view_strings['reverse_sql_materialized']
+        ),
+        migrations.RunSQL(
+            sql=_predict_view_strings['indexes'][0]
         ),
 
         migrations.RunSQL(
