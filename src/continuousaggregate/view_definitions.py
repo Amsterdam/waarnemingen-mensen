@@ -685,7 +685,7 @@ VIEW_STRINGS = {
             , null as density_avg_p20
             , null as density_avg_p50
             , null as density_avg_p80
-            from vw_cmsa_15min_v01_predict
+            from vw_cmsa_15min_v01_predict_materialized
         ) sq
         ;
     """,
@@ -709,7 +709,30 @@ def get_view_strings(view_strings, view_name, indexes=None):
 
     reverse_sql = f"DROP VIEW IF EXISTS {view_name};"
 
+    sql_materialized = f"""
+        CREATE MATERIALIZED VIEW {view_name}_materialized AS
+        SELECT * FROM {view_name};
+        """
+
+    reverse_sql_materialized = f"DROP MATERIALIZED VIEW IF EXISTS {view_name}_materialized;"
+
+    index_definitions = []
+    if indexes:
+        for index in indexes:
+            if not isinstance(index, tuple):
+                error_message = "Indexes should be defined as indexes=[('sensor', 'timestamp_rounded'), ('timestamp')]"
+                raise WrongIndexException(error_message)
+
+            index_definition = f"""
+                CREATE UNIQUE INDEX {view_name}_materialized_{"_".join(index)}_idx 
+                ON public.{view_name}_materialized USING btree ({", ".join(index)});
+                """
+            index_definitions.append(index_definition)
+
     return {
         'sql': view_strings[view_name],
-        'reverse_sql': reverse_sql
+        'reverse_sql': reverse_sql,
+        'sql_materialized': sql_materialized,
+        'reverse_sql_materialized': reverse_sql_materialized,
+        'indexes': index_definitions
     }

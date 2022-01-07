@@ -935,7 +935,7 @@ $procedure$
     _view_strings = get_view_strings(VIEW_STRINGS, _VIEW_NAME, indexes=[('sensor', 'timestamp_rounded')])
 
     _PREDICT_VIEW_NAME = "vw_cmsa_15min_v01_predict"
-    _predict_view_strings = get_view_strings(VIEW_STRINGS, _PREDICT_VIEW_NAME)
+    _predict_view_strings = get_view_strings(VIEW_STRINGS, _PREDICT_VIEW_NAME, indexes=[('sensor', 'timestamp_rounded')])
 
     _REALTIME_PREDICT_VIEW_NAME = "vw_cmsa_15min_v01_realtime_predict"
     _realtime_predict_view_strings = get_view_strings(VIEW_STRINGS, _REALTIME_PREDICT_VIEW_NAME)
@@ -975,6 +975,13 @@ $procedure$
         migrations.RunSQL(
             sql=_predict_view_strings['sql'],
             reverse_sql=_predict_view_strings['reverse_sql']
+        ),
+        migrations.RunSQL(
+            sql=_predict_view_strings['sql_materialized'],
+            reverse_sql=_predict_view_strings['reverse_sql_materialized']
+        ),
+        migrations.RunSQL(
+            sql=_predict_view_strings['indexes'][0]
         ),
 
         migrations.RunSQL(
