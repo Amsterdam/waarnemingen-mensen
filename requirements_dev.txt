@@ -68,18 +68,6 @@ diff-match-patch==20200713
     # via
     #   -r ./requirements.txt
     #   django-import-export
-django-datetime-utc==1.0.3
-    # via -r ./requirements.txt
-django-debug-toolbar==3.2.4
-    # via -r ./requirements.txt
-django-extensions==3.1.5
-    # via -r ./requirements.txt
-django-filter==21.1
-    # via -r ./requirements.txt
-django-import-export==2.7.1
-    # via -r ./requirements.txt
-django-leaflet==0.28.2
-    # via -r ./requirements.txt
 django==3.2.11
     # via
     #   -r ./requirements.txt
@@ -94,6 +82,27 @@ django==3.2.11
     #   djangorestframework
     #   drf-yasg
     #   model-bakery
+django-datetime-utc==1.0.3
+    # via -r ./requirements.txt
+django-debug-toolbar==3.2.4
+    # via -r ./requirements.txt
+django-extensions==3.1.5
+    # via -r ./requirements.txt
+django-filter==21.1
+    # via -r ./requirements.txt
+django-import-export==2.7.1
+    # via -r ./requirements.txt
+django-leaflet==0.28.2
+    # via -r ./requirements.txt
+djangorestframework==3.13.1
+    # via
+    #   -r ./requirements.txt
+    #   datapunt-data-ingress
+    #   djangorestframework-csv
+    #   djangorestframework-gis
+    #   drf-amsterdam
+    #   drf-extensions
+    #   drf-yasg
 djangorestframework-csv==2.1.1
     # via
     #   -r ./requirements.txt
@@ -104,15 +113,6 @@ djangorestframework-xml==2.0.0
     # via
     #   -r ./requirements.txt
     #   drf-amsterdam
-djangorestframework==3.13.1
-    # via
-    #   -r ./requirements.txt
-    #   datapunt-data-ingress
-    #   djangorestframework-csv
-    #   djangorestframework-gis
-    #   drf-amsterdam
-    #   drf-extensions
-    #   drf-yasg
 drf-amsterdam==0.4.1
     # via -r ./requirements.txt
 drf-extensions==0.7.1
@@ -131,15 +131,15 @@ factory-boy==3.2.1
     #   pytest-factoryboy
 faker==11.3.0
     # via factory-boy
-flask-basicauth==0.2.0
-    # via locust
-flask-cors==3.0.10
-    # via locust
 flask==2.0.2
     # via
     #   flask-basicauth
     #   flask-cors
     #   locust
+flask-basicauth==0.2.0
+    # via locust
+flask-cors==3.0.10
+    # via locust
 gevent==21.12.0
     # via
     #   geventhttpclient
@@ -159,7 +159,7 @@ inflection==0.5.1
     #   pytest-factoryboy
 iniconfig==1.1.1
     # via pytest
-ipython==7.31.0
+ipython==7.31.1
     # via -r requirements_dev.in
 itsdangerous==2.0.1
     # via flask
@@ -239,18 +239,18 @@ pyparsing==3.0.6
     # via
     #   -r ./requirements.txt
     #   packaging
-pytest-cov==3.0.0
-    # via -r requirements_dev.in
-pytest-django==4.5.2
-    # via -r requirements_dev.in
-pytest-factoryboy==2.1.0
-    # via -r requirements_dev.in
 pytest==6.2.5
     # via
     #   -r requirements_dev.in
     #   pytest-cov
     #   pytest-django
     #   pytest-factoryboy
+pytest-cov==3.0.0
+    # via -r requirements_dev.in
+pytest-django==4.5.2
+    # via -r requirements_dev.in
+pytest-factoryboy==2.1.0
+    # via -r requirements_dev.in
 python-dateutil==2.8.2
     # via
     #   -r ./requirements.txt
@@ -276,14 +276,14 @@ requests==2.27.1
     #   locust
 roundrobin==0.0.2
     # via locust
-ruamel.yaml.clib==0.2.6
-    # via
-    #   -r ./requirements.txt
-    #   ruamel.yaml
 ruamel.yaml==0.17.20
     # via
     #   -r ./requirements.txt
     #   drf-yasg
+ruamel.yaml.clib==0.2.6
+    # via
+    #   -r ./requirements.txt
+    #   ruamel.yaml
 sentry-sdk==1.5.1
     # via -r ./requirements.txt
 six==1.16.0
