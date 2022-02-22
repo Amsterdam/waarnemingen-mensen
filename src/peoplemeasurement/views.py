@@ -31,7 +31,35 @@ class Today15minAggregationViewSet(mixins.ListModelMixin, viewsets.GenericViewSe
 
     def list(self, request, *args, **kwargs):
         with connection.cursor() as cursor:
-            cursor.execute("SELECT * FROM cmsa_15min_view_v10_realtime_predict WHERE timestamp_rounded > (NOW() - '1 day'::INTERVAL);")
+            cursor.execute("""
+                SELECT sensor,
+                    timestamp_rounded,
+                    total_count,
+                    count_down,
+                    count_up,
+                    density_avg,
+                    basedonxmessages,
+                    total_count_p10,
+                    total_count_p20,
+                    total_count_p50,
+                    total_count_p80,
+                    total_count_p90,
+                    count_down_p10,
+                    count_down_p20,
+                    count_down_p50,
+                    count_down_p80,
+                    count_down_p90,
+                    count_up_p10,
+                    count_up_p20,
+                    count_up_p50,
+                    count_up_p80,
+                    count_up_p90,
+                    density_avg_p20,
+                    density_avg_p50,
+                    density_avg_p80
+                FROM continuousaggregate_cmsa15min
+                WHERE timestamp_rounded > (NOW() - '1 day'::INTERVAL);
+                """)
             queryset = self.dictfetchall(cursor)
         serializer = serializers.Today15minAggregationSerializer(queryset, many=True)
         return Response(serializer.data)
