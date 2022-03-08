@@ -6,9 +6,9 @@ import pytz
 from django.conf import settings
 from django.contrib.gis.geos import LineString, Polygon
 from ingress.models import Collection
-from rest_framework.test import APITestCase
 
 from peoplemeasurement.models import Area, Line, Sensors, Servicelevel
+from rest_framework.test import APITestCase, APITransactionTestCase
 from telcameras_v2.ingress_parser import TelcameraParser
 from tests.test_telcameras_v2_ingress import TEST_POST
 from tests.tools_for_testing import call_man_command
@@ -34,7 +34,7 @@ def create_new_v2_json(timestamp_str="2019-06-21T10:35:46+02:00"):
     return json.dumps(test_post)
 
 
-class PeopleMeasurementTestGetV1(APITestCase):
+class PeopleMeasurementTestGetV1(APITransactionTestCase):
 
     def setUp(self):
         self.URL = '/telcameras/v1/15minaggregate/'
@@ -99,9 +99,8 @@ class PeopleMeasurementTestGetV1(APITestCase):
         parser = TelcameraParser()
         parser.consume(end_at_empty_queue=True)
 
-        # Refresh the materialized views because the query in the endpoint depends on them
-        call_man_command('refresh_materialized_view', 'cmsa_15min_view_v10_materialized')
-        call_man_command('refresh_materialized_view', 'cmsa_15min_view_v10_realtime_materialized')
+        # Complete aggregate because the query in the endpoint depends on it
+        call_man_command('complete_aggregate', 'continuousaggregate_cmsa15min')
 
         # test whether the endpoint responds correctly
         response = self.client.get(self.URL, **GET_AUTHORIZATION_HEADER)
