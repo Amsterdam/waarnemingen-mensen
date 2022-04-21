@@ -19,3 +19,13 @@ datapunt-data-ingress
 datapunt-authorization-django
 django-import-export
 django-leaflet
+
+# hotfix for Jinja version mismatch
+# see https://github.com/locustio/locust/issues/2061
+#
+# There are incompatible versions in the resolved dependencies:
+#  jinja2==3.1.1 (from -r ./requirements.txt (line 93))
+#  Jinja2<3.1.0 (from locust==2.8.6->-r requirements_dev.in (line 13))
+#  jinja2 (from coreschema==0.0.4->-r ./requirements.txt (line 19))
+jinja2<3.1.0
+
