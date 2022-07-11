@@ -90,7 +90,7 @@ django-datetime-utc==1.0.3
     # via -r ./requirements.txt
 django-debug-toolbar==3.5.0
     # via -r ./requirements.txt
-django-extensions==3.1.5
+django-extensions==3.2.0
     # via -r ./requirements.txt
 django-filter==22.1
     # via -r ./requirements.txt
@@ -135,7 +135,7 @@ factory-boy==3.2.1
     # via
     #   -r requirements_dev.in
     #   pytest-factoryboy
-faker==13.14.0
+faker==13.15.0
     # via factory-boy
 flask==2.1.2
     # via
@@ -341,7 +341,7 @@ uritemplate==4.1.1
     #   -r ./requirements.txt
     #   coreapi
     #   drf-yasg
-urllib3==1.26.9
+urllib3==1.26.10
     # via
     #   -r ./requirements.txt
     #   requests
