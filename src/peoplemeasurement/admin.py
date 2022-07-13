@@ -1,10 +1,9 @@
+from django.contrib.gis.geos.error import GEOSException
 from django import forms
 from django.contrib import admin
 from django.contrib.gis.db import models as geomodels
-from django.contrib.gis.geos import Point
-from django.forms.widgets import TextInput
+from django.contrib.gis.geos import Point, Polygon
 from import_export.admin import ImportExportModelAdmin
-from import_export.fields import Field
 from import_export.resources import ModelResource
 from import_export.tmp_storages import CacheStorage
 from leaflet.admin import LeafletGeoAdminMixin
@@ -119,10 +118,56 @@ class ServicelevelAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     tmp_storage_class = CacheStorage
 
 
+class AreaForm(forms.ModelForm):
+    geom_json_input = forms.JSONField()
+
+    def save(self, commit=True):
+        geom_json_input = self.cleaned_data.get('geom_json_input', None)
+        if geom_json_input:
+            # There is json input, so we overwrite all fields with the info from the json
+            try:
+                instance = super(AreaForm, self).save(commit=commit)
+                sensor_objectnummer = geom_json_input['sensor']
+                instance.sensor = Sensors.objects.filter(objectnummer=sensor_objectnummer)[0]
+                # TODO: catch error if sensor does not exist
+                instance.name = geom_json_input['areas']['area_id']
+                instance.area = geom_json_input['areas']['area']
+                geom_points = geom_json_input['areas']['points']
+                instance.geom = Polygon([(coordinate['longitude'], coordinate['latitude']) for coordinate in geom_points])
+                # TODO: Catch error if points don't form a closed loop (if the last coordinates are not the same as the first one) django.contrib.gis.geos.error.GEOSException
+                if commit:
+                    instance.save()
+            except GEOSException as e:
+                return "a message that it's not a closed loop"
+            except Exception as e:
+                # TODO: log something here. Maybe give feedback in the UI?
+                raise e
+
+            return instance
+
+    class Meta:
+        model = Area
+        fields = '__all__'
+
+
 @admin.register(Area)
 class AreaAdmin(LeafletGeoAdminMixin, admin.ModelAdmin):
-    list_display = ['name', 'sensor', 'geom', 'area']
+    form = AreaForm
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'sensor', 'area', 'geom', 'geom_json_input'),
+        }),
+    )
+
+    list_display = ['name', 'sensor', 'area']
     tmp_storage_class = CacheStorage
+
+    # TODO:
+    # - Maak json input niet required
+    # - Haal "null" weg uit geom json input field
+    # - Show leaflet ding zonder er dingen in op te kunnen slaan
+    # - Give instructions in UI that json overwrites data in input fields
+
 
 
 @admin.register(Line)
