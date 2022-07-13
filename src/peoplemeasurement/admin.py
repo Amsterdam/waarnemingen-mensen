@@ -1,8 +1,7 @@
-from django.contrib.gis.geos.error import GEOSException
 from django import forms
 from django.contrib import admin
 from django.contrib.gis.db import models as geomodels
-from django.contrib.gis.geos import Point, Polygon
+from django.contrib.gis.geos import LineString, Point, Polygon
 from import_export.admin import ImportExportModelAdmin
 from import_export.resources import ModelResource
 from import_export.tmp_storages import CacheStorage
@@ -121,29 +120,32 @@ class ServicelevelAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     tmp_storage_class = CacheStorage
 
 
+# TODO: Move the forms to a separate forms.py
 class AreaForm(forms.ModelForm):
-    geom_json_input = forms.JSONField(required=False)
+    json_input = forms.JSONField(required=False)
 
     def clean(self):
-        cleaned_data = super(AreaForm, self).clean()
+        cleaned_data = super().clean()
 
         # TODO: Use a serializer to do this properly
         # TODO: Also raise a ValidationError if it's a new object and no json is inserted (this is not possible, since the area points can only be inserted using the json).
-        geom_json_input = cleaned_data.get('geom_json_input')
-        if geom_json_input:
-            if not geom_json_input.get('sensor'):
-                raise forms.ValidationError("Sensor missing in json")
-            if Sensors.objects.filter(objectnummer=geom_json_input['sensor']).count() == 0:
-                raise forms.ValidationError(f"Sensor with objectnummer '{geom_json_input['sensor']}' does not exist.")
-            if not geom_json_input.get('areas'):
-                raise forms.ValidationError("Sensor missing in json")
-            if not geom_json_input['areas'].get('area_id'):
-                raise forms.ValidationError("area_id")
-            if not geom_json_input['areas'].get('area'):
-                raise forms.ValidationError("area")
-            if not geom_json_input['areas'].get('points'):
-                raise forms.ValidationError("points")
-            points = geom_json_input['areas']['points']
+        json_input = cleaned_data.get('json_input')
+        if json_input:
+            # Check keys
+            for k in ('sensor', 'areas'):
+                if not json_input.get(k):
+                    raise forms.ValidationError(f"{k} missing in json")
+            for k in ('area_id', 'area', 'points'):
+                if not json_input['areas'].get('area_id'):
+                    raise forms.ValidationError(f"{k} missing in json")
+
+            # Check if sensor exists
+            # TODO: move this to the model
+            if Sensors.objects.filter(objectnummer=json_input['sensor']).count() == 0:
+                raise forms.ValidationError(f"Sensor with objectnummer '{json_input['sensor']}' does not exist.")
+
+            # Check points
+            points = json_input['areas']['points']
             if len(points) <= 3:  # The last point should be the same as the first point, and we need at least a triangle to have an area
                 raise forms.ValidationError("Not enough points")
             if points[0] != points[-1]:
@@ -152,15 +154,15 @@ class AreaForm(forms.ModelForm):
         return cleaned_data
 
     def save(self, commit=True):
-        instance = super(AreaForm, self).save(commit=commit)
-        geom_json_input = self.cleaned_data.get('geom_json_input', None)
-        if geom_json_input and geom_json_input != 'null':
+        instance = super().save(commit=commit)
+        json_input = self.cleaned_data.get('json_input', None)
+        if json_input and json_input != 'null':
             # There is json input, so we overwrite all fields with the info from the json
-            sensor_objectnummer = geom_json_input['sensor']
+            sensor_objectnummer = json_input['sensor']
             instance.sensor = Sensors.objects.filter(objectnummer=sensor_objectnummer)[0]
-            instance.name = geom_json_input['areas']['area_id']
-            instance.area = geom_json_input['areas']['area']
-            geom_points = geom_json_input['areas']['points']
+            instance.name = json_input['areas']['area_id']
+            instance.area = json_input['areas']['area']
+            geom_points = json_input['areas']['points']
             instance.geom = Polygon([(coordinate['longitude'], coordinate['latitude']) for coordinate in geom_points])
             if commit:
                 instance.save()
@@ -174,31 +176,80 @@ class AreaForm(forms.ModelForm):
 
 @admin.register(Area)
 class AreaAdmin(LeafletGeoAdminMixin, admin.ModelAdmin):
+    list_display = ['name', 'sensor', 'area', 'geom']
+    tmp_storage_class = CacheStorage
+
     modifiable = False  # Make the leaflet map read-only
     form = AreaForm
     fieldsets = (
         (None, {
-            'fields': ('name', 'sensor', 'area', 'geom', 'geom_json_input'),
+            'fields': ('name', 'sensor', 'area', 'geom', 'json_input'),
             'description': f'<h1><b>{JSON_INPUT_HELP_TEXT}</b></h1>',
         }),
     )
 
-    list_display = ['name', 'sensor', 'area']
-    tmp_storage_class = CacheStorage
 
-    # TODO:
-    # - Test
-    #     - add info using json
-    #     - edit other details in the text input fields
-    #     - add no json and no input => error
-    #     - add malformed json
-    #     - add points which do not form a closed loop
+class LineForm(forms.ModelForm):
+    json_input = forms.JSONField(required=False)
 
+    def clean(self):
+        cleaned_data = super().clean()
 
+        # TODO: Use a serializer to do this properly
+        # TODO: Also raise a ValidationError if it's a new object and no json is inserted (this is not possible, since the area points can only be inserted using the json).
+        json_input = cleaned_data.get('json_input')
+        if json_input:
+            # Check keys
+            for k in ('sensor', 'lines'):
+                if not json_input.get(k):
+                    raise forms.ValidationError(f"{k} missing in json")
+            for k in ('line_id', 'azimuth', 'points'):
+                if not json_input['lines'].get(k):
+                    raise forms.ValidationError(f"{k} missing in json")
 
+            # Check if sensor exists
+            # TODO: move this to the model
+            if Sensors.objects.filter(objectnummer=json_input['sensor']).count() == 0:
+                raise forms.ValidationError(f"Sensor with objectnummer '{json_input['sensor']}' does not exist.")
+
+            # Check points
+            points = json_input['lines']['points']
+            if len(points) < 2:
+                raise forms.ValidationError("We need at least two points")
+
+        return cleaned_data
+
+    def save(self, commit=True):
+        instance = super().save(commit=commit)
+        json_input = self.cleaned_data.get('json_input', None)
+        if json_input:
+            # There is json input, so we overwrite all fields with the info from the json
+            sensor_objectnummer = json_input['sensor']
+            instance.sensor = Sensors.objects.filter(objectnummer=sensor_objectnummer)[0]
+            instance.name = json_input['lines']['line_id']
+            instance.azimuth = json_input['lines']['azimuth']
+            geom_points = json_input['lines']['points']
+            instance.geom = LineString([(coordinate['longitude'], coordinate['latitude']) for coordinate in geom_points])
+            if commit:
+                instance.save()
+
+        return instance
+
+    class Meta:
+        model = Area
+        fields = '__all__'
 
 
 @admin.register(Line)
 class LineAdmin(LeafletGeoAdminMixin, admin.ModelAdmin):
-    list_display = ['name', 'sensor', 'geom', 'azimuth']
+    list_display = ['name', 'sensor', 'azimuth', 'geom']
     tmp_storage_class = CacheStorage
+
+    modifiable = False  # Make the leaflet map read-only
+    form = LineForm
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'sensor', 'azimuth', 'geom', 'json_input'),
+            'description': f'<h1><b>{JSON_INPUT_HELP_TEXT}</b></h1>',
+        }),
+    )

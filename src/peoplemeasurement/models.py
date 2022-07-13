@@ -67,10 +67,10 @@ class Area(models.Model):
 
 
 class Line(models.Model):
-    sensor = models.ForeignKey('Sensors', related_name='lines', on_delete=models.CASCADE)
-    name = models.CharField(max_length=255, unique=True)  # Naam van de tellijn
-    geom = models.LineStringField()  # Lijn die de tellijn definieert
-    azimuth = models.FloatField()  # Azimuth van de looprichting van de passage
+    sensor = models.ForeignKey('Sensors', related_name='lines', on_delete=models.CASCADE, blank=True)
+    name = models.CharField(max_length=255, unique=True, blank=True)  # Naam van de tellijn
+    geom = models.LineStringField(blank=True)  # Lijn die de tellijn definieert
+    azimuth = models.FloatField(blank=True)  # Azimuth van de looprichting van de passage
 
     class Meta:
         unique_together = ('sensor', 'name',)
