@@ -10,6 +10,9 @@ from leaflet.admin import LeafletGeoAdminMixin
 
 from peoplemeasurement.models import Area, Line, Sensors, Servicelevel
 
+JSON_INPUT_HELP_TEXT = "Adding json overwrites all manually input fields. " \
+                       "The geom can only be inserted using the json."
+
 
 class LatLongWidget(forms.MultiWidget):
     """
@@ -119,31 +122,50 @@ class ServicelevelAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 
 
 class AreaForm(forms.ModelForm):
-    geom_json_input = forms.JSONField()
+    geom_json_input = forms.JSONField(required=False)
+
+    def clean(self):
+        cleaned_data = super(AreaForm, self).clean()
+
+        # TODO: Use a serializer to do this properly
+        # TODO: Also raise a ValidationError if it's a new object and no json is inserted (this is not possible, since the area points can only be inserted using the json).
+        geom_json_input = cleaned_data.get('geom_json_input')
+        if geom_json_input:
+            if not geom_json_input.get('sensor'):
+                raise forms.ValidationError("Sensor missing in json")
+            if Sensors.objects.filter(objectnummer=geom_json_input['sensor']).count() == 0:
+                raise forms.ValidationError(f"Sensor with objectnummer '{geom_json_input['sensor']}' does not exist.")
+            if not geom_json_input.get('areas'):
+                raise forms.ValidationError("Sensor missing in json")
+            if not geom_json_input['areas'].get('area_id'):
+                raise forms.ValidationError("area_id")
+            if not geom_json_input['areas'].get('area'):
+                raise forms.ValidationError("area")
+            if not geom_json_input['areas'].get('points'):
+                raise forms.ValidationError("points")
+            points = geom_json_input['areas']['points']
+            if len(points) <= 3:  # The last point should be the same as the first point, and we need at least a triangle to have an area
+                raise forms.ValidationError("Not enough points")
+            if points[0] != points[-1]:
+                raise forms.ValidationError("The geom points in the json do not form a closed loop.")
+
+        return cleaned_data
 
     def save(self, commit=True):
+        instance = super(AreaForm, self).save(commit=commit)
         geom_json_input = self.cleaned_data.get('geom_json_input', None)
-        if geom_json_input:
+        if geom_json_input and geom_json_input != 'null':
             # There is json input, so we overwrite all fields with the info from the json
-            try:
-                instance = super(AreaForm, self).save(commit=commit)
-                sensor_objectnummer = geom_json_input['sensor']
-                instance.sensor = Sensors.objects.filter(objectnummer=sensor_objectnummer)[0]
-                # TODO: catch error if sensor does not exist
-                instance.name = geom_json_input['areas']['area_id']
-                instance.area = geom_json_input['areas']['area']
-                geom_points = geom_json_input['areas']['points']
-                instance.geom = Polygon([(coordinate['longitude'], coordinate['latitude']) for coordinate in geom_points])
-                # TODO: Catch error if points don't form a closed loop (if the last coordinates are not the same as the first one) django.contrib.gis.geos.error.GEOSException
-                if commit:
-                    instance.save()
-            except GEOSException as e:
-                return "a message that it's not a closed loop"
-            except Exception as e:
-                # TODO: log something here. Maybe give feedback in the UI?
-                raise e
+            sensor_objectnummer = geom_json_input['sensor']
+            instance.sensor = Sensors.objects.filter(objectnummer=sensor_objectnummer)[0]
+            instance.name = geom_json_input['areas']['area_id']
+            instance.area = geom_json_input['areas']['area']
+            geom_points = geom_json_input['areas']['points']
+            instance.geom = Polygon([(coordinate['longitude'], coordinate['latitude']) for coordinate in geom_points])
+            if commit:
+                instance.save()
 
-            return instance
+        return instance
 
     class Meta:
         model = Area
@@ -152,10 +174,12 @@ class AreaForm(forms.ModelForm):
 
 @admin.register(Area)
 class AreaAdmin(LeafletGeoAdminMixin, admin.ModelAdmin):
+    modifiable = False  # Make the leaflet map read-only
     form = AreaForm
     fieldsets = (
         (None, {
             'fields': ('name', 'sensor', 'area', 'geom', 'geom_json_input'),
+            'description': f'<h1><b>{JSON_INPUT_HELP_TEXT}</b></h1>',
         }),
     )
 
@@ -163,10 +187,14 @@ class AreaAdmin(LeafletGeoAdminMixin, admin.ModelAdmin):
     tmp_storage_class = CacheStorage
 
     # TODO:
-    # - Maak json input niet required
-    # - Haal "null" weg uit geom json input field
-    # - Show leaflet ding zonder er dingen in op te kunnen slaan
-    # - Give instructions in UI that json overwrites data in input fields
+    # - Test
+    #     - add info using json
+    #     - edit other details in the text input fields
+    #     - add no json and no input => error
+    #     - add malformed json
+    #     - add points which do not form a closed loop
+
+
 
 
 
