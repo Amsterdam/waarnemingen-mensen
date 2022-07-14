@@ -2,14 +2,16 @@ from django import forms
 from django.contrib import admin
 from django.contrib.gis.db import models as geomodels
 from django.contrib.gis.geos import Point
-from django.forms.widgets import TextInput
 from import_export.admin import ImportExportModelAdmin
-from import_export.fields import Field
 from import_export.resources import ModelResource
 from import_export.tmp_storages import CacheStorage
 from leaflet.admin import LeafletGeoAdminMixin
 
+from peoplemeasurement.forms import AreaForm, LineForm
 from peoplemeasurement.models import Area, Line, Sensors, Servicelevel
+
+JSON_INPUT_HELP_TEXT = "Adding json overwrites all manually input fields. " \
+                       "The geom can only be inserted using the json."
 
 
 class LatLongWidget(forms.MultiWidget):
@@ -121,11 +123,29 @@ class ServicelevelAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 
 @admin.register(Area)
 class AreaAdmin(LeafletGeoAdminMixin, admin.ModelAdmin):
-    list_display = ['name', 'sensor', 'geom', 'area']
+    list_display = ['name', 'sensor', 'area', 'geom']
     tmp_storage_class = CacheStorage
+
+    modifiable = False  # Make the leaflet map read-only
+    form = AreaForm
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'sensor', 'area', 'geom', 'json_input'),
+            'description': f'<h1><b>{JSON_INPUT_HELP_TEXT}</b></h1>',
+        }),
+    )
 
 
 @admin.register(Line)
 class LineAdmin(LeafletGeoAdminMixin, admin.ModelAdmin):
-    list_display = ['name', 'sensor', 'geom', 'azimuth']
+    list_display = ['name', 'sensor', 'azimuth', 'geom']
     tmp_storage_class = CacheStorage
+
+    modifiable = False  # Make the leaflet map read-only
+    form = LineForm
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'sensor', 'azimuth', 'geom', 'json_input'),
+            'description': f'<h1><b>{JSON_INPUT_HELP_TEXT}</b></h1>',
+        }),
+    )
