@@ -41,13 +41,32 @@ class ServicelevelSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class AreaSerializer(serializers.ModelSerializer):
+class GeoSerializer(serializers.ModelSerializer):
+    sensor = serializers.SlugRelatedField(slug_field="objectnummer", queryset=Sensors.objects.all())
+
+    def get_validation_errors(self, errors=None) -> list[str]:
+        """
+        Returns full errors formatted as per requirements
+        """
+        default_errors = errors or self.errors  # default errors dict
+        error_messages = []
+        for field_name, field_errors in default_errors.items():
+            if isinstance(field_errors, list):
+                for error in field_errors:
+                    error_messages.append(f"{field_name}: {error}")  # append error message to 'errors_messages'
+            else:
+                error_messages += self.get_validation_errors(errors=field_errors)
+
+        return error_messages
+
+
+class AreaSerializer(GeoSerializer):
     class Meta:
         model = Area
         fields = '__all__'
 
 
-class LineSerializer(serializers.ModelSerializer):
+class LineSerializer(GeoSerializer):
     class Meta:
         model = Line
         fields = '__all__'
