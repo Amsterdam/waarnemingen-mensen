@@ -5,6 +5,8 @@ from peoplemeasurement.models import Area, Line
 
 
 class BaseForm(forms.ModelForm):
+    geom_type = "Undefined"
+
     def clean(self):
         cleaned_data = super().clean()
         json_input = cleaned_data.get('json_input')
@@ -12,6 +14,8 @@ class BaseForm(forms.ModelForm):
             serializer_instance = self.serializer(data=json_input)
             if not serializer_instance.is_valid():
                 raise forms.ValidationError(' | '.join(serializer_instance.get_validation_errors()))
+            if not json_input["geom"]["type"] == self.geom_type:
+                raise forms.ValidationError(f"The type of geom should be {self.geom_type}")
             cleaned_data["serializer_instance"] = serializer_instance
         return cleaned_data
 
@@ -28,6 +32,7 @@ class BaseForm(forms.ModelForm):
 
 class LineForm(BaseForm):
     serializer = LineSerializer
+    geom_type = "LineString"
     json_input = forms.JSONField(required=False, help_text="""{
         "name": "test_name",
         "sensor": "sensor_123",
@@ -48,6 +53,7 @@ class LineForm(BaseForm):
 
 class AreaForm(BaseForm):
     serializer = AreaSerializer
+    geom_type = "Polygon"
     json_input = forms.JSONField(required=False, help_text="""{
         "name": "test_name",
         "sensor": "sensor_123",
