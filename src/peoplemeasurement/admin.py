@@ -130,7 +130,7 @@ class AreaAdmin(LeafletGeoAdminMixin, admin.ModelAdmin):
     form = AreaForm
     fieldsets = (
         (None, {
-            'fields': ('name', 'sensor', 'area', 'geom', 'json_input'),
+            'fields': ('name', 'sensor', 'area', 'coordinates', 'geom'),
             'description': f'<h1><b>{JSON_INPUT_HELP_TEXT}</b></h1>',
         }),
     )
@@ -145,7 +145,7 @@ class LineAdmin(LeafletGeoAdminMixin, admin.ModelAdmin):
     form = LineForm
     fieldsets = (
         (None, {
-            'fields': ('name', 'sensor', 'azimuth', 'geom', 'json_input'),
+            'fields': ('name', 'sensor', 'azimuth', 'coordinates', 'geom'),
             'description': f'<h1><b>{JSON_INPUT_HELP_TEXT}</b></h1>',
         }),
     )

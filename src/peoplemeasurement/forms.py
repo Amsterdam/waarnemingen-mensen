@@ -5,51 +5,70 @@ from peoplemeasurement.models import Area, Line
 
 
 class BaseForm(forms.ModelForm):
-    geom_type = "Undefined"
-    required_fields = []
+    def clean_coordinates(self) -> list:
+        coordinates = self.cleaned_data.get('coordinates')
+        if not coordinates:
+            return []
+        try:
+            self.validate_coordinates(coordinates)
+        except forms.ValidationError:
+            raise
+        except Exception:
+            raise forms.ValidationError("The coordinates cannot be interpreted. Format the input like the example")
+        return coordinates
+
+    def validate_coordinates(self, coordinates: list):
+        raise NotImplementedError("Subclass this class and implement this method")
 
     def clean(self):
         cleaned_data = super().clean()
-        json_input = cleaned_data.get('json_input')
-        if json_input:
+        coordinates = cleaned_data.get('coordinates')
+        if coordinates:
+            json_input = self.format_json_input(cleaned_data)
             serializer_instance = self.serializer(data=json_input)
             if not serializer_instance.is_valid():
                 raise forms.ValidationError(' | '.join(serializer_instance.get_validation_errors()))
-            if not json_input["geom"]["type"] == self.geom_type:
-                raise forms.ValidationError(f"The type of geom should be {self.geom_type}")
             cleaned_data["serializer_instance"] = serializer_instance
-        else:
-            for field in self.required_fields:
-                if not cleaned_data.get(field):
-                    raise forms.ValidationError(f"The field {field} cannot be empty when no JSON is supplied")
+        elif not cleaned_data.get("geom"):
+            raise forms.ValidationError("No coordinates defined")
         return cleaned_data
+
+    def format_json_input(self, cleaned_data: dict):
+        raise NotImplementedError("Subclass this class and implement this method")
 
     def save(self, commit=True):
         instance = super().save(commit=commit)
-        json_input = self.cleaned_data.get('json_input')
-        if json_input:
-            # There is json input, so we overwrite all fields with the info from the json
+        coordinates = self.cleaned_data.get('coordinates')
+        if coordinates:
+            # There is json input for coordinates, so we overwrite all fields with the info from the json
             serializer_instance = self.cleaned_data["serializer_instance"]
             serializer_instance.update(instance=instance, validated_data=serializer_instance.validated_data)
 
         return instance
 
+
 class LineForm(BaseForm):
     serializer = LineSerializer
-    required_fields = ['name', 'sensor', 'azimuth', 'geom']
-    geom_type = "LineString"
-    json_input = forms.JSONField(required=False, help_text="""<b>Example:</b> <pre>{
-        "name": "test_name",
-        "sensor": "sensor_123",
-        "azimuth": 40,
-        "geom": {
-            "type": "LineString",
-            "coordinates": [
-                [52.3,4.8],
-                [52.3,4.9]
-            ]
+    coordinates = forms.JSONField(required=False, help_text="""<b>Example:</b> <pre>    [
+        [52.3,4.8],
+        [52.3,4.9]
+    ]</pre>""")
+
+    def format_json_input(self, cleaned_data: dict) -> dict:
+        json_input = {
+            "name": cleaned_data["name"],
+            "sensor": cleaned_data["sensor"],
+            "azimuth": cleaned_data["azimuth"],
+            "geom": {
+                "type": "LineString",
+                "coordinates": cleaned_data["coordinates"]
+            }
         }
-    }</pre>""")
+        return json_input
+
+    def validate_coordinates(self, coordinates: list):
+        if len(coordinates) < 2:
+            raise forms.ValidationError("At least 2 points need to be defined")
 
     class Meta:
         model = Line
@@ -58,23 +77,31 @@ class LineForm(BaseForm):
 
 class AreaForm(BaseForm):
     serializer = AreaSerializer
-    required_fields = ['name', 'sensor', 'area', 'geom']
-    geom_type = "Polygon"
-    json_input = forms.JSONField(required=False, help_text="""<b>Example:</b> <pre>{
-        "name": "test_name",
-        "sensor": "sensor_123",
-        "area": 40,
-        "geom": {
-            "type": "Polygon",
-            "coordinates": [[
-                [52.3,4.8],
-                [52.3,4.9],
-                [52.4,4.9],
-                [52.4,4.8],
-                [52.3,4.8]
-            ]]
+    coordinates = forms.JSONField(required=False, help_text="""<b>Example:</b> <pre>    [
+        [52.3,4.8],
+        [52.3,4.9],
+        [52.4,4.9],
+        [52.4,4.8],
+        [52.3,4.8]
+    ]</pre>""")
+
+    def format_json_input(self, cleaned_data: dict) -> dict:
+        json_input = {
+            "name": cleaned_data["name"],
+            "sensor": cleaned_data["sensor"],
+            "area": cleaned_data["area"],
+            "geom": {
+                "type": "Polygon",
+                "coordinates": [cleaned_data["coordinates"]]
+            }
         }
-    }</pre>""")
+        return json_input
+
+    def validate_coordinates(self, coordinates: list):
+        if coordinates[0] != coordinates[-1]:
+            raise forms.ValidationError("The start and end coordinate need to be identical")
+        if len(coordinates) < 4:
+            raise forms.ValidationError("At least 4 points need to be defined to form an area")
 
     class Meta:
         model = Area
