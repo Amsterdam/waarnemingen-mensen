@@ -25,26 +25,16 @@ class BaseForm(forms.ModelForm):
         coordinates = cleaned_data.get('coordinates')
         if coordinates:
             json_input = self.format_json_input(cleaned_data)
-            serializer_instance = self.serializer(data=json_input)
+            serializer_instance = self.serializer(data=json_input, instance=self.instance)
             if not serializer_instance.is_valid():
                 raise forms.ValidationError(' | '.join(serializer_instance.get_validation_errors()))
-            cleaned_data["serializer_instance"] = serializer_instance
+            cleaned_data["geom"] = serializer_instance.validated_data["geom"]
         elif not cleaned_data.get("geom"):
             raise forms.ValidationError("No coordinates defined")
         return cleaned_data
 
     def format_json_input(self, cleaned_data: dict):
         raise NotImplementedError("Subclass this class and implement this method")
-
-    def save(self, commit=True):
-        instance = super().save(commit=commit)
-        coordinates = self.cleaned_data.get('coordinates')
-        if coordinates:
-            # There is json input for coordinates, so we overwrite all fields with the info from the json
-            serializer_instance = self.cleaned_data["serializer_instance"]
-            serializer_instance.update(instance=instance, validated_data=serializer_instance.validated_data)
-
-        return instance
 
 
 class LineForm(BaseForm):
