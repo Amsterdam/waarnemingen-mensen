@@ -16,12 +16,12 @@ services:
 
   app:
     ports:
-      - "8080:8000"		# allows to run app on different port on host
+      - "8000:8000"		# allows to run app on different port on host
     user: 1001:1001		# set current user id so it has access to mounted volumes
 
   dev:
     ports:
-      - "8080:8000"
+      - "8000:8000"
     user: 1001:1001
 
   test:

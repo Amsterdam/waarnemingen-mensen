@@ -1,107 +1,97 @@
 from django import forms
-from django.contrib.gis.geos import LineString, Polygon
+from .serializers import AreaSerializer, LineSerializer
 
-from peoplemeasurement.models import Area, Sensors
+from peoplemeasurement.models import Area, Line
 
 
-class AreaForm(forms.ModelForm):
-    json_input = forms.JSONField(required=False)
+class BaseForm(forms.ModelForm):
+    def clean_coordinates(self) -> list:
+        coordinates = self.cleaned_data.get('coordinates')
+        if not coordinates:
+            return []
+        try:
+            self.validate_coordinates(coordinates)
+        except forms.ValidationError:
+            raise
+        except Exception as e:
+            msg = "The coordinates cannot be interpreted. Format the input like the example"
+            raise forms.ValidationError(msg) from e
+        return coordinates
+
+    def validate_coordinates(self, coordinates: list):
+        raise NotImplementedError("Subclass this class and implement this method")
 
     def clean(self):
         cleaned_data = super().clean()
-
-        # TODO: Use a serializer to do this properly
-        # TODO: Also raise a ValidationError if it's a new object and no json is inserted (this is not possible, since the area points can only be inserted using the json).
-        json_input = cleaned_data.get('json_input')
-        if json_input:
-            # Check keys
-            for k in ('sensor', 'areas'):
-                if not json_input.get(k):
-                    raise forms.ValidationError(f"{k} missing in json")
-            for k in ('area_id', 'area', 'points'):
-                if not json_input['areas'].get('area_id'):
-                    raise forms.ValidationError(f"{k} missing in json")
-
-            # Check if sensor exists
-            # TODO: move this to the model
-            if Sensors.objects.filter(objectnummer=json_input['sensor']).count() == 0:
-                raise forms.ValidationError(f"Sensor with objectnummer '{json_input['sensor']}' does not exist.")
-
-            # Check points
-            points = json_input['areas']['points']
-            if len(points) <= 3:  # The last point should be the same as the first point, and we need at least a triangle to have an area
-                raise forms.ValidationError("Not enough points")
-            if points[0] != points[-1]:
-                raise forms.ValidationError("The geom points in the json do not form a closed loop.")
-
+        if cleaned_data.get('coordinates'):
+            json_input = self.format_json_input(cleaned_data)
+            serializer_instance = self.serializer(data=json_input, instance=self.instance)
+            if not serializer_instance.is_valid():
+                raise forms.ValidationError(' | '.join(serializer_instance.get_validation_errors()))
+            cleaned_data["geom"] = serializer_instance.validated_data["geom"]
+        elif not cleaned_data.get("geom"):
+            raise forms.ValidationError("No coordinates defined")
         return cleaned_data
 
-    def save(self, commit=True):
-        instance = super().save(commit=commit)
-        json_input = self.cleaned_data.get('json_input', None)
-        if json_input and json_input != 'null':
-            # There is json input, so we overwrite all fields with the info from the json
-            sensor_objectnummer = json_input['sensor']
-            instance.sensor = Sensors.objects.filter(objectnummer=sensor_objectnummer)[0]
-            instance.name = json_input['areas']['area_id']
-            instance.area = json_input['areas']['area']
-            geom_points = json_input['areas']['points']
-            instance.geom = Polygon([(coordinate['longitude'], coordinate['latitude']) for coordinate in geom_points])
-            if commit:
-                instance.save()
+    def format_json_input(self, cleaned_data: dict):
+        raise NotImplementedError("Subclass this class and implement this method")
 
-        return instance
+
+class LineForm(BaseForm):
+    serializer = LineSerializer
+    coordinates = forms.JSONField(required=False, help_text="""<b>Example:</b> <pre>    [
+        [52.3,4.8],
+        [52.3,4.9]
+    ]</pre>""")
+
+    def format_json_input(self, cleaned_data: dict) -> dict:
+        json_input = {
+            "name": cleaned_data["name"],
+            "sensor": cleaned_data["sensor"],
+            "azimuth": cleaned_data["azimuth"],
+            "geom": {
+                "type": "LineString",
+                "coordinates": cleaned_data["coordinates"]
+            }
+        }
+        return json_input
+
+    def validate_coordinates(self, coordinates: list):
+        if len(coordinates) < 2:
+            raise forms.ValidationError("At least 2 points need to be defined")
 
     class Meta:
-        model = Area
+        model = Line
         fields = '__all__'
 
 
-class LineForm(forms.ModelForm):
-    json_input = forms.JSONField(required=False)
+class AreaForm(BaseForm):
+    serializer = AreaSerializer
+    coordinates = forms.JSONField(required=False, help_text="""<b>Example:</b> <pre>    [
+        [52.3,4.8],
+        [52.3,4.9],
+        [52.4,4.9],
+        [52.4,4.8],
+        [52.3,4.8]
+    ]</pre>""")
 
-    def clean(self):
-        cleaned_data = super().clean()
+    def format_json_input(self, cleaned_data: dict) -> dict:
+        json_input = {
+            "name": cleaned_data["name"],
+            "sensor": cleaned_data["sensor"],
+            "area": cleaned_data["area"],
+            "geom": {
+                "type": "Polygon",
+                "coordinates": [cleaned_data["coordinates"]]
+            }
+        }
+        return json_input
 
-        # TODO: Use a serializer to do this properly
-        # TODO: Also raise a ValidationError if it's a new object and no json is inserted (this is not possible, since the area points can only be inserted using the json).
-        json_input = cleaned_data.get('json_input')
-        if json_input:
-            # Check keys
-            for k in ('sensor', 'lines'):
-                if not json_input.get(k):
-                    raise forms.ValidationError(f"{k} missing in json")
-            for k in ('line_id', 'azimuth', 'points'):
-                if not json_input['lines'].get(k):
-                    raise forms.ValidationError(f"{k} missing in json")
-
-            # Check if sensor exists
-            # TODO: move this to the model
-            if Sensors.objects.filter(objectnummer=json_input['sensor']).count() == 0:
-                raise forms.ValidationError(f"Sensor with objectnummer '{json_input['sensor']}' does not exist.")
-
-            # Check points
-            points = json_input['lines']['points']
-            if len(points) < 2:
-                raise forms.ValidationError("We need at least two points")
-
-        return cleaned_data
-
-    def save(self, commit=True):
-        instance = super().save(commit=commit)
-        json_input = self.cleaned_data.get('json_input', None)
-        if json_input:
-            # There is json input, so we overwrite all fields with the info from the json
-            sensor_objectnummer = json_input['sensor']
-            instance.sensor = Sensors.objects.filter(objectnummer=sensor_objectnummer)[0]
-            instance.name = json_input['lines']['line_id']
-            instance.azimuth = json_input['lines']['azimuth']
-            geom_points = json_input['lines']['points']
-            instance.geom = LineString([(coordinate['longitude'], coordinate['latitude']) for coordinate in geom_points])
-            if commit:
-                instance.save()
-
-        return instance
+    def validate_coordinates(self, coordinates: list):
+        if coordinates[0] != coordinates[-1]:
+            raise forms.ValidationError("The start and end coordinate need to be identical")
+        if len(coordinates) < 4:
+            raise forms.ValidationError("At least 4 points need to be defined to form an area")
 
     class Meta:
         model = Area

@@ -7,7 +7,6 @@
 dc = docker-compose
 run = $(dc) run --rm
 manage = $(run) dev python manage.py
-pytest = $(run) test pytest $(ARGS)
 
 PYTHON = python3
 
@@ -54,13 +53,16 @@ dev: 						        ## Run the development app (and run extra migrations first)
 	$(run) --service-ports dev
 
 test:                               ## Execute tests
-	$(dc) run --rm test pytest /tests $(ARGS)
+	$(run) test pytest /tests $(ARGS)
 
 parser_telcameras_v2:
-	$(dc) run parser_telcameras_v2
+	$(run) parser_telcameras_v2
 
 pdb:                                ## Execute tests with python debugger
-	$(dc) run --rm test pytest --pdb $(ARGS)
+	$(run) test pytest --pdb $(ARGS)
+
+superuser:                          ## Create a new superuser
+	$(manage) createsuperuser
 
 clean:                              ## Clean docker stuff
 	$(dc) down -v --remove-orphans
