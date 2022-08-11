@@ -72,7 +72,7 @@ diff-match-patch==20200713
     # via
     #   -r ./requirements.txt
     #   django-import-export
-django==3.2.14
+django==3.2.15
     # via
     #   -r ./requirements.txt
     #   datapunt-authorization-django
@@ -158,8 +158,6 @@ idna==3.3
     # via
     #   -r ./requirements.txt
     #   requests
-importlib-metadata==4.12.0
-    # via flask
 inflection==0.5.1
     # via
     #   -r ./requirements.txt
@@ -368,8 +366,6 @@ xlwt==1.3.0
     # via
     #   -r ./requirements.txt
     #   tablib
-zipp==3.8.1
-    # via importlib-metadata
 zope-event==4.5.0
     # via gevent
 zope-interface==5.4.0
