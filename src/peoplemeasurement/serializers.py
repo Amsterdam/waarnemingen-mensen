@@ -46,14 +46,14 @@ class GeoSerializer(serializers.ModelSerializer):
 
     def get_validation_errors(self, errors=None) -> list[str]:
         """
-        Returns full errors formatted as per requirements
+        Returns all error messages in a list
         """
-        default_errors = errors or self.errors  # default errors dict
+        default_errors = errors or self.errors
         error_messages = []
         for field_name, field_errors in default_errors.items():
             if isinstance(field_errors, list):
                 for error in field_errors:
-                    error_messages.append(f"{field_name}: {error}")  # append error message to 'errors_messages'
+                    error_messages.append(f"{field_name}: {error}")
             else:
                 error_messages += self.get_validation_errors(errors=field_errors)
 

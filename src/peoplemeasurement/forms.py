@@ -13,8 +13,9 @@ class BaseForm(forms.ModelForm):
             self.validate_coordinates(coordinates)
         except forms.ValidationError:
             raise
-        except Exception:
-            raise forms.ValidationError("The coordinates cannot be interpreted. Format the input like the example")
+        except Exception as e:
+            msg = "The coordinates cannot be interpreted. Format the input like the example"
+            raise forms.ValidationError(msg) from e
         return coordinates
 
     def validate_coordinates(self, coordinates: list):
@@ -22,8 +23,7 @@ class BaseForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        coordinates = cleaned_data.get('coordinates')
-        if coordinates:
+        if cleaned_data.get('coordinates'):
             json_input = self.format_json_input(cleaned_data)
             serializer_instance = self.serializer(data=json_input, instance=self.instance)
             if not serializer_instance.is_valid():
