@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from telcameras_v2.models import Observation
+from centralerekenapplicatie_v1.models import AreaMetric, LineMetric
 from telcameras_v2.tools import get_messages_count_for_past_minutes
 
 
@@ -17,6 +17,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         minutes = options['minutes']
-        error_message = f'Last telcameras_v2 record was more than {minutes} minutes ago.'
-        message_count = get_messages_count_for_past_minutes(Observation, 'timestamp_message', minutes)
-        assert message_count, error_message
+
+        message_count_area = get_messages_count_for_past_minutes(AreaMetric, 'timestamp', minutes)
+        message_count_line = get_messages_count_for_past_minutes(LineMetric, 'timestamp', minutes)
+
+        if not any([message_count_area, message_count_line]):
+            error_message = f'Last CRA record was more than {minutes} minutes ago.'
+            assert message_count_line, error_message
