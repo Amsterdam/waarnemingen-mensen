@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 
 from contrib.timescale.fields import TimescaleDateTimeField
+from peoplemeasurement.models import Area, Line, Sensors
 
 
 class Observation(models.Model):
@@ -11,6 +12,9 @@ class Observation(models.Model):
     sensor = models.CharField(max_length=255)               # e.g. "CMSA-GAWW-17"
     sensor_type = models.CharField(max_length=255)          # type sensor (telcamera, wifi, bleutooth, 3d_camera etc)
     sensor_state = models.CharField(max_length=255)         # Coming from "status" e.g. "operational"
+    sensor_gid = models.ForeignKey(Sensors, on_delete=models.PROTECT, null=True, related_name='observation_v3_sensor_gid')
+    area_id = models.ForeignKey(Area, on_delete=models.PROTECT, null=True, related_name='observation_v3_area_id')
+    line_id = models.ForeignKey(Line, on_delete=models.PROTECT, null=True, related_name='observation_v3_line_id')
     latitude = models.DecimalField(max_digits=16, decimal_places=13)
     longitude = models.DecimalField(max_digits=16, decimal_places=13)
     interval = models.SmallIntegerField()                   # e.g. 60     # seconds that this message spans

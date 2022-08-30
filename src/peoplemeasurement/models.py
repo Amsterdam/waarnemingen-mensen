@@ -54,6 +54,7 @@ class Servicelevel(models.Model):
 
 
 class Area(models.Model):
+    area_name = models.CharField(max_length=255, unique=True, null=True)  # Used for reference in external applications
     sensor = models.ForeignKey('Sensors', related_name='areas', on_delete=models.CASCADE)
     name = models.CharField(max_length=255, unique=True)  # Naam van meetgebied
     geom = models.PolygonField(blank=True)  # Polygoon dat het meetgebied omvat
@@ -67,6 +68,7 @@ class Area(models.Model):
 
 
 class Line(models.Model):
+    line_name = models.CharField(max_length=255, unique=True, null=True)  # Used for reference in external applications
     sensor = models.ForeignKey('Sensors', related_name='lines', on_delete=models.CASCADE)
     name = models.CharField(max_length=255, unique=True)  # Naam van de tellijn
     geom = models.LineStringField(blank=True)  # Lijn die de tellijn definieert

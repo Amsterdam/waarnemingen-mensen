@@ -2,12 +2,16 @@ from contrib.timescale.fields import TimescaleDateTimeField
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
+from peoplemeasurement.models import Sensors, Area, Line
 
 
 class Observation(models.Model):
     sensor = models.CharField(max_length=255)               # e.g. "CMSA-GAWW-17"
     sensor_type = models.CharField(max_length=255)          # type sensor (telcamera, wifi, bleutooth, 3d_camera etc)
     sensor_state = models.CharField(max_length=255)         # e.g. "operational"
+    sensor_gid = models.ForeignKey(Sensors, on_delete=models.PROTECT, null=True, related_name='observation_v2_sensor_gid')
+    area_id = models.ForeignKey(Area, on_delete=models.PROTECT, null=True, related_name='observation_v2_area_id')
+    line_id = models.ForeignKey(Line, on_delete=models.PROTECT, null=True, related_name='observation_v2_line_id')
     owner = models.CharField(max_length=255, null=True)     # e.g. "gemeente Amsterdam" or  "Prorail"   # Verantwoordelijke Eigenaar van de Camera
     supplier = models.CharField(max_length=255, null=True)  # e.g. "Connection Systems"            # Leverancier die de camera beheert in opdracht van de eigenaar.
     purpose = ArrayField(models.CharField(max_length=255), null=True)  # Doel van de camera

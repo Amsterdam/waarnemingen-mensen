@@ -10,8 +10,7 @@ from leaflet.admin import LeafletGeoAdminMixin
 from peoplemeasurement.forms import AreaForm, LineForm
 from peoplemeasurement.models import Area, Line, Sensors, Servicelevel
 
-JSON_INPUT_HELP_TEXT = "Adding json overwrites all manually input fields. " \
-                       "The geom can only be inserted using the json."
+JSON_INPUT_HELP_TEXT = "The geom can only be inserted using the json field."
 
 
 class LatLongWidget(forms.MultiWidget):
@@ -123,14 +122,14 @@ class ServicelevelAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 
 @admin.register(Area)
 class AreaAdmin(LeafletGeoAdminMixin, admin.ModelAdmin):
-    list_display = ['name', 'sensor', 'area', 'geom']
+    list_display = ['area_name', 'name', 'sensor', 'area', 'geom']
     tmp_storage_class = CacheStorage
 
     modifiable = False  # Make the leaflet map read-only
     form = AreaForm
     fieldsets = (
         (None, {
-            'fields': ('name', 'sensor', 'area', 'coordinates', 'geom'),
+            'fields': ('area_name', 'name', 'sensor', 'area', 'coordinates', 'geom'),
             'description': f'<h1><b>{JSON_INPUT_HELP_TEXT}</b></h1>',
         }),
     )
@@ -138,14 +137,14 @@ class AreaAdmin(LeafletGeoAdminMixin, admin.ModelAdmin):
 
 @admin.register(Line)
 class LineAdmin(LeafletGeoAdminMixin, admin.ModelAdmin):
-    list_display = ['name', 'sensor', 'azimuth', 'geom']
+    list_display = ['line_name', 'name', 'sensor', 'azimuth', 'geom']
     tmp_storage_class = CacheStorage
 
     modifiable = False  # Make the leaflet map read-only
     form = LineForm
     fieldsets = (
         (None, {
-            'fields': ('name', 'sensor', 'azimuth', 'coordinates', 'geom'),
+            'fields': ('line_name', 'name', 'sensor', 'azimuth', 'coordinates', 'geom'),
             'description': f'<h1><b>{JSON_INPUT_HELP_TEXT}</b></h1>',
         }),
     )
