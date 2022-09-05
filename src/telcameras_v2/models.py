@@ -5,7 +5,7 @@ from django.utils import timezone
 
 
 class Observation(models.Model):
-    sensor = models.CharField(max_length=255)               # e.g. "CMSA-GAWW-17"
+    sensor_name = models.CharField(max_length=255)               # e.g. "CMSA-GAWW-17"
     sensor_type = models.CharField(max_length=255)          # type sensor (telcamera, wifi, bleutooth, 3d_camera etc)
     sensor_state = models.CharField(max_length=255)         # e.g. "operational"
     owner = models.CharField(max_length=255, null=True)     # e.g. "gemeente Amsterdam" or  "Prorail"   # Verantwoordelijke Eigenaar van de Camera
@@ -37,7 +37,7 @@ class CountAggregate(models.Model):
     count_out_scrambled = models.SmallIntegerField(null=True)  # This is meant to use a slightly scrambled version of the count_out with a +1 or -1 for privacy reasons
 
     # for a type "zone"
-    area = models.FloatField(null=True)
+    area_size = models.FloatField(null=True)
     geom = models.TextField(null=True)
     count = models.SmallIntegerField(null=True)
     count_scrambled = models.SmallIntegerField(null=True)  # This is meant to use a slightly scrambled version of the count_out with a +1 or -1 for privacy reasons

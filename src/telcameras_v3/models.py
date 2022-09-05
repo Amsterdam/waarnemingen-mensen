@@ -8,7 +8,7 @@ class Observation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     message_id = models.IntegerField()                      # Coming from "id" in the message. It's an auto-increment per sensor / volgnummer.
     timestamp = TimescaleDateTimeField(interval="1 day", default=timezone.now)   # Timestamp of when the data was recorded in the camera
-    sensor = models.CharField(max_length=255)               # e.g. "CMSA-GAWW-17"
+    sensor_name = models.CharField(max_length=255)               # e.g. "CMSA-GAWW-17"
     sensor_type = models.CharField(max_length=255)          # type sensor (telcamera, wifi, bleutooth, 3d_camera etc)
     sensor_state = models.CharField(max_length=255)         # Coming from "status" e.g. "operational"
     latitude = models.DecimalField(max_digits=16, decimal_places=13)
