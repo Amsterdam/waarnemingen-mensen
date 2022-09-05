@@ -1,17 +1,15 @@
 import json
 import logging
 
-from django.conf import settings
 from ingress.consumer.base import BaseConsumer
 
-from telcameras_v2.tools import SensorError, get_sensor_for_data
 from telcameras_v3.serializers import ObservationSerializer
 
 logger = logging.getLogger(__name__)
 
 
 class TelcameraParser(BaseConsumer):
-    collection_name = 'telcameras_v3'
+    collection_name = "telcameras_v3"
 
     """
     Whether or not to immediately remove messages once consumption succeeds.
@@ -28,17 +26,50 @@ class TelcameraParser(BaseConsumer):
         return 10000
 
     def consume_raw_data(self, raw_data):
-        observation = json.loads(raw_data)
-        observation['message_id'] = observation.pop('id')
-        observation['sensor_state'] = observation.pop('status')
-        observation['groupaggregates'] = observation.pop('direction')
-        for groupaggregate in observation['groupaggregates']:
-            groupaggregate['observation_timestamp'] = observation['timestamp']
-            groupaggregate['persons'] = groupaggregate.pop('signals', [])
-            for person in groupaggregate['persons']:
-                person['person_observation_timestamp'] = person.pop('observation_timestamp')
-                person['observation_timestamp'] = observation['timestamp']
-
+        observation = self.data_to_observation(raw_data)
         observation_serializer = ObservationSerializer(data=observation)
         observation_serializer.is_valid(raise_exception=True)
         return observation_serializer.save()
+
+    def data_to_observation(self, raw_data: dict):
+        raw_json = json.loads(raw_data)
+        sensor_name = raw_json["sensor"]
+        observation = dict(
+            message_id=raw_json["id"],
+            timestamp=raw_json["timestamp"],
+            sensor_name=sensor_name,
+            sensor_type=raw_json["sensor_type"],
+            sensor_state=raw_json["status"],
+            # sensor=sensor_name,
+            area=sensor_name,
+            latitude=raw_json["latitude"],
+            longitude=raw_json["longitude"],
+            interval=raw_json["interval"],
+            density=raw_json["density"],
+            groupaggregates=[
+                dict(
+                    line=f"{sensor_name}-{aggregate['azimuth']}",
+                    observation_timestamp=raw_json["timestamp"],
+                    azimuth=aggregate["azimuth"],
+                    count=aggregate["count"],
+                    cumulative_distance=aggregate["cumulative_distance"],
+                    cumulative_time=aggregate["cumulative_time"],
+                    median_speed=aggregate["median_speed"],
+                    count_scrambled=None,  # This field is filled by the serializer
+                    persons=[
+                        dict(
+                            observation_timestamp=raw_json["timestamp"],
+                            person_observation_timestamp=person["observation_timestamp"],
+                            record=person["record"],
+                            distance=person["distance"],
+                            time=person["time"],
+                            speed=person["speed"],
+                            type=person["type"],
+                        )
+                        for person in aggregate.get("signals", [])
+                    ],
+                )
+                for aggregate in raw_json["direction"]
+            ],
+        )
+        return observation

@@ -12,11 +12,12 @@ from ingress.models import Collection, FailedMessage, Message
 from peoplemeasurement.models import Sensors
 from telcameras_v2.ingress_parser import TelcameraParser
 from telcameras_v2.models import CountAggregate, Observation
+from telcameras_v2.serializers import ObservationSerializer
 
 log = logging.getLogger(__name__)
 timezone = pytz.timezone("UTC")
 
-AUTHORIZATION_HEADER = {'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}
+AUTHORIZATION_HEADER = {"HTTP_AUTHORIZATION": f"Token {settings.AUTHORIZATION_TOKEN}"}
 
 
 # In the posts that we receive, all root fields in the objects are the same,
@@ -159,24 +160,30 @@ TEST_POST_DOUBLE_ZONE = """
 
 @pytest.mark.django_db
 class TestDataIngressPoster:
-    """ Test the second iteration of the api, with the ingress queue """
+    """Test the second iteration of the api, with the ingress queue"""
 
     @pytest.fixture(autouse=True)
     def setup(self):
-        self.collection_name = 'telcameras_v2'
-        self.URL = f'/ingress/{self.collection_name}/'
+        self.collection_name = "telcameras_v2"
+        self.URL = f"/ingress/{self.collection_name}/"
 
         # Create an endpoint
         self.collection_obj = Collection.objects.create(name=self.collection_name, consumer_enabled=True)
 
         # Create the sensor in the database
-        self.sensor = Sensors.objects.create(objectnummer='GAVM-01-Vondelstraat', gid=1)
+        self.sensor = Sensors.objects.create(objectnummer="GAVM-01-Vondelstraat", gid=1)
+
+    def test_observation_serializer_is_valid(self):
+        data = json.loads(TEST_POST)["data"]
+        observation = TelcameraParser().data_to_observation(data)
+        observation_serializer = ObservationSerializer(data=observation)
+        assert observation_serializer.is_valid()
 
     def test_parse_ingress(self, client):
         # First add a couple ingress records
         Message.objects.all().delete()
         for i in range(3):
-            client.post(self.URL, TEST_POST, **AUTHORIZATION_HEADER, content_type='application/json')
+            client.post(self.URL, TEST_POST, **AUTHORIZATION_HEADER, content_type="application/json")
         assert Message.objects.count() == 3
 
         # Then run the parse_ingress script
@@ -196,7 +203,7 @@ class TestDataIngressPoster:
     def test_parse_ingress_fail_with_wrong_input(self, client):
         # First add an ingress record which is not correct json
         Message.objects.all().delete()
-        client.post(self.URL, "NOT JSON", **AUTHORIZATION_HEADER, content_type='application/json')
+        client.post(self.URL, "NOT JSON", **AUTHORIZATION_HEADER, content_type="application/json")
         assert Message.objects.count() == 1
 
         # Then run the parse_ingress script
@@ -215,9 +222,9 @@ class TestDataIngressPoster:
         # First add a couple ingress records with a non existing sensor code
         Message.objects.all().delete()
         post_data = json.loads(TEST_POST)
-        post_data['data'][0]['sensor'] = 'does not exist'
+        post_data["data"][0]["sensor"] = "does not exist"
         for i in range(3):
-            client.post(self.URL, json.dumps(post_data), **AUTHORIZATION_HEADER, content_type='application/json')
+            client.post(self.URL, json.dumps(post_data), **AUTHORIZATION_HEADER, content_type="application/json")
 
         assert Message.objects.count() == 3
 
@@ -236,10 +243,10 @@ class TestDataIngressPoster:
         assert Observation.objects.all().count() == 3
 
     def test_post_new_record_with_double_zone(self, client):
-        """ Test posting a new message with a double zone in the count message """
+        """Test posting a new message with a double zone in the count message"""
         Message.objects.all().delete()
         post_data = json.loads(TEST_POST_DOUBLE_ZONE)
-        client.post(self.URL, json.dumps(post_data), **AUTHORIZATION_HEADER, content_type='application/json')
+        client.post(self.URL, json.dumps(post_data), **AUTHORIZATION_HEADER, content_type="application/json")
         assert Message.objects.count() == 1
 
         # Then run the parser
@@ -249,44 +256,58 @@ class TestDataIngressPoster:
         # Check the Observation record
         assert Observation.objects.all().count() == 1
         observation = Observation.objects.get()
-        fields_to_check = ('sensor', 'sensor_type', 'sensor_state', 'owner', 'supplier', 'purpose', 'latitude',
-                           'longitude', 'interval', 'timestamp_message', 'timestamp_start')
-        for attr in fields_to_check:
+        fields_to_check = {
+            "sensor_name": "sensor",
+            "sensor_type": "sensor_type",
+            "sensor_state": "sensor_state",
+            "owner": "owner",
+            "supplier": "supplier",
+            "purpose": "purpose",
+            "latitude": "latitude",
+            "longitude": "longitude",
+            "interval": "interval",
+            "timestamp_message": "timestamp_message",
+            "timestamp_start": "timestamp_start",
+        }
+        for attr, post_attr in fields_to_check.items():
             if type(getattr(observation, attr)) is Decimal:
-                assert float(getattr(observation, attr)) == post_data['data'][0][attr]
+                assert float(getattr(observation, attr)) == post_data["data"][0][post_attr]
             elif type(getattr(observation, attr)) is datetime:
-                assert getattr(observation, attr) == dateparser.parse(post_data['data'][0][attr])
+                assert getattr(observation, attr) == dateparser.parse(post_data["data"][0][post_attr])
             else:
-                assert getattr(observation, attr) == post_data['data'][0][attr]
+                assert getattr(observation, attr) == post_data["data"][0][post_attr]
 
         # Check the CountAggregate records
-        assert CountAggregate.objects.all().count() == len(post_data['data'][0]['aggregate'])
+        assert CountAggregate.objects.all().count() == len(post_data["data"][0]["aggregate"])
         for count_aggr in CountAggregate.objects.all():
 
             # Get the post data for this CountAggregate (they might not be in the same order)
             posted_count_aggregate = None
-            for aggregate in post_data['data'][0]['aggregate']:
-                if aggregate['id'] == count_aggr.external_id:
+            for aggregate in post_data["data"][0]["aggregate"]:
+                if aggregate["id"] == count_aggr.external_id:
                     posted_count_aggregate = aggregate
 
             # Check whether we actually found the correct posted count aggregate
             assert type(posted_count_aggregate) == dict
 
-            for attr in ('type', 'area', 'count'):
-                assert getattr(count_aggr, attr) == posted_count_aggregate[attr]
-            assert count_aggr.external_id == posted_count_aggregate['id']
-            assert count_aggr.geom is None  # In both zone counts the geom is an empty string. So we check whether they are None
-            assert count_aggr.message == post_data['data'][0]['message']
-            assert count_aggr.version == post_data['data'][0]['version']
+            aggregates_to_check = {"type": "type", "area_size": "area", "count": "count"}
+            for attr, posted_attr in aggregates_to_check.items():
+                assert getattr(count_aggr, attr) == posted_count_aggregate[posted_attr]
+            assert count_aggr.external_id == posted_count_aggregate["id"]
+            assert (
+                count_aggr.geom is None
+            )  # In both zone counts the geom is an empty string. So we check whether they are None
+            assert count_aggr.message == post_data["data"][0]["message"]
+            assert count_aggr.version == post_data["data"][0]["version"]
 
     def test_geom_fields_to_null(self, client):
         post_data = json.loads(TEST_POST)
-        post_data['data'][0]['aggregate'][1]['geom'] = None
-        post_data['data'][1]['aggregate'][0]['geom'] = None
-        post_data['data'][1]['aggregate'][1]['geom'] = None
+        post_data["data"][0]["aggregate"][1]["geom"] = None
+        post_data["data"][1]["aggregate"][0]["geom"] = None
+        post_data["data"][1]["aggregate"][1]["geom"] = None
 
         Message.objects.all().delete()
-        client.post(self.URL, json.dumps(post_data), **AUTHORIZATION_HEADER, content_type='application/json')
+        client.post(self.URL, json.dumps(post_data), **AUTHORIZATION_HEADER, content_type="application/json")
         assert Message.objects.count() == 1
 
         # Then run the parser
@@ -297,12 +318,12 @@ class TestDataIngressPoster:
 
     def test_absent_geom_fields(self, client):
         post_data = json.loads(TEST_POST)
-        del post_data['data'][0]['aggregate'][1]['geom']
-        del post_data['data'][1]['aggregate'][0]['geom']
-        del post_data['data'][1]['aggregate'][1]['geom']
+        del post_data["data"][0]["aggregate"][1]["geom"]
+        del post_data["data"][1]["aggregate"][0]["geom"]
+        del post_data["data"][1]["aggregate"][1]["geom"]
 
         Message.objects.all().delete()
-        client.post(self.URL, json.dumps(post_data), **AUTHORIZATION_HEADER, content_type='application/json')
+        client.post(self.URL, json.dumps(post_data), **AUTHORIZATION_HEADER, content_type="application/json")
         assert Message.objects.count() == 1
 
         # Then run the parser
@@ -313,12 +334,12 @@ class TestDataIngressPoster:
 
     def test_geom_fields_to_empty_string(self, client):
         post_data = json.loads(TEST_POST)
-        post_data['data'][0]['aggregate'][1]['geom'] = ''
-        post_data['data'][1]['aggregate'][0]['geom'] = ''
-        post_data['data'][1]['aggregate'][1]['geom'] = ''
+        post_data["data"][0]["aggregate"][1]["geom"] = ""
+        post_data["data"][1]["aggregate"][0]["geom"] = ""
+        post_data["data"][1]["aggregate"][1]["geom"] = ""
 
         Message.objects.all().delete()
-        client.post(self.URL, json.dumps(post_data), **AUTHORIZATION_HEADER, content_type='application/json')
+        client.post(self.URL, json.dumps(post_data), **AUTHORIZATION_HEADER, content_type="application/json")
         assert Message.objects.count() == 1
 
         # Then run the parser
@@ -329,13 +350,13 @@ class TestDataIngressPoster:
 
     def test_lat_lng_with_many_decimals(self, client):
         post_data = json.loads(TEST_POST)
-        post_data['data'][0]['latitude'] = 52.3921439524031
-        post_data['data'][0]['longitude'] = 4.885872984800177
-        post_data['data'][1]['latitude'] = post_data['data'][0]['latitude']
-        post_data['data'][1]['longitude'] = post_data['data'][0]['longitude']
+        post_data["data"][0]["latitude"] = 52.3921439524031
+        post_data["data"][0]["longitude"] = 4.885872984800177
+        post_data["data"][1]["latitude"] = post_data["data"][0]["latitude"]
+        post_data["data"][1]["longitude"] = post_data["data"][0]["longitude"]
 
         Message.objects.all().delete()
-        client.post(self.URL, json.dumps(post_data), **AUTHORIZATION_HEADER, content_type='application/json')
+        client.post(self.URL, json.dumps(post_data), **AUTHORIZATION_HEADER, content_type="application/json")
         assert Message.objects.count() == 1
 
         # Then run the parser
@@ -346,11 +367,11 @@ class TestDataIngressPoster:
 
     def test_empty_distances_array(self, client):
         post_data = json.loads(TEST_POST)
-        post_data['data'][1]['aggregate'][0]['distances'] = []
-        post_data['data'][1]['aggregate'][1]['distances'] = []
+        post_data["data"][1]["aggregate"][0]["distances"] = []
+        post_data["data"][1]["aggregate"][1]["distances"] = []
 
         Message.objects.all().delete()
-        client.post(self.URL, json.dumps(post_data), **AUTHORIZATION_HEADER, content_type='application/json')
+        client.post(self.URL, json.dumps(post_data), **AUTHORIZATION_HEADER, content_type="application/json")
         assert Message.objects.count() == 1
 
         # Then run the parser
@@ -361,11 +382,11 @@ class TestDataIngressPoster:
 
     def test_distances_is_null(self, client):
         post_data = json.loads(TEST_POST)
-        post_data['data'][1]['aggregate'][0]['distances'] = None
-        post_data['data'][1]['aggregate'][1]['distances'] = None
+        post_data["data"][1]["aggregate"][0]["distances"] = None
+        post_data["data"][1]["aggregate"][1]["distances"] = None
 
         Message.objects.all().delete()
-        client.post(self.URL, json.dumps(post_data), **AUTHORIZATION_HEADER, content_type='application/json')
+        client.post(self.URL, json.dumps(post_data), **AUTHORIZATION_HEADER, content_type="application/json")
         assert Message.objects.count() == 1
 
         # Then run the parser
@@ -376,11 +397,11 @@ class TestDataIngressPoster:
 
     def test_no_distances_key(self, client):
         post_data = json.loads(TEST_POST)
-        del post_data['data'][1]['aggregate'][0]['distances']
-        del post_data['data'][1]['aggregate'][1]['distances']
+        del post_data["data"][1]["aggregate"][0]["distances"]
+        del post_data["data"][1]["aggregate"][1]["distances"]
 
         Message.objects.all().delete()
-        client.post(self.URL, json.dumps(post_data), **AUTHORIZATION_HEADER, content_type='application/json')
+        client.post(self.URL, json.dumps(post_data), **AUTHORIZATION_HEADER, content_type="application/json")
         assert Message.objects.count() == 1
 
         # Then run the parser

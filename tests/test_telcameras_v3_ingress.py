@@ -11,13 +11,14 @@ from model_bakery import baker
 from peoplemeasurement.models import Sensors
 from telcameras_v3.ingress_parser import TelcameraParser
 from telcameras_v3.models import GroupAggregate, Observation, Person
+from telcameras_v3.serializers import ObservationSerializer
 from telcameras_v3.tools import scramble_group_aggregate
 from tests.tools_for_testing import call_man_command
 
 log = logging.getLogger(__name__)
 timezone = pytz.timezone("UTC")
 
-AUTHORIZATION_HEADER = {'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}
+AUTHORIZATION_HEADER = {"HTTP_AUTHORIZATION": f"Token {settings.AUTHORIZATION_TOKEN}"}
 
 TEST_POST = """
 {
@@ -133,26 +134,32 @@ TEST_POST_PRORAIL = """
 }
 """
 
+
 @pytest.mark.django_db
 class TestDataIngressPoster:
-    """ Test the third iteration of the api with the ingress queue"""
+    """Test the third iteration of the api with the ingress queue"""
 
     @pytest.fixture(autouse=True)
     def setup(self):
-        self.collection_name = 'telcameras_v3'
-        self.URL = f'/ingress/{self.collection_name}/'
+        self.collection_name = "telcameras_v3"
+        self.URL = f"/ingress/{self.collection_name}/"
 
         # Create an endpoint
         self.collection_obj = Collection.objects.create(name=self.collection_name, consumer_enabled=True)
 
         # Create the sensor in the database
-        self.sensor = Sensors.objects.create(objectnummer=json.loads(TEST_POST)['sensor'], gid=1)
+        self.sensor = Sensors.objects.create(objectnummer=json.loads(TEST_POST)["sensor"], gid=1)
+
+    def test_serializer_is_valid(self):
+        observation = TelcameraParser().data_to_observation(TEST_POST)
+        serializer = ObservationSerializer(data=observation)
+        assert serializer.is_valid()
 
     def test_parse_ingress(self, client):
         # First add a couple ingress records
         Message.objects.all().delete()
         for _ in range(3):
-            client.post(self.URL, TEST_POST, **AUTHORIZATION_HEADER, content_type='application/json')
+            client.post(self.URL, TEST_POST, **AUTHORIZATION_HEADER, content_type="application/json")
         assert Message.objects.count() == 3
 
         # Then run the parser
@@ -175,7 +182,7 @@ class TestDataIngressPoster:
         # First add a couple ingress records
         Message.objects.all().delete()
         for _ in range(3):
-            client.post(self.URL, TEST_POST_PRORAIL, **AUTHORIZATION_HEADER, content_type='application/json')
+            client.post(self.URL, TEST_POST_PRORAIL, **AUTHORIZATION_HEADER, content_type="application/json")
         assert Message.objects.count() == 3
 
         # Then run the parser
@@ -197,7 +204,7 @@ class TestDataIngressPoster:
     def test_parse_ingress_fail_with_wrong_input(self, client):
         # First add an ingress record which is not correct json
         Message.objects.all().delete()
-        client.post(self.URL, "NOT JSON", **AUTHORIZATION_HEADER, content_type='application/json')
+        client.post(self.URL, "NOT JSON", **AUTHORIZATION_HEADER, content_type="application/json")
         assert Message.objects.count() == 1
 
         # Then run the parse_ingress script
@@ -216,9 +223,9 @@ class TestDataIngressPoster:
         # First add a couple ingress records with a non existing sensor code
         Message.objects.all().delete()
         post_data = json.loads(TEST_POST)
-        post_data['sensor'] = 'does not exist'
+        post_data["sensor"] = "does not exist"
         for _ in range(3):
-            client.post(self.URL, json.dumps(post_data), **AUTHORIZATION_HEADER, content_type='application/json')
+            client.post(self.URL, json.dumps(post_data), **AUTHORIZATION_HEADER, content_type="application/json")
         assert Message.objects.count() == 3
 
         # Then run the parser
@@ -283,7 +290,7 @@ class TestTools(TestCase):
         group_aggregate_recipe = Recipe(
             GroupAggregate,
             count=randint(0, 1000),
-            count_scrambled=None
+            count_scrambled=None,
         )
         group_aggregate_recipe.make(_quantity=100)
 
@@ -292,12 +299,12 @@ class TestTools(TestCase):
             self.assertIsNone(ga.count_scrambled)
 
         # Do the scrambling
-        call_man_command('scramble_v3_counts')
+        call_man_command("scramble_v3_counts")
 
         differ_count = 0
         for ga in GroupAggregate.objects.all():
             self.assertIsNotNone(ga.count_scrambled)
-            self.assertIn(ga.count_scrambled, (ga.count-1, ga.count, ga.count+1))
+            self.assertIn(ga.count_scrambled, (ga.count - 1, ga.count, ga.count + 1))
             if ga.count_scrambled != ga.count:
                 differ_count += 1
 
@@ -306,7 +313,8 @@ class TestTools(TestCase):
 
         # check that all scrambled counts are within valid range
         assert not GroupAggregate.objects.filter(
-            Q(count_scrambled__gt=F('count') + 1) | Q(count_scrambled__lt=F('count') - 1))
+            Q(count_scrambled__gt=F("count") + 1) | Q(count_scrambled__lt=F("count") - 1)
+        )
 
         # Make sure that a significant amount of counts_scrambled were actually changed from the original
         self.assertGreater(differ_count, 50)
