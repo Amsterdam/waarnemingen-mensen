@@ -16,7 +16,7 @@ class CountAggregateSerializer(serializers.ModelSerializer):
             'azimuth',
             'count_in',
             'count_out',
-            'area',
+            'area_size',
             'geom',
             'count'
         ]
@@ -45,7 +45,7 @@ class ObservationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Observation
         fields = [
-            'sensor',
+            'sensor_name',
             'sensor_type',
             'sensor_state',
             'owner',
