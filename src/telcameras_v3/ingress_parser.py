@@ -37,18 +37,15 @@ class TelcameraParser(BaseConsumer):
         observation = dict(
             message_id=raw_json["id"],
             timestamp=raw_json["timestamp"],
-            sensor_name=sensor_name,
+            sensor=sensor_name,
             sensor_type=raw_json["sensor_type"],
             sensor_state=raw_json["status"],
-            # sensor=sensor_name,
-            area=sensor_name,
             latitude=raw_json["latitude"],
             longitude=raw_json["longitude"],
             interval=raw_json["interval"],
             density=raw_json["density"],
             groupaggregates=[
                 dict(
-                    line=f"{sensor_name}-{aggregate['azimuth']}",
                     observation_timestamp=raw_json["timestamp"],
                     azimuth=aggregate["azimuth"],
                     count=aggregate["count"],

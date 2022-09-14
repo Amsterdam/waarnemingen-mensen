@@ -42,7 +42,7 @@ class ObservationSerializer(serializers.ModelSerializer):
         fields = [
             'message_id',
             'timestamp',
-            'sensor_name',
+            'sensor',
             'sensor_type',
             'sensor_state',
             'latitude',

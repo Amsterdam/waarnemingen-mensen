@@ -257,7 +257,7 @@ class TestDataIngressPoster:
         assert Observation.objects.all().count() == 1
         observation = Observation.objects.get()
         fields_to_check = {
-            "sensor_name": "sensor",
+            "sensor": "sensor",
             "sensor_type": "sensor_type",
             "sensor_state": "sensor_state",
             "owner": "owner",
@@ -290,7 +290,7 @@ class TestDataIngressPoster:
             # Check whether we actually found the correct posted count aggregate
             assert type(posted_count_aggregate) == dict
 
-            aggregates_to_check = {"type": "type", "area_size": "area", "count": "count"}
+            aggregates_to_check = {"type": "type", "area": "area", "count": "count"}
             for attr, posted_attr in aggregates_to_check.items():
                 assert getattr(count_aggr, attr) == posted_count_aggregate[posted_attr]
             assert count_aggr.external_id == posted_count_aggregate["id"]

@@ -43,10 +43,9 @@ class TelcameraParser(BaseConsumer):
         version = raw_json["version"]
 
         observation = dict(
-            sensor_name=sensor_name,
+            sensor=sensor_name,
             sensor_type=raw_json["sensor_type"],
             sensor_state=raw_json["sensor_state"],
-            # sensor=sensor_name,
             owner=raw_json["owner"],
             supplier=raw_json["supplier"],
             purpose=raw_json["purpose"],
@@ -62,8 +61,6 @@ class TelcameraParser(BaseConsumer):
                     version=version,
                     type=count["type"],
                     geom=None if not count.get("geom") else count.get("geom"),
-                    # line=count['id'] if count["type"] == 'line' else None,
-                    # area=count['id'] if count["type"] == 'zone' else None,
                     # For a type "line"
                     azimuth=count.get("azimuth"),
                     count_in=count.get("count_in"),
@@ -71,7 +68,7 @@ class TelcameraParser(BaseConsumer):
                     count_in_scrambled=None,  # This field is filled by the serializer
                     count_out_scrambled=None,  # This field is filled by the serializer
                     # for a type "zone"
-                    area_size=count.get("area"),
+                    area=count.get("area"),
                     count=count.get("count"),
                     count_scrambled=None,  # This field is filled by the serializer
                 )

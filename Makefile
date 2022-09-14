@@ -52,7 +52,7 @@ shell:                              ## Run shell_plus and print sql
 dev: migrate				        ## Run the development app (and run extra migrations first)
 	$(run) --service-ports dev
 
-test:                               ## Execute tests
+test: migrate                              ## Execute tests
 	$(run) test pytest /tests $(ARGS)
 
 parser_telcameras_v2:
