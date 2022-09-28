@@ -59,7 +59,7 @@ class TestDataIngressPoster:
         assert Observation.objects.all().count() > 100
 
         # Run the aggregator
-        call_man_command('complete_aggregate', 'continuousaggregate_cmsa15min')
+        call_man_command('complete_aggregate_cmsa15min')
 
         # Do we have any records in the continuous aggregate table?
         assert Cmsa15Min.objects.all().count() > 500
@@ -73,18 +73,36 @@ class TestDataIngressPoster:
             .first()
         assert middle_record.basedonxmessages == 3
 
-    def test_aggregate_recalculation(self, client):
+    def test_aggregate_full_recalculation(self, client):
         today = self.add_test_records(client, test_days=3)
 
         # Run the aggregator
-        call_man_command('complete_aggregate', 'continuousaggregate_cmsa15min')
+        call_man_command('complete_aggregate_cmsa15min')
 
-        # Remove underlying source data
-        Observation.objects.all().delete()
+        # Remove the aggregate
+        call_man_command('remove_aggregate_cmsa15min')
 
-        # Recalculate the history since yesterday
+        assert Cmsa15Min.objects.all().count() == 0
+
+        # Run the aggregator again
+        call_man_command('complete_aggregate_cmsa15min')
+
+        # Check the last aggregation record again
+        last_record = Cmsa15Min.objects \
+            .filter(sensor=self.sensor_names[0]) \
+            .order_by('-timestamp_rounded') \
+            .first()
+        assert today == last_record.timestamp_rounded.date()
+
+    def test_aggregate_recalculation_since_date(self, client):
+        today = self.add_test_records(client, test_days=3)
+
+        # Run the aggregator
+        call_man_command('complete_aggregate_cmsa15min')
+
+        # Remove the aggregate since yesterday
         a_day_ago = (date.today() - timedelta(days=1)).isoformat()
-        call_man_command('complete_aggregate', 'continuousaggregate_cmsa15min', f'--recalculate-history-since={a_day_ago}')
+        call_man_command('remove_aggregate_cmsa15min', f'--since={a_day_ago}')
 
         # We removed source records from yesterday onwards. That means we now expect the
         # latest date in the continuous aggregate to be the day before yesterday
@@ -93,3 +111,13 @@ class TestDataIngressPoster:
             .order_by('-timestamp_rounded') \
             .first()
         assert today - timedelta(days=2) == last_record.timestamp_rounded.date()
+
+        # Run the aggregator again
+        call_man_command('complete_aggregate_cmsa15min')
+
+        # Check the last aggregation record again
+        last_record = Cmsa15Min.objects \
+            .filter(sensor=self.sensor_names[0]) \
+            .order_by('-timestamp_rounded') \
+            .first()
+        assert today == last_record.timestamp_rounded.date()

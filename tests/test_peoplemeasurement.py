@@ -100,7 +100,7 @@ class PeopleMeasurementTestGetV1(APITransactionTestCase):
         parser.consume(end_at_empty_queue=True)
 
         # Complete aggregate because the query in the endpoint depends on it
-        call_man_command('complete_aggregate', 'continuousaggregate_cmsa15min')
+        call_man_command('complete_aggregate_cmsa15min')
 
         # test whether the endpoint responds correctly
         response = self.client.get(self.URL, **GET_AUTHORIZATION_HEADER)
