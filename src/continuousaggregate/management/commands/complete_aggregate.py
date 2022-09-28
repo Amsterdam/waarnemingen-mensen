@@ -1,6 +1,5 @@
 import logging
-import time
-from datetime import datetime
+from datetime import date, datetime
 
 from django.core.management.base import BaseCommand
 from django.db import connection, transaction
@@ -16,16 +15,25 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('table_name', type=str)
         parser.add_argument('--recalculate-history', default=False)
+        parser.add_argument('--recalculate-history-since', type=date.fromisoformat)
 
     def handle(self, *args, **options):
         table_name = options['table_name']
         recalculate_history = options['recalculate_history']
+        recalculate_history_since = options['recalculate_history_since']
 
         if recalculate_history:
             self.stdout.write(f"Start deleting full aggregation table {Cmsa15Min._meta.db_table}")
             Cmsa15Min.objects.all().delete()
             self.stdout.write(f"Finished deleting full aggregation table {Cmsa15Min._meta.db_table}")
-        
+
+        if recalculate_history_since:
+            self.stdout.write(
+                f"Start deleting aggregation table {Cmsa15Min._meta.db_table} since {recalculate_history_since}")
+            Cmsa15Min.objects.filter(timestamp_rounded__gt=recalculate_history_since).delete()
+            self.stdout.write(
+                f"Finished deleting aggregation table {Cmsa15Min._meta.db_table} since {recalculate_history_since}")
+
         # calculate run_id based on the latest run_id from execution_log table
         with connection.cursor() as cursor:
             self.stdout.write(f"Start calculate next value for run_id based on execution_log table ")

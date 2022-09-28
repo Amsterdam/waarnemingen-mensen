@@ -32,14 +32,13 @@ class TestDataIngressPoster:
         for i, sensor_name in enumerate(self.sensor_names):
             Sensors.objects.create(objectnummer=sensor_name, gid=i)
 
-    def test_vanilla(self, client):
+    def add_test_records(self, client, test_days=2):
         # Add records every 5min for multiple days
         Message.objects.all().delete()
-        test_days = 2
         today = date.today()
-        start_date = today - timedelta(days=test_days)
+        start_date = today - timedelta(days=test_days-1)
         the_dt = datetime(start_date.year, start_date.month, start_date.day)
-        while the_dt < datetime(today.year, today.month, today.day):
+        while the_dt < (datetime(today.year, today.month, today.day)+timedelta(days=1)):
             for sensor_name in self.sensor_names:
                 test_post = json.loads(TEST_POST)
                 test_post['data'][0]['sensor'] = sensor_name
@@ -50,6 +49,11 @@ class TestDataIngressPoster:
         # Then run the parse_ingress script
         parser = TelcameraParser()
         parser.consume(end_at_empty_queue=True)
+
+        return today
+
+    def test_vanilla(self, client):
+        today = self.add_test_records(client)
 
         # Make sure we've got source data
         assert Observation.objects.all().count() > 100
@@ -62,9 +66,30 @@ class TestDataIngressPoster:
 
         # Take a record in the middle of the data in the continuous aggregate table
         # and check whether the record is made up of exactly 3 messages (one every 5 min)
-        last_record = Cmsa15Min.objects\
+        middle_record = Cmsa15Min.objects\
             .filter(sensor=self.sensor_names[0])\
             .filter(timestamp_rounded__gte=(today - timedelta(days=1)).isoformat())\
             .order_by('timestamp_rounded')\
             .first()
-        assert last_record.basedonxmessages == 3
+        assert middle_record.basedonxmessages == 3
+
+    def test_aggregate_recalculation(self, client):
+        today = self.add_test_records(client, test_days=3)
+
+        # Run the aggregator
+        call_man_command('complete_aggregate', 'continuousaggregate_cmsa15min')
+
+        # Remove underlying source data
+        Observation.objects.all().delete()
+
+        # Recalculate the history since yesterday
+        a_day_ago = (date.today() - timedelta(days=1)).isoformat()
+        call_man_command('complete_aggregate', 'continuousaggregate_cmsa15min', f'--recalculate-history-since={a_day_ago}')
+
+        # We removed source records from yesterday onwards. That means we now expect the
+        # latest date in the continuous aggregate to be the day before yesterday
+        last_record = Cmsa15Min.objects \
+            .filter(sensor=self.sensor_names[0]) \
+            .order_by('-timestamp_rounded') \
+            .first()
+        assert today - timedelta(days=2) == last_record.timestamp_rounded.date()
