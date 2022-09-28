@@ -49,10 +49,10 @@ bash:                               ## Run the container and start bash
 shell:                              ## Run shell_plus and print sql
 	$(manage) shell_plus --print-sql
 
-dev: 						        ## Run the development app (and run extra migrations first)
+dev: migrate				        ## Run the development app (and run extra migrations first)
 	$(run) --service-ports dev
 
-test:                               ## Execute tests
+test: migrate                              ## Execute tests
 	$(run) test pytest /tests $(ARGS)
 
 parser_telcameras_v2:
