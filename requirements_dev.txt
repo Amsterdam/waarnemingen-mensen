@@ -18,7 +18,7 @@ brotli==1.0.9
     # via geventhttpclient
 build==0.9.0
     # via pip-tools
-certifi==2022.9.24
+certifi==2022.12.7
     # via
     #   -r ./requirements.txt
     #   geventhttpclient
@@ -129,8 +129,6 @@ et-xmlfile==1.1.0
     # via
     #   -r ./requirements.txt
     #   openpyxl
-exceptiongroup==1.0.4
-    # via pytest
 executing==1.2.0
     # via stack-data
 factory-boy==3.2.1
@@ -291,16 +289,11 @@ ruamel-yaml==0.17.21
     # via
     #   -r ./requirements.txt
     #   drf-yasg
-ruamel-yaml-clib==0.2.7
-    # via
-    #   -r ./requirements.txt
-    #   ruamel-yaml
 sentry-sdk==1.11.1
     # via -r ./requirements.txt
 six==1.16.0
     # via
     #   -r ./requirements.txt
-    #   asttokens
     #   djangorestframework-csv
     #   flask-cors
     #   geventhttpclient
@@ -318,12 +311,6 @@ tablib[html,ods,xls,xlsx,yaml]==3.2.1
     #   django-import-export
 time-machine==2.8.2
     # via -r requirements_dev.in
-tomli==2.0.1
-    # via
-    #   build
-    #   coverage
-    #   pep517
-    #   pytest
 traitlets==5.6.0
     # via
     #   ipython
