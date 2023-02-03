@@ -34,7 +34,7 @@ deprecated==1.2.13
     # via jwcrypto
 diff-match-patch==20200713
     # via django-import-export
-django==3.2.16
+django==3.2.17
     # via
     #   -r requirements.in
     #   datapunt-authorization-django
@@ -127,8 +127,6 @@ requests==2.28.1
     #   datapunt-authorization-django
 ruamel-yaml==0.17.21
     # via drf-yasg
-ruamel-yaml-clib==0.2.7
-    # via ruamel-yaml
 sentry-sdk==1.11.1
     # via -r requirements.in
 six==1.16.0
