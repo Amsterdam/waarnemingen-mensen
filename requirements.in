@@ -11,7 +11,7 @@ djangorestframework-gis
 djangorestframework-xml
 drf_amsterdam
 drf-yasg
-psycopg2-binary
+psycopg2
 pytz
 requests
 sentry-sdk
