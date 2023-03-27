@@ -5,8 +5,6 @@ MAINTAINER datapunt@amsterdam.nl
 RUN apt update -y && \
     apt install -y --no-install-recommends \
     gdal-bin \
-    libgdal20 \
-    postgresql-client-11\
     &&  rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app_install
