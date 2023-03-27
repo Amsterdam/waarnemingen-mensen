@@ -49,7 +49,7 @@ coreschema==0.0.4
     #   drf-yasg
 coverage[toml]==7.2.2
     # via pytest-cov
-cryptography==39.0.2
+cryptography==40.0.1
     # via
     #   -r ./requirements.txt
     #   jwcrypto
@@ -92,7 +92,7 @@ django-debug-toolbar==3.8.1
     # via -r ./requirements.txt
 django-extensions==3.2.1
     # via -r ./requirements.txt
-django-filter==22.1
+django-filter==23.1
     # via -r ./requirements.txt
 django-import-export==3.1.0
     # via -r ./requirements.txt
@@ -137,7 +137,7 @@ factory-boy==3.2.1
     # via
     #   -r requirements_dev.in
     #   pytest-factoryboy
-faker==18.3.0
+faker==18.3.1
     # via factory-boy
 flask==2.2.3
     # via
@@ -263,7 +263,7 @@ python-dateutil==2.8.2
     #   django-datetime-utc
     #   faker
     #   time-machine
-pytz==2022.7.1
+pytz==2023.2
     # via
     #   -r ./requirements.txt
     #   django
@@ -307,7 +307,7 @@ sqlparse==0.4.3
     #   django-debug-toolbar
 stack-data==0.6.2
     # via ipython
-tablib[html,ods,xls,xlsx,yaml]==3.3.0
+tablib[html,ods,xls,xlsx,yaml]==3.4.0
     # via
     #   -r ./requirements.txt
     #   django-import-export

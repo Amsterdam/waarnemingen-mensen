@@ -1,4 +1,4 @@
-FROM amsterdam/python:3.9-buster as app
+FROM python:3.10 as app
 MAINTAINER datapunt@amsterdam.nl
 
 # GDAL is needed for leaflet, which is used in the django-admin
@@ -9,7 +9,7 @@ RUN apt update -y && \
 WORKDIR /app_install
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
-
+RUN adduser --system datapunt
 COPY deploy /deploy
 
 WORKDIR /src
@@ -33,6 +33,7 @@ ADD requirements_dev.txt requirements_dev.txt
 RUN pip install -r requirements_dev.txt
 
 WORKDIR /src
+
 USER datapunt
 
 # Any process that requires to write in the home dir
