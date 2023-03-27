@@ -3,8 +3,11 @@ MAINTAINER datapunt@amsterdam.nl
 
 # GDAL is needed for leaflet, which is used in the django-admin
 RUN apt update -y && \
-    apt install -y --no-install-recommends gdal-bin && \
-    rm -rf /var/lib/apt/lists/*
+    apt install -y --no-install-recommends \
+    gdal-bin \
+    libgdal20 \
+    postgresql-client-11\
+    &&  rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app_install
 COPY requirements.txt requirements.txt
