@@ -149,6 +149,8 @@ urllib3==1.26.15
     # via
     #   requests
     #   sentry-sdk
+uwsgi==2.0.21
+    # via -r requirements.in
 wrapt==1.15.0
     # via deprecated
 xlrd==2.0.1
