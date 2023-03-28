@@ -340,8 +340,6 @@ urllib3==1.26.15
     #   -r ./requirements.txt
     #   requests
     #   sentry-sdk
-uwsgi==2.0.21
-    # via -r ./requirements.txt
 wcwidth==0.2.6
     # via prompt-toolkit
 werkzeug==2.2.3
