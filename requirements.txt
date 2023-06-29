@@ -92,7 +92,7 @@ openpyxl==3.1.2
     # via tablib
 packaging==23.1
     # via drf-yasg
-psycopg2==2.9.6
+psycopg2-binary==2.9.6
     # via -r requirements.in
 pycparser==2.21
     # via cffi

@@ -19,6 +19,14 @@ pip-tools:
 install: pip-tools                  ## Install requirements and sync venv with expected state as defined in requirements.txt
 	pip-sync requirements.txt requirements_dev.txt
 
+lintfix:                            ## Execute lint fixes
+	$(run) test isort /app/src/$(APP) /app/tests/$(APP)
+	$(run) test black /app/src/$(APP) /app/tests/$(APP)
+
+lint:                               ## Execute lint checks
+	$(run) test isort --diff --check /app/src/$(APP) /app/tests/$(APP)
+	$(run) test black --diff --check /app/src/$(APP) /app/tests/$(APP)
+
 requirements: pip-tools             ## Upgrade requirements (in requirements.in) to latest versions and compile requirements.txt
 	pip-compile --upgrade --output-file requirements.txt requirements.in
 	pip-compile --upgrade --output-file requirements_dev.txt requirements_dev.in
