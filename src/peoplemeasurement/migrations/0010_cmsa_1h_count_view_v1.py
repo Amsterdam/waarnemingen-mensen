@@ -2,9 +2,8 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('peoplemeasurement', '0009_sensors'),
+        ("peoplemeasurement", "0009_sensors"),
     ]
 
     _VIEW_NAME = "cmsa_1h_count_view_v1"
@@ -26,15 +25,11 @@ GROUP BY sensor, location_name, date_trunc('hour', timestamp_rounded)
     SELECT * FROM {_VIEW_NAME};
     """
 
-    reverse_sql_materialized = f"DROP MATERIALIZED VIEW IF EXISTS {_VIEW_NAME}_materialized;"
+    reverse_sql_materialized = (
+        f"DROP MATERIALIZED VIEW IF EXISTS {_VIEW_NAME}_materialized;"
+    )
 
     operations = [
-        migrations.RunSQL(
-            sql=sql,
-            reverse_sql=reverse_sql
-        ),
-        migrations.RunSQL(
-            sql=sql_materialized,
-            reverse_sql=reverse_sql_materialized
-        ),
+        migrations.RunSQL(sql=sql, reverse_sql=reverse_sql),
+        migrations.RunSQL(sql=sql_materialized, reverse_sql=reverse_sql_materialized),
     ]

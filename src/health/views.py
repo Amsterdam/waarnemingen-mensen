@@ -32,7 +32,9 @@ def health(request):
         log.exception("Debug mode not allowed in production")
         return HttpResponse(
             "Debug mode not allowed in production",
-            content_type="text/plain", status=500)
+            content_type="text/plain",
+            status=500,
+        )
 
     # check database
     try:
@@ -49,7 +51,6 @@ def health(request):
 
 
 def check_data(request):
-
     if model.objects.all().count() < 20000:
         return HttpResponse(
             "Too few items in the database", content_type="text/plain", status=500

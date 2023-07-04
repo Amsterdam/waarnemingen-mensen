@@ -4,9 +4,8 @@ from telcameras_v2.view_definitions import VIEW_STRINGS, get_view_strings
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('telcameras_v2', '0027_auto_20210303_1230'),
+        ("telcameras_v2", "0027_auto_20210303_1230"),
     ]
 
     # This deploys a fix in the view 'cmsa_15min_view_v8' which flipped up and down counts
@@ -27,53 +26,50 @@ class Migration(migrations.Migration):
     operations = [
         # First remove the views
         migrations.RunSQL(
-            sql=_realtime_30d_view_strings['reverse_sql_materialized'],
-            reverse_sql=_realtime_30d_view_strings['sql_materialized']
+            sql=_realtime_30d_view_strings["reverse_sql_materialized"],
+            reverse_sql=_realtime_30d_view_strings["sql_materialized"],
         ),
         migrations.RunSQL(
-            sql=_realtime_30d_view_strings['reverse_sql'],
-            reverse_sql=_realtime_30d_view_strings['sql']
+            sql=_realtime_30d_view_strings["reverse_sql"],
+            reverse_sql=_realtime_30d_view_strings["sql"],
         ),
         migrations.RunSQL(
-            sql=_realtime_view_strings['reverse_sql_materialized'],
-            reverse_sql=_realtime_view_strings['sql_materialized']
+            sql=_realtime_view_strings["reverse_sql_materialized"],
+            reverse_sql=_realtime_view_strings["sql_materialized"],
         ),
         migrations.RunSQL(
-            sql=_realtime_view_strings['reverse_sql'],
-            reverse_sql=_realtime_view_strings['sql']
+            sql=_realtime_view_strings["reverse_sql"],
+            reverse_sql=_realtime_view_strings["sql"],
         ),
         migrations.RunSQL(
-            sql=_view_strings['reverse_sql_materialized'],
-            reverse_sql=_view_strings['sql_materialized']
+            sql=_view_strings["reverse_sql_materialized"],
+            reverse_sql=_view_strings["sql_materialized"],
         ),
         migrations.RunSQL(
-            sql=_view_strings['reverse_sql'],
-            reverse_sql=_view_strings['sql']
+            sql=_view_strings["reverse_sql"], reverse_sql=_view_strings["sql"]
         ),
-
         # And then recreate them again
         migrations.RunSQL(
-            sql=_view_strings['sql'],
-            reverse_sql=_view_strings['reverse_sql']
+            sql=_view_strings["sql"], reverse_sql=_view_strings["reverse_sql"]
         ),
         migrations.RunSQL(
-            sql=_view_strings['sql_materialized'],
-            reverse_sql=_view_strings['reverse_sql_materialized']
+            sql=_view_strings["sql_materialized"],
+            reverse_sql=_view_strings["reverse_sql_materialized"],
         ),
         migrations.RunSQL(
-            sql=_realtime_view_strings['sql'],
-            reverse_sql=_realtime_view_strings['reverse_sql']
+            sql=_realtime_view_strings["sql"],
+            reverse_sql=_realtime_view_strings["reverse_sql"],
         ),
         migrations.RunSQL(
-            sql=_realtime_view_strings['sql_materialized'],
-            reverse_sql=_realtime_view_strings['reverse_sql_materialized']
+            sql=_realtime_view_strings["sql_materialized"],
+            reverse_sql=_realtime_view_strings["reverse_sql_materialized"],
         ),
         migrations.RunSQL(
-            sql=_realtime_30d_view_strings['sql'],
-            reverse_sql=_realtime_30d_view_strings['reverse_sql']
+            sql=_realtime_30d_view_strings["sql"],
+            reverse_sql=_realtime_30d_view_strings["reverse_sql"],
         ),
         migrations.RunSQL(
-            sql=_realtime_30d_view_strings['sql_materialized'],
-            reverse_sql=_realtime_30d_view_strings['reverse_sql_materialized']
+            sql=_realtime_30d_view_strings["sql_materialized"],
+            reverse_sql=_realtime_30d_view_strings["reverse_sql_materialized"],
         ),
     ]

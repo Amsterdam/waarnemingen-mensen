@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('telcameras_v2', '0006_auto_20200723_1352'),
+        ("telcameras_v2", "0006_auto_20200723_1352"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='observation',
-            name='latitude',
+            model_name="observation",
+            name="latitude",
             field=models.DecimalField(decimal_places=13, max_digits=16),
         ),
         migrations.AlterField(
-            model_name='observation',
-            name='longitude',
+            model_name="observation",
+            name="longitude",
             field=models.DecimalField(decimal_places=13, max_digits=16),
         ),
     ]

@@ -20,16 +20,18 @@ from django.contrib import admin
 from django.urls import path
 
 urlpatterns = [
-    path('ingress/', include('ingress.urls')),
-    path('telcameras/v1/', include('peoplemeasurement.urls')),
-    url('status/', include('health.urls')),
-    path('admin/', admin.site.urls),
+    path("ingress/", include("ingress.urls")),
+    path("telcameras/v1/", include("peoplemeasurement.urls")),
+    url("status/", include("health.urls")),
+    path("admin/", admin.site.urls),
 ]
 
 
 if settings.DEBUG:
     import debug_toolbar
 
-    urlpatterns.extend([
-        url(r'^__debug__/', include(debug_toolbar.urls)),
-    ])
+    urlpatterns.extend(
+        [
+            url(r"^__debug__/", include(debug_toolbar.urls)),
+        ]
+    )

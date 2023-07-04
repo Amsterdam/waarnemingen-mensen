@@ -17,7 +17,10 @@ class TokenAuthentication(BaseAuthentication):
     """
 
     def authenticate(self, request):
-        if request.META['HTTP_AUTHORIZATION'].replace('Token ', '') != settings.AUTHORIZATION_TOKEN:
+        if (
+            request.META["HTTP_AUTHORIZATION"].replace("Token ", "")
+            != settings.AUTHORIZATION_TOKEN
+        ):
             raise PermissionDenied(detail="Invalid token.")
 
         UserModel = get_user_model()

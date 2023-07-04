@@ -4,18 +4,17 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('peoplemeasurement', '0028_alter_peoplemeasurement_details'),
+        ("peoplemeasurement", "0028_alter_peoplemeasurement_details"),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='area',
-            unique_together={('sensor', 'name')},
+            name="area",
+            unique_together={("sensor", "name")},
         ),
         migrations.AlterUniqueTogether(
-            name='line',
-            unique_together={('sensor', 'name')},
+            name="line",
+            unique_together={("sensor", "name")},
         ),
     ]

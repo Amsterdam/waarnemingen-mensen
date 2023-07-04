@@ -4,17 +4,15 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('peoplemeasurement', '0027_drop_redundant_views'),
+        ("peoplemeasurement", "0027_drop_redundant_views"),
     ]
 
     operations = [
-
         migrations.DeleteModel(
-            name='VoorspelCoefficient',
+            name="VoorspelCoefficient",
         ),
         migrations.DeleteModel(
-            name='VoorspelIntercept',
+            name="VoorspelIntercept",
         ),
     ]

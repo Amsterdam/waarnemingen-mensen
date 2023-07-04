@@ -38,11 +38,13 @@ class Today15minAggregationSerializer(serializers.Serializer):
 class ServicelevelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Servicelevel
-        fields = '__all__'
+        fields = "__all__"
 
 
 class GeoSerializer(serializers.ModelSerializer):
-    sensor = serializers.SlugRelatedField(slug_field="objectnummer", queryset=Sensors.objects.all())
+    sensor = serializers.SlugRelatedField(
+        slug_field="objectnummer", queryset=Sensors.objects.all()
+    )
 
     def get_validation_errors(self, errors=None) -> list[str]:
         """
@@ -63,13 +65,13 @@ class GeoSerializer(serializers.ModelSerializer):
 class AreaSerializer(GeoSerializer):
     class Meta:
         model = Area
-        fields = '__all__'
+        fields = "__all__"
 
 
 class LineSerializer(GeoSerializer):
     class Meta:
         model = Line
-        fields = '__all__'
+        fields = "__all__"
 
 
 class SensorSerializer(serializers.ModelSerializer):
@@ -78,4 +80,4 @@ class SensorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Sensors
-        fields = '__all__'
+        fields = "__all__"

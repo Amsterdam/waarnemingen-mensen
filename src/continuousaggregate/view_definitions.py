@@ -1,7 +1,7 @@
 VIEW_STRINGS = {
     # NOTE: the regex in these queries cause a DeprecationWarning: invalid escape sequence
     # For this reason we use a rawstring for these queries
-    'vw_cmsa_15min_v01_aggregate': r"""
+    "vw_cmsa_15min_v01_aggregate": r"""
       CREATE VIEW vw_cmsa_15min_v01_aggregate AS
         WITH startdate_per_flow AS (
                         select min(timestamp_rounded::date) as startdate from public.peoplemeasurement_v1_data   -- v1 data flow
@@ -386,8 +386,7 @@ VIEW_STRINGS = {
         , aq.timestamp_rounded
         ;
     """,
-
-    'vw_cmsa_15min_v01_predict': r"""
+    "vw_cmsa_15min_v01_predict": r"""
       CREATE VIEW vw_cmsa_15min_v01_predict AS
         
         /*
@@ -581,8 +580,7 @@ VIEW_STRINGS = {
         , timestamp_rounded
         ;
     """,
-
-    'vw_cmsa_15min_v01_realtime_predict': r"""
+    "vw_cmsa_15min_v01_realtime_predict": r"""
       CREATE VIEW vw_cmsa_15min_v01_realtime_predict AS
 
         with use_date as (
@@ -689,7 +687,6 @@ VIEW_STRINGS = {
         ) sq
         ;
     """,
-    
 }
 
 
@@ -714,7 +711,9 @@ def get_view_strings(view_strings, view_name, indexes=None):
         SELECT * FROM {view_name};
         """
 
-    reverse_sql_materialized = f"DROP MATERIALIZED VIEW IF EXISTS {view_name}_materialized;"
+    reverse_sql_materialized = (
+        f"DROP MATERIALIZED VIEW IF EXISTS {view_name}_materialized;"
+    )
 
     index_definitions = []
     if indexes:
@@ -730,9 +729,9 @@ def get_view_strings(view_strings, view_name, indexes=None):
             index_definitions.append(index_definition)
 
     return {
-        'sql': view_strings[view_name],
-        'reverse_sql': reverse_sql,
-        'sql_materialized': sql_materialized,
-        'reverse_sql_materialized': reverse_sql_materialized,
-        'indexes': index_definitions
+        "sql": view_strings[view_name],
+        "reverse_sql": reverse_sql,
+        "sql_materialized": sql_materialized,
+        "reverse_sql_materialized": reverse_sql_materialized,
+        "indexes": index_definitions,
     }

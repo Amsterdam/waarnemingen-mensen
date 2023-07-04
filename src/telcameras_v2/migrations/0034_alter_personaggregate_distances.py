@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('telcameras_v2', '0033_alter_personaggregate_distances'),
+        ("telcameras_v2", "0033_alter_personaggregate_distances"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='personaggregate',
-            name='distances',
+            model_name="personaggregate",
+            name="distances",
             field=models.JSONField(null=True),
         ),
     ]

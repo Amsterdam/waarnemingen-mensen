@@ -1,17 +1,21 @@
-FROM python:3.10 as app
+FROM python:3.11.4-slim-bullseye as app
 MAINTAINER datapunt@amsterdam.nl
 
-# GDAL is needed for leaflet, which is used in the django-admin
-RUN apt update -y && \
-    apt install -y --no-install-recommends \
-    gdal-bin \
-    &&  rm -rf /var/lib/apt/lists/*
-
 WORKDIR /app_install
+
+# GDAL is needed for leaflet, which is used in the django-admin
+RUN apt update -y \
+    && apt upgrade -y \
+    && apt install -y --no-install-recommends gdal-bin build-essential  libpcre3-dev\
+    && apt autoremove -y \
+    && apt clean -y \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
-RUN adduser --system datapunt
-COPY deploy /deploy
+
+WORKDIR /deploy
+COPY deploy .
 
 WORKDIR /src
 COPY src .
@@ -21,6 +25,7 @@ ARG AUTHORIZATION_TOKEN=not-used
 ARG GET_AUTHORIZATION_TOKEN=not-used
 RUN python manage.py collectstatic --no-input
 
+RUN groupadd -r datapunt && useradd -r -g datapunt datapunt
 USER datapunt
 
 CMD ["/deploy/docker-run.sh"]

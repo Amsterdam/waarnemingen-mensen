@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('peoplemeasurement', '0022_alter_sensors_objectnummer'),
+        ("peoplemeasurement", "0022_alter_sensors_objectnummer"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='sensors',
-            name='drop_incoming_data',
+            model_name="sensors",
+            name="drop_incoming_data",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='sensors',
-            name='is_public',
+            model_name="sensors",
+            name="is_public",
             field=models.BooleanField(default=True),
         ),
     ]

@@ -1,10 +1,10 @@
-from django.test import TestCase
 import json
 import logging
 
 import pytest
 import pytz
 from django.conf import settings
+from django.test import TestCase
 from ingress.models import Collection, FailedMessage, Message
 from model_bakery import baker
 
@@ -145,10 +145,14 @@ class TestDataIngressPoster:
         self.URL = f"/ingress/{self.collection_name}/"
 
         # Create an endpoint
-        self.collection_obj = Collection.objects.create(name=self.collection_name, consumer_enabled=True)
+        self.collection_obj = Collection.objects.create(
+            name=self.collection_name, consumer_enabled=True
+        )
 
         # Create the sensor in the database
-        self.sensor = Sensors.objects.create(objectnummer=json.loads(TEST_POST)["sensor"], gid=1)
+        self.sensor = Sensors.objects.create(
+            objectnummer=json.loads(TEST_POST)["sensor"], gid=1
+        )
 
     def test_serializer_is_valid(self):
         observation = TelcameraParser().data_to_observation(TEST_POST)
@@ -159,7 +163,12 @@ class TestDataIngressPoster:
         # First add a couple ingress records
         Message.objects.all().delete()
         for _ in range(3):
-            client.post(self.URL, TEST_POST, **AUTHORIZATION_HEADER, content_type="application/json")
+            client.post(
+                self.URL,
+                TEST_POST,
+                **AUTHORIZATION_HEADER,
+                content_type="application/json",
+            )
         assert Message.objects.count() == 3
 
         # Then run the parser
@@ -182,7 +191,12 @@ class TestDataIngressPoster:
         # First add a couple ingress records
         Message.objects.all().delete()
         for _ in range(3):
-            client.post(self.URL, TEST_POST_PRORAIL, **AUTHORIZATION_HEADER, content_type="application/json")
+            client.post(
+                self.URL,
+                TEST_POST_PRORAIL,
+                **AUTHORIZATION_HEADER,
+                content_type="application/json",
+            )
         assert Message.objects.count() == 3
 
         # Then run the parser
@@ -204,7 +218,12 @@ class TestDataIngressPoster:
     def test_parse_ingress_fail_with_wrong_input(self, client):
         # First add an ingress record which is not correct json
         Message.objects.all().delete()
-        client.post(self.URL, "NOT JSON", **AUTHORIZATION_HEADER, content_type="application/json")
+        client.post(
+            self.URL,
+            "NOT JSON",
+            **AUTHORIZATION_HEADER,
+            content_type="application/json",
+        )
         assert Message.objects.count() == 1
 
         # Then run the parse_ingress script
@@ -225,7 +244,12 @@ class TestDataIngressPoster:
         post_data = json.loads(TEST_POST)
         post_data["sensor"] = "does not exist"
         for _ in range(3):
-            client.post(self.URL, json.dumps(post_data), **AUTHORIZATION_HEADER, content_type="application/json")
+            client.post(
+                self.URL,
+                json.dumps(post_data),
+                **AUTHORIZATION_HEADER,
+                content_type="application/json",
+            )
         assert Message.objects.count() == 3
 
         # Then run the parser
@@ -283,9 +307,10 @@ class TestTools(TestCase):
         self.assertIn(count_agg.count_scrambled, (0, 1))
 
     def test_scramble_v3_counts_command(self):
-        from django.db.models import Q, F
-        from model_bakery.recipe import Recipe
         from random import randint
+
+        from django.db.models import F, Q
+        from model_bakery.recipe import Recipe
 
         group_aggregate_recipe = Recipe(
             GroupAggregate,
@@ -313,7 +338,8 @@ class TestTools(TestCase):
 
         # check that all scrambled counts are within valid range
         assert not GroupAggregate.objects.filter(
-            Q(count_scrambled__gt=F("count") + 1) | Q(count_scrambled__lt=F("count") - 1)
+            Q(count_scrambled__gt=F("count") + 1)
+            | Q(count_scrambled__lt=F("count") - 1)
         )
 
         # Make sure that a significant amount of counts_scrambled were actually changed from the original

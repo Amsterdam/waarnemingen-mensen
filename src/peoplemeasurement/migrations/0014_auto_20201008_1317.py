@@ -4,25 +4,24 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('peoplemeasurement', '0013_servicelevel'),
+        ("peoplemeasurement", "0013_servicelevel"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='sensors',
-            name='gebied',
+            model_name="sensors",
+            name="gebied",
             field=models.CharField(max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='sensors',
-            name='imported_at',
+            model_name="sensors",
+            name="imported_at",
             field=models.DateTimeField(auto_now_add=True, null=True),
         ),
         migrations.AddField(
-            model_name='sensors',
-            name='updated_at',
+            model_name="sensors",
+            name="updated_at",
             field=models.DateTimeField(auto_now=True, null=True),
         ),
     ]

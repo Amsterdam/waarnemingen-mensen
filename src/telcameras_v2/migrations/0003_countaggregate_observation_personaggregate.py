@@ -2,64 +2,106 @@
 
 import django.contrib.postgres.fields
 import django.contrib.postgres.fields.jsonb
-from django.db import migrations, models
 import django.db.models.deletion
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('telcameras_v2', '0002_auto_20200703_0933'),
+        ("telcameras_v2", "0002_auto_20200703_0933"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Observation',
+            name="Observation",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('sensor', models.CharField(max_length=255)),
-                ('sensor_type', models.CharField(max_length=255)),
-                ('sensor_state', models.CharField(max_length=255)),
-                ('owner', models.CharField(max_length=255, null=True)),
-                ('supplier', models.CharField(max_length=255, null=True)),
-                ('purpose', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=255), null=True, size=None)),
-                ('latitude', models.DecimalField(decimal_places=6, max_digits=9)),
-                ('longitude', models.DecimalField(decimal_places=6, max_digits=9)),
-                ('interval', models.IntegerField()),
-                ('timestamp_message', models.DateTimeField()),
-                ('timestamp_start', models.DateTimeField()),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("sensor", models.CharField(max_length=255)),
+                ("sensor_type", models.CharField(max_length=255)),
+                ("sensor_state", models.CharField(max_length=255)),
+                ("owner", models.CharField(max_length=255, null=True)),
+                ("supplier", models.CharField(max_length=255, null=True)),
+                (
+                    "purpose",
+                    django.contrib.postgres.fields.ArrayField(
+                        base_field=models.CharField(max_length=255),
+                        null=True,
+                        size=None,
+                    ),
+                ),
+                ("latitude", models.DecimalField(decimal_places=6, max_digits=9)),
+                ("longitude", models.DecimalField(decimal_places=6, max_digits=9)),
+                ("interval", models.IntegerField()),
+                ("timestamp_message", models.DateTimeField()),
+                ("timestamp_start", models.DateTimeField()),
             ],
         ),
         migrations.CreateModel(
-            name='PersonAggregate',
+            name="PersonAggregate",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('message', models.IntegerField()),
-                ('version', models.CharField(max_length=50)),
-                ('person_id', models.UUIDField()),
-                ('observation_timestamp', models.DateTimeField()),
-                ('record', models.IntegerField()),
-                ('speed', models.FloatField(null=True)),
-                ('geom', models.TextField()),
-                ('quality', models.IntegerField()),
-                ('distances', django.contrib.postgres.fields.jsonb.JSONField()),
-                ('observation', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='telcameras_v2.Observation')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("message", models.IntegerField()),
+                ("version", models.CharField(max_length=50)),
+                ("person_id", models.UUIDField()),
+                ("observation_timestamp", models.DateTimeField()),
+                ("record", models.IntegerField()),
+                ("speed", models.FloatField(null=True)),
+                ("geom", models.TextField()),
+                ("quality", models.IntegerField()),
+                ("distances", django.contrib.postgres.fields.jsonb.JSONField()),
+                (
+                    "observation",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="telcameras_v2.Observation",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='CountAggregate',
+            name="CountAggregate",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('message', models.IntegerField()),
-                ('version', models.CharField(max_length=50)),
-                ('external_id', models.CharField(max_length=255)),
-                ('type', models.CharField(max_length=255)),
-                ('azimuth', models.IntegerField()),
-                ('count_in', models.IntegerField()),
-                ('count_out', models.IntegerField()),
-                ('observation', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='telcameras_v2.Observation')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("message", models.IntegerField()),
+                ("version", models.CharField(max_length=50)),
+                ("external_id", models.CharField(max_length=255)),
+                ("type", models.CharField(max_length=255)),
+                ("azimuth", models.IntegerField()),
+                ("count_in", models.IntegerField()),
+                ("count_out", models.IntegerField()),
+                (
+                    "observation",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="telcameras_v2.Observation",
+                    ),
+                ),
             ],
         ),
     ]

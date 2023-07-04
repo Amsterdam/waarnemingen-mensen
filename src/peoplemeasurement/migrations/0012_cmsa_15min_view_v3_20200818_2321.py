@@ -2,9 +2,8 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('peoplemeasurement', '0011_sensors_gebiedstype'),
+        ("peoplemeasurement", "0011_sensors_gebiedstype"),
     ]
 
     _VIEW_NAME = "cmsa_15min_view_v3"
@@ -112,15 +111,11 @@ order by
     SELECT * FROM {_VIEW_NAME};
     """
 
-    reverse_sql_materialized = f"DROP MATERIALIZED VIEW IF EXISTS {_VIEW_NAME}_materialized;"
+    reverse_sql_materialized = (
+        f"DROP MATERIALIZED VIEW IF EXISTS {_VIEW_NAME}_materialized;"
+    )
 
     operations = [
-        migrations.RunSQL(
-            sql=sql,
-            reverse_sql=reverse_sql
-        ),
-        migrations.RunSQL(
-            sql=sql_materialized,
-            reverse_sql=reverse_sql_materialized
-        ),
+        migrations.RunSQL(sql=sql, reverse_sql=reverse_sql),
+        migrations.RunSQL(sql=sql_materialized, reverse_sql=reverse_sql_materialized),
     ]

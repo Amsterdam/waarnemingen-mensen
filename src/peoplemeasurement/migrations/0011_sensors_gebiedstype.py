@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('peoplemeasurement', '0010_cmsa_1h_count_view_v1'),
+        ("peoplemeasurement", "0010_cmsa_1h_count_view_v1"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='sensors',
-            name='gebiedstype',
+            model_name="sensors",
+            name="gebiedstype",
             field=models.CharField(max_length=255, null=True),
         ),
     ]

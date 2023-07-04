@@ -4,27 +4,26 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('telcameras_v2', '0001_initial'),
+        ("telcameras_v2", "0001_initial"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='personobservation',
-            name='observation_aggregate',
+            model_name="personobservation",
+            name="observation_aggregate",
         ),
         migrations.RemoveField(
-            model_name='personobservation',
-            name='sensor',
+            model_name="personobservation",
+            name="sensor",
         ),
         migrations.DeleteModel(
-            name='ObservationAggregate',
+            name="ObservationAggregate",
         ),
         migrations.DeleteModel(
-            name='PersonObservation',
+            name="PersonObservation",
         ),
         migrations.DeleteModel(
-            name='Sensor',
+            name="Sensor",
         ),
     ]

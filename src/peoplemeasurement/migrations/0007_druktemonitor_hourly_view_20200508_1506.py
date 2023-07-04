@@ -4,9 +4,8 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('peoplemeasurement', '0006_cmsa_15min_view_v2_20200423_1200'),
+        ("peoplemeasurement", "0006_cmsa_15min_view_v2_20200423_1200"),
     ]
 
     _VIEW_NAME = "druktemonitor_hourly_view"
@@ -105,10 +104,6 @@ class Migration(migrations.Migration):
 
     reverse_sql = f"drop view if exists {_VIEW_NAME};"
 
-
     operations = [
-        migrations.RunSQL(
-            sql=sql,
-            reverse_sql=reverse_sql
-        ),
+        migrations.RunSQL(sql=sql, reverse_sql=reverse_sql),
     ]

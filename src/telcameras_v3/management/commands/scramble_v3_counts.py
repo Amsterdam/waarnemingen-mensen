@@ -8,9 +8,12 @@ from telcameras_v3.tools import scramble_group_aggregate
 
 # select count(id) from telcameras_v3_groupaggregate where count IS NOT NULL AND count_scrambled IS NULL;
 
+
 @transaction.atomic
 def scramble_n_counts(n):
-    records = GroupAggregate.objects.filter(count__isnull=False, count_scrambled__isnull=True)[:n]
+    records = GroupAggregate.objects.filter(
+        count__isnull=False, count_scrambled__isnull=True
+    )[:n]
 
     count = records.count()
     if count == 0:
@@ -20,7 +23,7 @@ def scramble_n_counts(n):
     for record in records:
         save_list.append(scramble_group_aggregate(record))
 
-    GroupAggregate.objects.bulk_update(save_list, ['count_scrambled'])
+    GroupAggregate.objects.bulk_update(save_list, ["count_scrambled"])
 
     return count
 
@@ -33,4 +36,6 @@ class Command(BaseCommand):
         while num_scrambled != 0:
             start = datetime.now()
             num_scrambled = scramble_n_counts(1000)
-            self.stdout.write(f"Scrambled {num_scrambled} v3 records in {datetime.now() - start}")
+            self.stdout.write(
+                f"Scrambled {num_scrambled} v3 records in {datetime.now() - start}"
+            )

@@ -6,10 +6,9 @@ from telcameras_v2.view_definitions import VIEW_STRINGS, get_view_strings
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('peoplemeasurement', '0026_add_related_name_to_areas_and_lines_20211021_1135'),
-        ('telcameras_v2', '0032_deploy_v10_views_20210701_1411'),
+        ("peoplemeasurement", "0026_add_related_name_to_areas_and_lines_20211021_1135"),
+        ("telcameras_v2", "0032_deploy_v10_views_20210701_1411"),
     ]
 
     _view_names = [

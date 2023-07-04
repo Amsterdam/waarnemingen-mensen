@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('telcameras_v2', '0005_auto_20200716_1045'),
+        ("telcameras_v2", "0005_auto_20200716_1045"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='personaggregate',
-            name='geom',
+            model_name="personaggregate",
+            name="geom",
             field=models.TextField(null=True),
         ),
     ]

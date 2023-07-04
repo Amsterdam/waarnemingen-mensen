@@ -10,20 +10,20 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            'objectnummer',
-            help="A short string which represents the sensor. An example is 'GAWW-03'.")
+            "objectnummer",
+            help="A short string which represents the sensor. An example is 'GAWW-03'.",
+        )
 
         parser.add_argument(
-            'field',
-            help="The field to set.",
-            choices=['is_active', 'is_public'])
+            "field", help="The field to set.", choices=["is_active", "is_public"]
+        )
 
-        parser.add_argument('value', choices=['true', 'True', 'false', 'False'])
+        parser.add_argument("value", choices=["true", "True", "false", "False"])
 
     def handle(self, *args, **options):
-        objectnummer = options['objectnummer']
-        field = options['field']
-        value = bool(strtobool(options['value']))
+        objectnummer = options["objectnummer"]
+        field = options["field"]
+        value = bool(strtobool(options["value"]))
 
         try:
             sensor = Sensors.objects.get(objectnummer=objectnummer)
@@ -32,9 +32,13 @@ class Command(BaseCommand):
             return
 
         if value is getattr(sensor, field):
-            self.stdout.write(f"The sensor '{objectnummer}'.{field} is already {value}. Nothing has changed.")
+            self.stdout.write(
+                f"The sensor '{objectnummer}'.{field} is already {value}. Nothing has changed."
+            )
             return
 
         setattr(sensor, field, value)
         sensor.save()
-        self.stdout.write(f"The sensor '{objectnummer}'.{field} was successfully changed to {value}.")
+        self.stdout.write(
+            f"The sensor '{objectnummer}'.{field} was successfully changed to {value}."
+        )

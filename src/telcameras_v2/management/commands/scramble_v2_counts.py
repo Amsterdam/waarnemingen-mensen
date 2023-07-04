@@ -9,7 +9,9 @@ from telcameras_v2.tools import scramble_count_aggregate
 
 @transaction.atomic
 def scramble_n_counts(n):
-    records = CountAggregate.objects.filter(count_in__isnull=False, count_in_scrambled__isnull=True)[:n]
+    records = CountAggregate.objects.filter(
+        count_in__isnull=False, count_in_scrambled__isnull=True
+    )[:n]
 
     count = records.count()
     if count == 0:
@@ -19,7 +21,9 @@ def scramble_n_counts(n):
     for record in records:
         save_list.append(scramble_count_aggregate(record))
 
-    CountAggregate.objects.bulk_update(records, ['count_in_scrambled', 'count_out_scrambled', 'count_scrambled'])
+    CountAggregate.objects.bulk_update(
+        records, ["count_in_scrambled", "count_out_scrambled", "count_scrambled"]
+    )
 
     return count
 
@@ -32,4 +36,6 @@ class Command(BaseCommand):
         while num_scrambled != 0:
             start = datetime.now()
             num_scrambled = scramble_n_counts(1000)
-            self.stdout.write(f"Scrambled {num_scrambled} v2 records in {datetime.now() - start}")
+            self.stdout.write(
+                f"Scrambled {num_scrambled} v2 records in {datetime.now() - start}"
+            )
