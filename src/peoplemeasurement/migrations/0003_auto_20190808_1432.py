@@ -4,16 +4,15 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('peoplemeasurement', '0002_peoplemeasurementcsv_peoplemeasurementcsvtemp'),
+        ("peoplemeasurement", "0002_peoplemeasurementcsv_peoplemeasurementcsvtemp"),
     ]
 
     operations = [
         migrations.DeleteModel(
-            name='PeopleMeasurementCSV',
+            name="PeopleMeasurementCSV",
         ),
         migrations.DeleteModel(
-            name='PeopleMeasurementCSVTemp',
+            name="PeopleMeasurementCSVTemp",
         ),
     ]

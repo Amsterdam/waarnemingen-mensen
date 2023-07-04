@@ -4,15 +4,17 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('peoplemeasurement', '0027_drop_voorspelcoefficient_and_voorspelintercept_20211021_1423'),
+        (
+            "peoplemeasurement",
+            "0027_drop_voorspelcoefficient_and_voorspelintercept_20211021_1423",
+        ),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='peoplemeasurement',
-            name='details',
+            model_name="peoplemeasurement",
+            name="details",
             field=models.JSONField(null=True),
         ),
     ]

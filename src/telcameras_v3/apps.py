@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class TelcamerasV3Config(AppConfig):
-    name = 'telcameras_v3'
+    name = "telcameras_v3"

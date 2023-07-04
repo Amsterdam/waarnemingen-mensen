@@ -3,12 +3,12 @@ from django.db import migrations
 
 
 def createcachetable(apps, schema_editor):
-    call_command('createcachetable')
+    call_command("createcachetable")
 
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('peoplemeasurement', '0019_sensors_gid'),
+        ("peoplemeasurement", "0019_sensors_gid"),
     ]
 
     operations = [

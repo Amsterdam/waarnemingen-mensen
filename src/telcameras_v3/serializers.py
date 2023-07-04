@@ -8,13 +8,13 @@ class PersonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Person
         fields = [
-            'observation_timestamp',
-            'record',
-            'distance',
-            'time',
-            'speed',
-            'person_observation_timestamp',
-            'type',
+            "observation_timestamp",
+            "record",
+            "distance",
+            "time",
+            "speed",
+            "person_observation_timestamp",
+            "type",
         ]
 
 
@@ -24,13 +24,13 @@ class GroupAggregateSerializer(serializers.ModelSerializer):
     class Meta:
         model = GroupAggregate
         fields = [
-            'observation_timestamp',
-            'azimuth',
-            'count',
-            'cumulative_distance',
-            'cumulative_time',
-            'median_speed',
-            'persons',
+            "observation_timestamp",
+            "azimuth",
+            "count",
+            "cumulative_distance",
+            "cumulative_time",
+            "median_speed",
+            "persons",
         ]
 
 
@@ -40,30 +40,29 @@ class ObservationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Observation
         fields = [
-            'message_id',
-            'timestamp',
-            'sensor',
-            'sensor_type',
-            'sensor_state',
-            'latitude',
-            'longitude',
-            'interval',
-            'density',
-            'groupaggregates',
+            "message_id",
+            "timestamp",
+            "sensor",
+            "sensor_type",
+            "sensor_state",
+            "latitude",
+            "longitude",
+            "interval",
+            "density",
+            "groupaggregates",
         ]
 
     def create(self, validated_data):
-        group_aggregates = validated_data.pop('groupaggregates')
+        group_aggregates = validated_data.pop("groupaggregates")
 
         observation_obj = Observation.objects.create(
             **validated_data,
         )
 
         for group_aggregate_src in group_aggregates:
-            persons = group_aggregate_src.pop('persons')
+            persons = group_aggregate_src.pop("persons")
             group_aggregate_obj = GroupAggregate(
-                observation=observation_obj,
-                **group_aggregate_src
+                observation=observation_obj, **group_aggregate_src
             )
 
             # For privacy reasons we also copy the count to a new field which is slightly
@@ -72,9 +71,6 @@ class ObservationSerializer(serializers.ModelSerializer):
             count_aggregate.save()
 
             for person_src in persons:
-                Person.objects.create(
-                    group_aggregate=group_aggregate_obj,
-                    **person_src
-                )
+                Person.objects.create(group_aggregate=group_aggregate_obj, **person_src)
 
         return observation_obj

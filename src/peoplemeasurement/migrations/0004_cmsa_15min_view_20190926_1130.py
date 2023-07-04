@@ -2,9 +2,8 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('peoplemeasurement', '0003_auto_20190808_1432'),
+        ("peoplemeasurement", "0003_auto_20190808_1432"),
     ]
 
     _VIEW_NAME = "cmsa_15min"
@@ -49,8 +48,5 @@ ORDER BY
     reverse_sql = f"DROP VIEW IF EXISTS {_VIEW_NAME};"
 
     operations = [
-        migrations.RunSQL(
-            sql=sql,
-            reverse_sql=reverse_sql
-        ),
+        migrations.RunSQL(sql=sql, reverse_sql=reverse_sql),
     ]

@@ -4,23 +4,30 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('peoplemeasurement', '0012_cmsa_15min_view_v3_20200818_2321'),
+        ("peoplemeasurement", "0012_cmsa_15min_view_v3_20200818_2321"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Servicelevel',
+            name="Servicelevel",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('type_parameter', models.CharField(max_length=50)),
-                ('type_gebied', models.CharField(max_length=50)),
-                ('type_tijd', models.CharField(max_length=50)),
-                ('level_nr', models.IntegerField()),
-                ('level_label', models.CharField(max_length=50)),
-                ('lowerlimit', models.FloatField(blank=True, null=True)),
-                ('upperlimit', models.FloatField(blank=True, null=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("type_parameter", models.CharField(max_length=50)),
+                ("type_gebied", models.CharField(max_length=50)),
+                ("type_tijd", models.CharField(max_length=50)),
+                ("level_nr", models.IntegerField()),
+                ("level_label", models.CharField(max_length=50)),
+                ("lowerlimit", models.FloatField(blank=True, null=True)),
+                ("upperlimit", models.FloatField(blank=True, null=True)),
             ],
         ),
     ]

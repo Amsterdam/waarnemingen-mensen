@@ -4,55 +4,54 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('peoplemeasurement', '0020_createcachetable'),
+        ("peoplemeasurement", "0020_createcachetable"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='sensors',
-            name='actief',
+            model_name="sensors",
+            name="actief",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AlterField(
-            model_name='sensors',
-            name='gebied',
+            model_name="sensors",
+            name="gebied",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AlterField(
-            model_name='sensors',
-            name='gebiedstype',
+            model_name="sensors",
+            name="gebiedstype",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AlterField(
-            model_name='sensors',
-            name='location_name',
+            model_name="sensors",
+            name="location_name",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AlterField(
-            model_name='sensors',
-            name='privacyverklaring',
+            model_name="sensors",
+            name="privacyverklaring",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AlterField(
-            model_name='sensors',
-            name='rotatie',
+            model_name="sensors",
+            name="rotatie",
             field=models.IntegerField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='sensors',
-            name='soort',
+            model_name="sensors",
+            name="soort",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AlterField(
-            model_name='sensors',
-            name='voeding',
+            model_name="sensors",
+            name="voeding",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AlterField(
-            model_name='sensors',
-            name='width',
+            model_name="sensors",
+            name="width",
             field=models.FloatField(blank=True, null=True),
         ),
     ]

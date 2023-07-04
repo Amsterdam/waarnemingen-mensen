@@ -15,9 +15,13 @@ def get_sensor_for_data(data):
     try:
         sensor = Sensors.objects.get(objectnummer=data.get("sensor", ""))
     except Sensors.DoesNotExist:
-        raise SensorError(f"The sensor '{data['sensor']}' was not found, so the data is not stored.")
+        raise SensorError(
+            f"The sensor '{data['sensor']}' was not found, so the data is not stored."
+        )
     if sensor.drop_incoming_data:
-        raise SensorError(f"The sensor '{data['sensor']}' exists but drop_incoming_data is set to True.")
+        raise SensorError(
+            f"The sensor '{data['sensor']}' exists but drop_incoming_data is set to True."
+        )
     return sensor
 
 
@@ -29,17 +33,31 @@ def scramble_count_aggregate(count_aggregate):
     """
 
     # Since this is not meant to be cryptographically secure we simply use the random module
-    if count_aggregate.count_in is not None and count_aggregate.count_in_scrambled is None:
+    if (
+        count_aggregate.count_in is not None
+        and count_aggregate.count_in_scrambled is None
+    ):
         if count_aggregate.count_in == 0:
-            count_aggregate.count_in_scrambled = count_aggregate.count_in + randint(0, 1)
+            count_aggregate.count_in_scrambled = count_aggregate.count_in + randint(
+                0, 1
+            )
         else:
-            count_aggregate.count_in_scrambled = count_aggregate.count_in + randint(-1, 1)
+            count_aggregate.count_in_scrambled = count_aggregate.count_in + randint(
+                -1, 1
+            )
 
-    if count_aggregate.count_out is not None and count_aggregate.count_out_scrambled is None:
+    if (
+        count_aggregate.count_out is not None
+        and count_aggregate.count_out_scrambled is None
+    ):
         if count_aggregate.count_out == 0:
-            count_aggregate.count_out_scrambled = count_aggregate.count_out + randint(0, 1)
+            count_aggregate.count_out_scrambled = count_aggregate.count_out + randint(
+                0, 1
+            )
         else:
-            count_aggregate.count_out_scrambled = count_aggregate.count_out + randint(-1, 1)
+            count_aggregate.count_out_scrambled = count_aggregate.count_out + randint(
+                -1, 1
+            )
 
     if count_aggregate.count is not None and count_aggregate.count_scrambled is None:
         if count_aggregate.count == 0:

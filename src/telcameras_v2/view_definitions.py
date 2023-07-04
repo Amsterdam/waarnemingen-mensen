@@ -1,7 +1,7 @@
 VIEW_STRINGS = {
     # NOTE: the regex in these queries cause a DeprecationWarning: invalid escape sequence
     # For this reason we use a rawstring for these queries
-    'cmsa_15min_view_v4': r"""CREATE VIEW cmsa_15min_view_v4 AS
+    "cmsa_15min_view_v4": r"""CREATE VIEW cmsa_15min_view_v4 AS
     WITH rawdata AS (
         WITH v2_observatie_snelheid AS (
             WITH v2_observatie_persoon AS (
@@ -205,9 +205,7 @@ VIEW_STRINGS = {
         aq.timestamp_rounded
     ;
     """,
-
-
-    'cmsa_15min_view_v5': r"""CREATE VIEW cmsa_15min_view_v5 AS
+    "cmsa_15min_view_v5": r"""CREATE VIEW cmsa_15min_view_v5 AS
     WITH rawdata AS (
         WITH v2_feed_start_date as (select sensor, min(timestamp_start) as start_of_feed from telcameras_v2_observation group by sensor),
             v2_observatie_snelheid AS (
@@ -415,9 +413,7 @@ VIEW_STRINGS = {
         aq.timestamp_rounded
     ;
     """,
-
-
-    'cmsa_15min_view_v6': r"""CREATE VIEW cmsa_15min_view_v6 AS
+    "cmsa_15min_view_v6": r"""CREATE VIEW cmsa_15min_view_v6 AS
     WITH rawdata AS (
         WITH v2_feed_start_date AS (
             SELECT o.sensor,
@@ -627,9 +623,7 @@ VIEW_STRINGS = {
     ORDER BY aq.sensor, aq.timestamp_rounded
     ;
     """,
-
-
-    'cmsa_15min_view_v6_realtime': r"""CREATE VIEW cmsa_15min_view_v6_realtime AS
+    "cmsa_15min_view_v6_realtime": r"""CREATE VIEW cmsa_15min_view_v6_realtime AS
     WITH v2_feed_start_date AS (
         SELECT o.sensor,
         min(o.timestamp_start) AS start_of_feed
@@ -882,9 +876,7 @@ VIEW_STRINGS = {
     ORDER BY aq.sensor, aq.timestamp_rounded
     ;
     """,
-
-
-    'cmsa_15min_view_v7': r"""CREATE VIEW cmsa_15min_view_v7 AS
+    "cmsa_15min_view_v7": r"""CREATE VIEW cmsa_15min_view_v7 AS
     WITH v2_feed_start_date AS
             (SELECT o.sensor,
             min(o.timestamp_start) AS start_of_feed
@@ -1051,8 +1043,7 @@ VIEW_STRINGS = {
        FROM V1_en_V2_data_15min aq
          LEFT JOIN percentiles p ON aq.sensor::text = p.sensor::text AND date_part('dow'::text, aq.timestamp_rounded) = p.dayofweek::double precision AND aq.timestamp_rounded::time without time zone = p.castedtimestamp
       ORDER BY aq.sensor, aq.timestamp_rounded;""",
-
-    'cmsa_15min_view_v7_realtime_predict': r"""CREATE VIEW cmsa_15min_view_v7_realtime_predict AS
+    "cmsa_15min_view_v7_realtime_predict": r"""CREATE VIEW cmsa_15min_view_v7_realtime_predict AS
      WITH mat_view_updated AS (
              SELECT m.sensor,
                 max(m.timestamp_rounded) + '00:15:00'::interval AS last_updated
@@ -1272,8 +1263,7 @@ VIEW_STRINGS = {
          LEFT JOIN voorspel_berekening vb ON vb.sensor::text = s.sensor::text AND s.timestamp_rounded = vb.timestamp_rounded_toep
       ORDER BY s.sensor, s.timestamp_rounded;
     """,
-
-    'cmsa_15min_view_v8': r"""
+    "cmsa_15min_view_v8": r"""
       CREATE VIEW cmsa_15min_view_v8 AS
         with period_of_time as (
 		    select 
@@ -1748,8 +1738,7 @@ VIEW_STRINGS = {
         , aq.timestamp_rounded
         ;
     """,
-
-    'cmsa_15min_view_v8_realtime_predict': r"""
+    "cmsa_15min_view_v8_realtime_predict": r"""
       CREATE VIEW cmsa_15min_view_v8_realtime_predict AS
         with mat_view_updated as (
             select
@@ -2271,8 +2260,7 @@ VIEW_STRINGS = {
         , s.timestamp_rounded
         ;
     """,
-
-    'cmsa_15min_view_v8_realtime_predict_30d': r"""
+    "cmsa_15min_view_v8_realtime_predict_30d": r"""
       CREATE VIEW cmsa_15min_view_v8_realtime_predict_30d AS
         with mat_view_updated as (
             select
@@ -2793,10 +2781,8 @@ VIEW_STRINGS = {
         s.sensor
         , s.timestamp_rounded
         ;
-    """,    
-
-
-    'cmsa_15min_view_v9': r"""
+    """,
+    "cmsa_15min_view_v9": r"""
       CREATE VIEW cmsa_15min_view_v9 AS
 
         with v2_feed_start_date as (
@@ -3282,8 +3268,7 @@ VIEW_STRINGS = {
         , aq.timestamp_rounded
         ;
     """,
-
-    'cmsa_15min_view_v9_realtime_predict': r"""
+    "cmsa_15min_view_v9_realtime_predict": r"""
       CREATE VIEW cmsa_15min_view_v9_realtime_predict AS
 
         with mat_view_updated as (
@@ -3827,8 +3812,7 @@ VIEW_STRINGS = {
         , s.timestamp_rounded
         ;
     """,
-
-    'cmsa_15min_view_v9_realtime_predict_30d': r"""
+    "cmsa_15min_view_v9_realtime_predict_30d": r"""
       CREATE VIEW cmsa_15min_view_v9_realtime_predict_30d AS
 
         with mat_view_updated as (
@@ -4372,9 +4356,7 @@ VIEW_STRINGS = {
         , s.timestamp_rounded
         ;
     """,
-
-
-    'peoplemeasurement_v1_data': r"""
+    "peoplemeasurement_v1_data": r"""
 
       create table public.peoplemeasurement_v1_data as
         with v2_feed_start_date as (
@@ -4437,8 +4419,7 @@ VIEW_STRINGS = {
         , ds.timestamp_rounded
       ;
     """,
-
-    'cmsa_15min_view_v10': r"""
+    "cmsa_15min_view_v10": r"""
       CREATE VIEW cmsa_15min_view_v10 AS
         WITH period_of_time AS (
             select
@@ -4805,8 +4786,7 @@ VIEW_STRINGS = {
         , aq.timestamp_rounded
         ;
     """,
-
-    'cmsa_15min_view_v10_realtime': r"""
+    "cmsa_15min_view_v10_realtime": r"""
       CREATE VIEW cmsa_15min_view_v10_realtime AS
 
         with period_of_time as (
@@ -5193,8 +5173,7 @@ VIEW_STRINGS = {
         , s.timestamp_rounded
         ;
     """,
-
-    'cmsa_15min_view_v10_predict': r"""
+    "cmsa_15min_view_v10_predict": r"""
       CREATE VIEW cmsa_15min_view_v10_predict AS
         
         /*
@@ -5388,8 +5367,7 @@ VIEW_STRINGS = {
         , timestamp_rounded
         ;
     """,
-
-    'cmsa_15min_view_v10_realtime_predict': r"""
+    "cmsa_15min_view_v10_realtime_predict": r"""
       CREATE VIEW cmsa_15min_view_v10_realtime_predict AS
 
         select
@@ -5428,7 +5406,6 @@ VIEW_STRINGS = {
                                                                         and pdt.timestamp_rounded >= (now() - '00:18:00'::interval)
       ;
     """,
-
 }
 
 
@@ -5453,7 +5430,9 @@ def get_view_strings(view_strings, view_name, indexes=None):
         SELECT * FROM {view_name};
         """
 
-    reverse_sql_materialized = f"DROP MATERIALIZED VIEW IF EXISTS {view_name}_materialized;"
+    reverse_sql_materialized = (
+        f"DROP MATERIALIZED VIEW IF EXISTS {view_name}_materialized;"
+    )
 
     index_definitions = []
     if indexes:
@@ -5469,9 +5448,9 @@ def get_view_strings(view_strings, view_name, indexes=None):
             index_definitions.append(index_definition)
 
     return {
-        'sql': view_strings[view_name],
-        'reverse_sql': reverse_sql,
-        'sql_materialized': sql_materialized,
-        'reverse_sql_materialized': reverse_sql_materialized,
-        'indexes': index_definitions
+        "sql": view_strings[view_name],
+        "reverse_sql": reverse_sql,
+        "sql_materialized": sql_materialized,
+        "reverse_sql_materialized": reverse_sql_materialized,
+        "indexes": index_definitions,
     }

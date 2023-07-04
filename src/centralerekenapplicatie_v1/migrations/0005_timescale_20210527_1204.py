@@ -5,27 +5,28 @@ import contrib.timescale.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('centralerekenapplicatie_v1', '0004_auto_20210526_1621'),
+        ("centralerekenapplicatie_v1", "0004_auto_20210526_1621"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='CountMetric',
-            name='timestamp',
-            field=contrib.timescale.fields.TimescaleDateTimeField(default=django.utils.timezone.now, interval='1 day'),
+            model_name="CountMetric",
+            name="timestamp",
+            field=contrib.timescale.fields.TimescaleDateTimeField(
+                default=django.utils.timezone.now, interval="1 day"
+            ),
         ),
     ]
 
-    table = 'centralerekenapplicatie_v1_countmetric'
-    timescale_field = 'timestamp'
+    table = "centralerekenapplicatie_v1_countmetric"
+    timescale_field = "timestamp"
 
     # Create new table
     operations.append(
         migrations.RunSQL(
             sql=f"CREATE TABLE {table}_hypertable (LIKE {table} INCLUDING DEFAULTS INCLUDING CONSTRAINTS INCLUDING INDEXES);",
-            reverse_sql=f"DROP TABLE {table}_hypertable;"
+            reverse_sql=f"DROP TABLE {table}_hypertable;",
         )
     )
 
@@ -42,27 +43,18 @@ class Migration(migrations.Migration):
     # Rename old table to something else
     # These old table will be removed later
     operations.append(
-        migrations.RunSQL(
-            sql=f"ALTER TABLE {table} RENAME TO {table}_old;"
-        )
+        migrations.RunSQL(sql=f"ALTER TABLE {table} RENAME TO {table}_old;")
     )
 
     # Rename hypertable to correct name
     operations.append(
-        migrations.RunSQL(
-            sql=f"ALTER TABLE {table}_hypertable RENAME TO {table};"
-        )
+        migrations.RunSQL(sql=f"ALTER TABLE {table}_hypertable RENAME TO {table};")
     )
 
     # Make sequence only dependent on the new table. This to make it possible to remove the old tables.
     operations.append(
-        migrations.RunSQL(
-            sql=f"ALTER SEQUENCE {table}_id_seq OWNED BY {table}.id;")
+        migrations.RunSQL(sql=f"ALTER SEQUENCE {table}_id_seq OWNED BY {table}.id;")
     )
 
     # Remove the old table
-    operations.append(
-        migrations.RunSQL(
-            sql=f"DROP TABLE {table}_old;"
-        )
-    )
+    operations.append(migrations.RunSQL(sql=f"DROP TABLE {table}_old;"))

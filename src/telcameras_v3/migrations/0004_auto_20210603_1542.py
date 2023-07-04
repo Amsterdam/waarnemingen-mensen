@@ -4,30 +4,29 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('telcameras_v3', '0003_groupaggregate_count_scrambled'),
+        ("telcameras_v3", "0003_groupaggregate_count_scrambled"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='groupaggregate',
-            name='cumulative_distance',
+            model_name="groupaggregate",
+            name="cumulative_distance",
             field=models.FloatField(null=True),
         ),
         migrations.AlterField(
-            model_name='groupaggregate',
-            name='cumulative_time',
+            model_name="groupaggregate",
+            name="cumulative_time",
             field=models.FloatField(null=True),
         ),
         migrations.AlterField(
-            model_name='groupaggregate',
-            name='median_speed',
+            model_name="groupaggregate",
+            name="median_speed",
             field=models.FloatField(null=True),
         ),
         migrations.AlterField(
-            model_name='observation',
-            name='density',
+            model_name="observation",
+            name="density",
             field=models.FloatField(null=True),
         ),
     ]

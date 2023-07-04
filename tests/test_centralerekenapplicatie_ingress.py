@@ -7,14 +7,18 @@ from django.conf import settings
 from ingress.models import Collection, FailedMessage, Message
 
 from centralerekenapplicatie_v1.ingress_parser import MetricParser
-from centralerekenapplicatie_v1.models import (AreaMetric, CountMetric,
-                                               LineMetric, LineMetricCount)
+from centralerekenapplicatie_v1.models import (
+    AreaMetric,
+    CountMetric,
+    LineMetric,
+    LineMetricCount,
+)
 from peoplemeasurement.models import Sensors
 
 log = logging.getLogger(__name__)
 timezone = pytz.timezone("UTC")
 
-AUTHORIZATION_HEADER = {'HTTP_AUTHORIZATION': f"Token {settings.AUTHORIZATION_TOKEN}"}
+AUTHORIZATION_HEADER = {"HTTP_AUTHORIZATION": f"Token {settings.AUTHORIZATION_TOKEN}"}
 
 
 TEST_POST_AREA = """
@@ -76,27 +80,49 @@ TEST_POST_COUNT = """
 
 @pytest.mark.django_db
 class TestDataIngressPoster:
-
     @pytest.fixture(autouse=True)
     def setup(self):
-        self.collection_name = 'centralerekenapplicatie'
-        self.URL = f'/ingress/{self.collection_name}/'
+        self.collection_name = "centralerekenapplicatie"
+        self.URL = f"/ingress/{self.collection_name}/"
 
         # Create a collection
-        self.collection_obj = Collection.objects.create(name=self.collection_name, consumer_enabled=True)
+        self.collection_obj = Collection.objects.create(
+            name=self.collection_name, consumer_enabled=True
+        )
 
         # Create the sensors in the database
-        self.sensor_area = Sensors.objects.create(objectnummer=json.loads(TEST_POST_AREA)['source']['sensor'], gid=1)
-        self.sensor_line = Sensors.objects.create(objectnummer=json.loads(TEST_POST_LINE)['source']['sensor'], gid=2)
-        self.sensor_count = Sensors.objects.create(objectnummer=json.loads(TEST_POST_COUNT)['source']['sensor'], gid=3)
+        self.sensor_area = Sensors.objects.create(
+            objectnummer=json.loads(TEST_POST_AREA)["source"]["sensor"], gid=1
+        )
+        self.sensor_line = Sensors.objects.create(
+            objectnummer=json.loads(TEST_POST_LINE)["source"]["sensor"], gid=2
+        )
+        self.sensor_count = Sensors.objects.create(
+            objectnummer=json.loads(TEST_POST_COUNT)["source"]["sensor"], gid=3
+        )
 
     def test_parse_ingress(self, client):
         # First add a couple ingress records
         Message.objects.all().delete()
         for _ in range(3):
-            client.post(self.URL, TEST_POST_AREA, **AUTHORIZATION_HEADER, content_type='application/json')
-            client.post(self.URL, TEST_POST_LINE, **AUTHORIZATION_HEADER, content_type='application/json')
-            client.post(self.URL, TEST_POST_COUNT, **AUTHORIZATION_HEADER, content_type='application/json')
+            client.post(
+                self.URL,
+                TEST_POST_AREA,
+                **AUTHORIZATION_HEADER,
+                content_type="application/json",
+            )
+            client.post(
+                self.URL,
+                TEST_POST_LINE,
+                **AUTHORIZATION_HEADER,
+                content_type="application/json",
+            )
+            client.post(
+                self.URL,
+                TEST_POST_COUNT,
+                **AUTHORIZATION_HEADER,
+                content_type="application/json",
+            )
         assert Message.objects.count() == 9
 
         # Then run the parse_ingress script
@@ -120,11 +146,16 @@ class TestDataIngressPoster:
         # First add a couple ingress records
         Message.objects.all().delete()
         area_dict = json.loads(TEST_POST_AREA)
-        area_dict['count'] = None
-        del area_dict['area']
+        area_dict["count"] = None
+        del area_dict["area"]
 
         for _ in range(3):
-            client.post(self.URL, json.dumps(area_dict), **AUTHORIZATION_HEADER, content_type='application/json')
+            client.post(
+                self.URL,
+                json.dumps(area_dict),
+                **AUTHORIZATION_HEADER,
+                content_type="application/json",
+            )
         assert Message.objects.count() == 3
 
         # Then run the parse_ingress script
@@ -147,7 +178,12 @@ class TestDataIngressPoster:
     def test_parse_ingress_fail_with_wrong_input(self, client):
         # First add an ingress record which is not correct json
         Message.objects.all().delete()
-        client.post(self.URL, "NOT JSON", **AUTHORIZATION_HEADER, content_type='application/json')
+        client.post(
+            self.URL,
+            "NOT JSON",
+            **AUTHORIZATION_HEADER,
+            content_type="application/json",
+        )
         assert Message.objects.count() == 1
 
         # Then run the parse_ingress script
@@ -168,13 +204,28 @@ class TestDataIngressPoster:
         post_data_area = json.loads(TEST_POST_AREA)
         post_data_line = json.loads(TEST_POST_LINE)
         post_data_count = json.loads(TEST_POST_COUNT)
-        post_data_area['source']['sensor'] = 'does not exist'
-        post_data_line['source']['sensor'] = 'does not exist'
-        post_data_count['source']['sensor'] = 'does not exist'
+        post_data_area["source"]["sensor"] = "does not exist"
+        post_data_line["source"]["sensor"] = "does not exist"
+        post_data_count["source"]["sensor"] = "does not exist"
         for _ in range(3):
-            client.post(self.URL, json.dumps(post_data_area), **AUTHORIZATION_HEADER, content_type='application/json')
-            client.post(self.URL, json.dumps(post_data_line), **AUTHORIZATION_HEADER, content_type='application/json')
-            client.post(self.URL, json.dumps(post_data_count), **AUTHORIZATION_HEADER, content_type='application/json')
+            client.post(
+                self.URL,
+                json.dumps(post_data_area),
+                **AUTHORIZATION_HEADER,
+                content_type="application/json",
+            )
+            client.post(
+                self.URL,
+                json.dumps(post_data_line),
+                **AUTHORIZATION_HEADER,
+                content_type="application/json",
+            )
+            client.post(
+                self.URL,
+                json.dumps(post_data_count),
+                **AUTHORIZATION_HEADER,
+                content_type="application/json",
+            )
         assert Message.objects.count() == 9
 
         # Then run the parser

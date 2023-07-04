@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('telcameras_v2', '0009_cmsa_15min_view_v5_20200909_1125'),
+        ("telcameras_v2", "0009_cmsa_15min_view_v5_20200909_1125"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='observation',
-            name='timestamp_start',
+            model_name="observation",
+            name="timestamp_start",
             field=models.DateTimeField(db_index=True),
         ),
         migrations.AlterField(
-            model_name='personaggregate',
-            name='observation_timestamp',
+            model_name="personaggregate",
+            name="observation_timestamp",
             field=models.DateTimeField(db_index=True),
         ),
     ]

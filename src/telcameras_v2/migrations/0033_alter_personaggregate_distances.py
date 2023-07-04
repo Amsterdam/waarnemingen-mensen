@@ -5,15 +5,14 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('telcameras_v2', '0032_deploy_v10_views_20210701_1411'),
+        ("telcameras_v2", "0032_deploy_v10_views_20210701_1411"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='personaggregate',
-            name='distances',
+            model_name="personaggregate",
+            name="distances",
             field=django.contrib.postgres.fields.jsonb.JSONField(null=True),
         ),
     ]

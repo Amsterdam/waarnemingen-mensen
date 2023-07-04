@@ -9,9 +9,12 @@ from rest_framework.response import Response
 from contrib.rest_framework.authentication import SimpleGetTokenAuthentication
 from peoplemeasurement import serializers
 from peoplemeasurement.models import Area, Line, Sensors, Servicelevel
-from peoplemeasurement.serializers import (AreaSerializer, LineSerializer,
-                                           SensorSerializer,
-                                           ServicelevelSerializer)
+from peoplemeasurement.serializers import (
+    AreaSerializer,
+    LineSerializer,
+    SensorSerializer,
+    ServicelevelSerializer,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -24,14 +27,12 @@ class Today15minAggregationViewSet(mixins.ListModelMixin, viewsets.GenericViewSe
     def dictfetchall(self, cursor):
         """Return all rows from a cursor as a dict"""
         columns = [col[0] for col in cursor.description]
-        return [
-            dict(zip(columns, row))
-            for row in cursor.fetchall()
-        ]
+        return [dict(zip(columns, row)) for row in cursor.fetchall()]
 
     def list(self, request, *args, **kwargs):
         with connection.cursor() as cursor:
-            cursor.execute("""
+            cursor.execute(
+                """
                 SELECT sensor,
                     timestamp_rounded,
                     total_count,
@@ -59,7 +60,8 @@ class Today15minAggregationViewSet(mixins.ListModelMixin, viewsets.GenericViewSe
                     density_avg_p80
                 FROM continuousaggregate_cmsa15min
                 WHERE timestamp_rounded > (NOW() - '1 day'::INTERVAL);
-                """)
+                """
+            )
             queryset = self.dictfetchall(cursor)
         serializer = serializers.Today15minAggregationSerializer(queryset, many=True)
         return Response(serializer.data)

@@ -5,25 +5,37 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('peoplemeasurement', '0008_cmsa_15min_view_v2_adjusted_20200525_2120'),
+        ("peoplemeasurement", "0008_cmsa_15min_view_v2_adjusted_20200525_2120"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Sensors',
+            name="Sensors",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('geom', django.contrib.gis.db.models.fields.PointField(null=True, srid=4326)),
-                ('objectnummer', models.CharField(max_length=255, null=True)),
-                ('soort', models.CharField(max_length=255, null=True)),
-                ('voeding', models.CharField(max_length=255, null=True)),
-                ('rotatie', models.IntegerField(null=True)),
-                ('actief', models.CharField(max_length=255, null=True)),
-                ('privacyverklaring', models.CharField(max_length=255, null=True)),
-                ('location_name', models.CharField(max_length=255, null=True)),
-                ('width', models.FloatField(null=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "geom",
+                    django.contrib.gis.db.models.fields.PointField(
+                        null=True, srid=4326
+                    ),
+                ),
+                ("objectnummer", models.CharField(max_length=255, null=True)),
+                ("soort", models.CharField(max_length=255, null=True)),
+                ("voeding", models.CharField(max_length=255, null=True)),
+                ("rotatie", models.IntegerField(null=True)),
+                ("actief", models.CharField(max_length=255, null=True)),
+                ("privacyverklaring", models.CharField(max_length=255, null=True)),
+                ("location_name", models.CharField(max_length=255, null=True)),
+                ("width", models.FloatField(null=True)),
             ],
         ),
     ]

@@ -85,19 +85,27 @@ class TestTools:
         count_aggregate_recipe.make(_quantity=100)
 
         # Do the scrambling
-        call_man_command('scramble_v2_counts')
+        call_man_command("scramble_v2_counts")
 
         differ_count_in = 0
         differ_count_out = 0
         differ_count = 0
         for ca in CountAggregate.objects.all():
             assert ca.count_in_scrambled is not None
-            assert ca.count_in_scrambled in (ca.count_in - 1, ca.count_in, ca.count_in + 1)
+            assert ca.count_in_scrambled in (
+                ca.count_in - 1,
+                ca.count_in,
+                ca.count_in + 1,
+            )
             if ca.count_in_scrambled != ca.count_in:
                 differ_count_in += 1
 
             assert ca.count_out_scrambled is not None
-            assert ca.count_out_scrambled in (ca.count_out - 1, ca.count_out, ca.count_out + 1)
+            assert ca.count_out_scrambled in (
+                ca.count_out - 1,
+                ca.count_out,
+                ca.count_out + 1,
+            )
             if ca.count_out_scrambled != ca.count_out:
                 differ_count_out += 1
 
@@ -108,13 +116,19 @@ class TestTools:
 
         # check all records have their scrambled counts set
         assert not CountAggregate.objects.filter(
-            Q(count_in_scrambled=None) | Q(count_out_scrambled=None) | Q(count_scrambled=None)).exists()
+            Q(count_in_scrambled=None)
+            | Q(count_out_scrambled=None)
+            | Q(count_scrambled=None)
+        ).exists()
 
         # check that all scrambled counts are within valid range
         assert not CountAggregate.objects.filter(
-            Q(count_in_scrambled__gt=F('count_in') + 1) | Q(count_in_scrambled__lt=F('count_in') - 1),
-            Q(count_out_scrambled__gt=F('count_out') + 1) | Q(count_out_scrambled__lt=F('count_out') - 1),
-            Q(count_scrambled__gt=F('count') + 1) | Q(count_scrambled__lt=F('count') - 1),
+            Q(count_in_scrambled__gt=F("count_in") + 1)
+            | Q(count_in_scrambled__lt=F("count_in") - 1),
+            Q(count_out_scrambled__gt=F("count_out") + 1)
+            | Q(count_out_scrambled__lt=F("count_out") - 1),
+            Q(count_scrambled__gt=F("count") + 1)
+            | Q(count_scrambled__lt=F("count") - 1),
         )
 
         # Make sure that a significant amount of counts_scrambled were actually changed from the original

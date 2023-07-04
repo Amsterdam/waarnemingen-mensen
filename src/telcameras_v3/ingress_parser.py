@@ -56,7 +56,9 @@ class TelcameraParser(BaseConsumer):
                     persons=[
                         dict(
                             observation_timestamp=raw_json["timestamp"],
-                            person_observation_timestamp=person["observation_timestamp"],
+                            person_observation_timestamp=person[
+                                "observation_timestamp"
+                            ],
                             record=person["record"],
                             distance=person["distance"],
                             time=person["time"],

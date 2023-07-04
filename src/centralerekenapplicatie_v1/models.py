@@ -7,7 +7,9 @@ class CRAMetric(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     message_id = models.TextField()  # Coming from "id" in the message.
     sensor = models.CharField(max_length=255)  # e.g. "CMSA-GAWW-17"
-    timestamp = TimescaleDateTimeField(interval="1 day")  # Timestamp of when the data was recorded in the camera
+    timestamp = TimescaleDateTimeField(
+        interval="1 day"
+    )  # Timestamp of when the data was recorded in the camera
     original_id = models.CharField(max_length=255)
     admin_id = models.IntegerField()
 

@@ -2,6 +2,7 @@ import json
 import logging
 
 from ingress.consumer.base import BaseConsumer
+
 from telcameras_v2.serializers import ObservationSerializer
 
 logger = logging.getLogger(__name__)

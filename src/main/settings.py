@@ -19,25 +19,27 @@ from sentry_sdk.integrations.django import DjangoIntegration
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
-DEBUG = os.getenv('DEBUG', 'false').lower() == 'true'
+SECRET_KEY = os.getenv("SECRET_KEY")
+DEBUG = os.getenv("DEBUG", "false").lower() == "true"
 
 # The token that is allowed to post data to protected endpoints
-AUTHORIZATION_TOKEN = os.environ['AUTHORIZATION_TOKEN']
-GET_AUTHORIZATION_TOKEN = os.environ['GET_AUTHORIZATION_TOKEN']
+AUTHORIZATION_TOKEN = os.environ["AUTHORIZATION_TOKEN"]
+GET_AUTHORIZATION_TOKEN = os.environ["GET_AUTHORIZATION_TOKEN"]
 
-ALLOWED_HOSTS = ['*']
-X_FRAME_OPTIONS = 'ALLOW-FROM *'
-INTERNAL_IPS = ('127.0.0.1', '0.0.0.0')
-DATA_UPLOAD_MAX_MEMORY_SIZE = 1024*1024*20  # max upload size; 20MB (instead of the default 2.5MB)
+ALLOWED_HOSTS = ["*"]
+X_FRAME_OPTIONS = "ALLOW-FROM *"
+INTERNAL_IPS = ("127.0.0.1", "0.0.0.0")
+DATA_UPLOAD_MAX_MEMORY_SIZE = (
+    1024 * 1024 * 20
+)  # max upload size; 20MB (instead of the default 2.5MB)
 
 # Application definition
-HEALTH_MODEL = 'peoplemeasurement.PeopleMeasurement'
+HEALTH_MODEL = "peoplemeasurement.PeopleMeasurement"
 
 MIDDLEWARE = [
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -46,42 +48,42 @@ MIDDLEWARE = [
 
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.messages',
-    'django.contrib.sessions',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.messages",
+    "django.contrib.sessions",
     "django.contrib.contenttypes",
     "django.contrib.staticfiles",
     "django_filters",
     "django_extensions",
     "django.contrib.gis",
-    'import_export',
+    "import_export",
     "datapunt_api",
     "rest_framework",
     "rest_framework_gis",
     "contrib.timescale",
-    'leaflet',
-    'health',
-    'datetimeutc',
-    'peoplemeasurement',
-    'ingress',
-    'telcameras_v2',
-    'telcameras_v3',
-    'centralerekenapplicatie_v1',
-    'continuousaggregate'
+    "leaflet",
+    "health",
+    "datetimeutc",
+    "peoplemeasurement",
+    "ingress",
+    "telcameras_v2",
+    "telcameras_v3",
+    "centralerekenapplicatie_v1",
+    "continuousaggregate",
 ]
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [os.path.join(BASE_DIR, "templates")],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
@@ -91,7 +93,7 @@ TEMPLATES = [
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
 ROOT_URLCONF = "main.urls"
-BASE_URL = os.getenv('BASE_URL', '')
+BASE_URL = os.getenv("BASE_URL", "")
 FORCE_SCRIPT_NAME = BASE_URL
 
 WSGI_APPLICATION = "main.wsgi.application"
@@ -108,12 +110,12 @@ DATABASES = {
     },
 }
 
-DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
-TIME_ZONE = 'Europe/Amsterdam'
+TIME_ZONE = "Europe/Amsterdam"
 USE_TZ = True
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = "en-us"
 USE_I18N = True
 USE_L10N = True
 
@@ -124,48 +126,48 @@ TESTING = len(sys.argv) > 1 and sys.argv[1] == "test"
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
-STATIC_URL = BASE_URL + '/static/'
-STATIC_ROOT = '/static/'
+STATIC_URL = BASE_URL + "/static/"
+STATIC_ROOT = "/static/"
 
 INGRESS_CONSUMER_CLASSES = [
-    'centralerekenapplicatie_v1.ingress_parser.MetricParser',
-    'telcameras_v2.ingress_parser.TelcameraParser',
-    'telcameras_v3.ingress_parser.TelcameraParser'
+    "centralerekenapplicatie_v1.ingress_parser.MetricParser",
+    "telcameras_v2.ingress_parser.TelcameraParser",
+    "telcameras_v3.ingress_parser.TelcameraParser",
 ]
 
-INGRESS_AUTHENTICATION_CLASSES = ['auth.TokenAuthentication']
-INGRESS_PERMISSION_CLASSES = ['rest_framework.permissions.IsAuthenticated']
+INGRESS_AUTHENTICATION_CLASSES = ["auth.TokenAuthentication"]
+INGRESS_PERMISSION_CLASSES = ["rest_framework.permissions.IsAuthenticated"]
 
 IMPORT_EXPORT_USE_TRANSACTIONS = True
 
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'django_cache',
+    "default": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "django_cache",
     }
 }
 
 if DEBUG:
-    INSTALLED_APPS += ('debug_toolbar',)
+    INSTALLED_APPS += ("debug_toolbar",)
     MIDDLEWARE += (
         # 'corsheaders.middleware.CorsMiddleware',
-        'debug_toolbar.middleware.DebugToolbarMiddleware',
+        "debug_toolbar.middleware.DebugToolbarMiddleware",
     )
     CORS_ORIGIN_ALLOW_ALL = True
     DEBUG_TOOLBAR_PANELS = [
-        'debug_toolbar.panels.versions.VersionsPanel',
-        'debug_toolbar.panels.timer.TimerPanel',
-        'debug_toolbar.panels.settings.SettingsPanel',
-        'debug_toolbar.panels.headers.HeadersPanel',
-        'debug_toolbar.panels.request.RequestPanel',
-        'debug_toolbar.panels.sql.SQLPanel',
-        'debug_toolbar.panels.staticfiles.StaticFilesPanel',
-        'debug_toolbar.panels.templates.TemplatesPanel',
-        'debug_toolbar.panels.cache.CachePanel',
-        'debug_toolbar.panels.signals.SignalsPanel',
-        'debug_toolbar.panels.logging.LoggingPanel',
-        'debug_toolbar.panels.redirects.RedirectsPanel',
-        'debug_toolbar.panels.profiling.ProfilingPanel',
+        "debug_toolbar.panels.versions.VersionsPanel",
+        "debug_toolbar.panels.timer.TimerPanel",
+        "debug_toolbar.panels.settings.SettingsPanel",
+        "debug_toolbar.panels.headers.HeadersPanel",
+        "debug_toolbar.panels.request.RequestPanel",
+        "debug_toolbar.panels.sql.SQLPanel",
+        "debug_toolbar.panels.staticfiles.StaticFilesPanel",
+        "debug_toolbar.panels.templates.TemplatesPanel",
+        "debug_toolbar.panels.cache.CachePanel",
+        "debug_toolbar.panels.signals.SignalsPanel",
+        "debug_toolbar.panels.logging.LoggingPanel",
+        "debug_toolbar.panels.redirects.RedirectsPanel",
+        "debug_toolbar.panels.profiling.ProfilingPanel",
     ]
 
 
@@ -175,7 +177,7 @@ REST_FRAMEWORK = dict(
     UNAUTHENTICATED_USER={},
     UNAUTHENTICATED_TOKEN={},
     DEFAULT_AUTHENTICATION_CLASSES=(
-        'contrib.rest_framework.authentication.SimpleTokenAuthentication',
+        "contrib.rest_framework.authentication.SimpleTokenAuthentication",
     ),
     DEFAULT_PAGINATION_CLASS="datapunt_api.pagination.HALPagination",
     DEFAULT_RENDERER_CLASSES=(
@@ -189,7 +191,7 @@ REST_FRAMEWORK = dict(
         # 'rest_framework.filters.OrderingFilter',
         "django_filters.rest_framework.DjangoFilterBackend",
     ),
-    DEFAULT_VERSIONING_CLASS='rest_framework.versioning.NamespaceVersioning',
+    DEFAULT_VERSIONING_CLASS="rest_framework.versioning.NamespaceVersioning",
     COERCE_DECIMAL_TO_STRING=True,
 )
 
@@ -197,82 +199,58 @@ LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
-        "console": {
-            "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        }
+        "console": {"format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"}
     },
     "handlers": {
         "console": {
             "level": "INFO",
             "class": "logging.StreamHandler",
-            "formatter": "console"
+            "formatter": "console",
         }
     },
     "root": {"level": "DEBUG", "handlers": ["console"]},
     "loggers": {
-        "django.db": {
-            "handlers": ["console"],
-            "level": "ERROR"
-        },
-        "django": {
-            "handlers": ["console"],
-            "level": "ERROR"
-        },
+        "django.db": {"handlers": ["console"], "level": "ERROR"},
+        "django": {"handlers": ["console"], "level": "ERROR"},
         # Debug all batch jobs
-        "doc": {
-            "handlers": ["console"],
-            "level": "INFO",
-            "propagate": False
-        },
-        "index": {
-            "handlers": ["console"],
-            "level": "DEBUG",
-            "propagate": False
-        },
-        "search": {
-            "handlers": ["console"],
-            "level": "ERROR",
-            "propagate": False
-        },
+        "doc": {"handlers": ["console"], "level": "INFO", "propagate": False},
+        "index": {"handlers": ["console"], "level": "DEBUG", "propagate": False},
+        "search": {"handlers": ["console"], "level": "ERROR", "propagate": False},
         "elasticsearch": {
             "handlers": ["console"],
             "level": "ERROR",
-            "propagate": False
+            "propagate": False,
         },
-        "urllib3": {
-            "handlers": ["console"],
-            "level": "ERROR",
-            "propagate": False
-        },
+        "urllib3": {"handlers": ["console"], "level": "ERROR", "propagate": False},
         "factory.containers": {
             "handlers": ["console"],
             "level": "INFO",
-            "propagate": False
+            "propagate": False,
         },
         "factory.generate": {
             "handlers": ["console"],
             "level": "INFO",
-            "propagate": False
+            "propagate": False,
         },
         "requests.packages.urllib3.connectionpool": {
             "handlers": ["console"],
             "level": "ERROR",
-            "propagate": False
+            "propagate": False,
         },
         # Log all unhandled exceptions
         "django.request": {
             "handlers": ["console"],
             "level": "ERROR",
-            "propagate": False
+            "propagate": False,
         },
     },
 }
 
-SENTRY_DSN = os.getenv('SENTRY_DSN')
+SENTRY_DSN = os.getenv("SENTRY_DSN")
 if SENTRY_DSN:
     sentry_sdk.init(
         dsn=SENTRY_DSN,
         integrations=[DjangoIntegration()],
-        ignore_errors=['ExpiredSignatureError'],
-        request_bodies='always'
+        ignore_errors=["ExpiredSignatureError"],
+        request_bodies="always",
     )

@@ -1,8 +1,7 @@
 from typing import NamedTuple
 
 from django.conf import settings
-from rest_framework.authentication import (TokenAuthentication,
-                                           get_authorization_header)
+from rest_framework.authentication import TokenAuthentication, get_authorization_header
 from rest_framework.exceptions import AuthenticationFailed
 
 

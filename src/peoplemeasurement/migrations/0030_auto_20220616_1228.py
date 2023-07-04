@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('peoplemeasurement', '0029_auto_20211102_1426'),
+        ("peoplemeasurement", "0029_auto_20211102_1426"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='area',
-            name='name',
+            model_name="area",
+            name="name",
             field=models.CharField(max_length=255, unique=True),
         ),
         migrations.AlterField(
-            model_name='line',
-            name='name',
+            model_name="line",
+            name="name",
             field=models.CharField(max_length=255, unique=True),
         ),
     ]

@@ -4,20 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('telcameras_v2', '0024_redeploy_cmsa_15min_view_v8_20210216_1433'),
+        ("telcameras_v2", "0024_redeploy_cmsa_15min_view_v8_20210216_1433"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='countaggregate',
-            name='count_in_scrambled',
+            model_name="countaggregate",
+            name="count_in_scrambled",
             field=models.SmallIntegerField(null=True),
         ),
         migrations.AddField(
-            model_name='countaggregate',
-            name='count_out_scrambled',
+            model_name="countaggregate",
+            name="count_out_scrambled",
             field=models.SmallIntegerField(null=True),
         ),
     ]
