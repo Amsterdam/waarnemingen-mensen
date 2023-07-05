@@ -90,7 +90,7 @@ class TestDataIngressPoster:
         call_man_command("complete_aggregate_cmsa15min")
 
         # Remove the aggregate
-        call_man_command("remove_aggregate_cmsa15min")
+        call_man_command("remove_aggregate_cmsa15min", "--delete_all")
 
         assert Cmsa15Min.objects.all().count() == 0
 
